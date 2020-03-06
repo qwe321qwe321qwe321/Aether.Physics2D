@@ -29,7 +29,7 @@ namespace tainicom.Aether.Physics2D.Fluids
             if (!Active)
                 return;
 
-            Vector2 dir = P1.Position - P0.Position;
+            XNAVector2 dir = P1.Position - P0.Position;
             float distance = dir.Length();
             dir.Normalize();
 

@@ -134,7 +134,7 @@ namespace tainicom.Aether.Physics2D.Collision
             _tree.RemoveProxy(proxyId);
         }
 
-        public void MoveProxy(int proxyId, ref AABB aabb, Vector2 displacement)
+        public void MoveProxy(int proxyId, ref AABB aabb, XNAVector2 displacement)
         {
             bool buffer = _tree.MoveProxy(proxyId, ref aabb, displacement);
             if (buffer)
@@ -320,7 +320,7 @@ namespace tainicom.Aether.Physics2D.Collision
             _tree.RayCast(callback, ref input);
         }
 
-        public void ShiftOrigin(Vector2 newOrigin)
+        public void ShiftOrigin(XNAVector2 newOrigin)
         {
             _tree.ShiftOrigin(newOrigin);
         }

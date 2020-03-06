@@ -75,12 +75,12 @@ namespace tainicom.Aether.Physics2D.Common.PolygonManipulation
 
             // Translate polygons into upper right quadrant
             // as the algorithm depends on it
-            Vector2 lbSubject = subject.GetAABB().LowerBound;
-            Vector2 lbClip = clip.GetAABB().LowerBound;
-            Vector2 translate;
-            Vector2.Min(ref lbSubject, ref lbClip, out translate);
-            translate = Vector2.One - translate;
-            if (translate != Vector2.Zero)
+            XNAVector2 lbSubject = subject.GetAABB().LowerBound;
+            XNAVector2 lbClip = clip.GetAABB().LowerBound;
+            XNAVector2 translate;
+            XNAVector2.Min(ref lbSubject, ref lbClip, out translate);
+            translate = XNAVector2.One - translate;
+            if (translate != XNAVector2.Zero)
             {
                 slicedSubject.Translate(ref translate);
                 slicedClip.Translate(ref translate);
@@ -139,16 +139,16 @@ namespace tainicom.Aether.Physics2D.Common.PolygonManipulation
             for (int i = 0; i < polygon1.Count; i++)
             {
                 // Get edge vertices
-                Vector2 a = polygon1[i];
-                Vector2 b = polygon1[polygon1.NextIndex(i)];
+                XNAVector2 a = polygon1[i];
+                XNAVector2 b = polygon1[polygon1.NextIndex(i)];
 
                 // Get intersections between this edge and polygon2
                 for (int j = 0; j < polygon2.Count; j++)
                 {
-                    Vector2 c = polygon2[j];
-                    Vector2 d = polygon2[polygon2.NextIndex(j)];
+                    XNAVector2 c = polygon2[j];
+                    XNAVector2 d = polygon2[polygon2.NextIndex(j)];
 
-                    Vector2 intersectionPoint;
+                    XNAVector2 intersectionPoint;
                     // Check if the edges intersect
                     if (LineTools.LineIntersect(a, b, c, d, out intersectionPoint))
                     {
@@ -216,7 +216,7 @@ namespace tainicom.Aether.Physics2D.Common.PolygonManipulation
             for (int i = 0; i < poly.Count; ++i)
             {
                 simplicies.Add(new Edge(poly[i], poly[poly.NextIndex(i)]));
-                coeff.Add(CalculateSimplexCoefficient(Vector2.Zero, poly[i], poly[poly.NextIndex(i)]));
+                coeff.Add(CalculateSimplexCoefficient(XNAVector2.Zero, poly[i], poly[poly.NextIndex(i)]));
             }
         }
 
@@ -328,9 +328,9 @@ namespace tainicom.Aether.Physics2D.Common.PolygonManipulation
                 int count = simplicies.Count; // Needed to catch infinite loops
                 while (!closed && simplicies.Count > 0)
                 {
-                    if (VectorEqual(output[output.Count - 1], simplicies[index].EdgeStart))
+                    if (XNAVectorEqual(output[output.Count - 1], simplicies[index].EdgeStart))
                     {
-                        if (VectorEqual(simplicies[index].EdgeEnd, output[0]))
+                        if (XNAVectorEqual(simplicies[index].EdgeEnd, output[0]))
                         {
                             closed = true;
                         }
@@ -341,9 +341,9 @@ namespace tainicom.Aether.Physics2D.Common.PolygonManipulation
                         simplicies.RemoveAt(index);
                         --index;
                     }
-                    else if (VectorEqual(output[output.Count - 1], simplicies[index].EdgeEnd))
+                    else if (XNAVectorEqual(output[output.Count - 1], simplicies[index].EdgeEnd))
                     {
-                        if (VectorEqual(simplicies[index].EdgeStart, output[0]))
+                        if (XNAVectorEqual(simplicies[index].EdgeStart, output[0]))
                         {
                             closed = true;
                         }
@@ -383,15 +383,15 @@ namespace tainicom.Aether.Physics2D.Common.PolygonManipulation
         /// Needed to calculate the characteristics function of a simplex.
         /// </summary>
         /// <remarks>Used by method <c>CalculateEdgeCharacter()</c>.</remarks>
-        private static float CalculateBeta(Vector2 point, Edge e, float coefficient)
+        private static float CalculateBeta(XNAVector2 point, Edge e, float coefficient)
         {
             float result = 0f;
             if (PointInSimplex(point, e))
             {
                 result = coefficient;
             }
-            if (PointOnLineSegment(Vector2.Zero, e.EdgeStart, point) ||
-                PointOnLineSegment(Vector2.Zero, e.EdgeEnd, point))
+            if (PointOnLineSegment(XNAVector2.Zero, e.EdgeStart, point) ||
+                PointOnLineSegment(XNAVector2.Zero, e.EdgeEnd, point))
             {
                 result = .5f * coefficient;
             }
@@ -402,7 +402,7 @@ namespace tainicom.Aether.Physics2D.Common.PolygonManipulation
         /// Needed for sorting multiple intersections points on the same edge.
         /// </summary>
         /// <remarks>Used by method <c>CalculateIntersections()</c>.</remarks>
-        private static float GetAlpha(Vector2 start, Vector2 end, Vector2 point)
+        private static float GetAlpha(XNAVector2 start, XNAVector2 end, XNAVector2 point)
         {
             return (point - start).LengthSquared() / (end - start).LengthSquared();
         }
@@ -411,7 +411,7 @@ namespace tainicom.Aether.Physics2D.Common.PolygonManipulation
         /// Returns the coefficient of a simplex.
         /// </summary>
         /// <remarks>Used by method <c>CalculateSimplicalChain()</c>.</remarks>
-        private static float CalculateSimplexCoefficient(Vector2 a, Vector2 b, Vector2 c)
+        private static float CalculateSimplexCoefficient(XNAVector2 a, XNAVector2 b, XNAVector2 c)
         {
             float isLeft = MathUtils.Area(ref a, ref b, ref c);
             if (isLeft < 0f)
@@ -434,10 +434,10 @@ namespace tainicom.Aether.Physics2D.Common.PolygonManipulation
         /// <param name="edge">The edge that the point is tested against.</param>
         /// <returns>False if the winding number is even and the point is outside
         /// the simplex and True otherwise.</returns>
-        private static bool PointInSimplex(Vector2 point, Edge edge)
+        private static bool PointInSimplex(XNAVector2 point, Edge edge)
         {
             Vertices polygon = new Vertices();
-            polygon.Add(Vector2.Zero);
+            polygon.Add(XNAVector2.Zero);
             polygon.Add(edge.EdgeStart);
             polygon.Add(edge.EdgeEnd);
             return (polygon.PointInPolygon(ref point) == 1);
@@ -447,15 +447,15 @@ namespace tainicom.Aether.Physics2D.Common.PolygonManipulation
         /// Tests if a point lies on a line segment.
         /// </summary>
         /// <remarks>Used by method <c>CalculateBeta()</c>.</remarks>
-        private static bool PointOnLineSegment(Vector2 start, Vector2 end, Vector2 point)
+        private static bool PointOnLineSegment(XNAVector2 start, XNAVector2 end, XNAVector2 point)
         {
-            Vector2 segment = end - start;
+            XNAVector2 segment = end - start;
             return MathUtils.Area(ref start, ref end, ref point) == 0f &&
-                   Vector2.Dot(point - start, segment) >= 0f &&
-                   Vector2.Dot(point - end, segment) <= 0f;
+                   XNAVector2.Dot(point - start, segment) >= 0f &&
+                   XNAVector2.Dot(point - end, segment) <= 0f;
         }
 
-        private static bool VectorEqual(Vector2 vec1, Vector2 vec2)
+        private static bool XNAVectorEqual(XNAVector2 vec1, XNAVector2 vec2)
         {
             return (vec2 - vec1).LengthSquared() <= ClipperEpsilonSquared;
         }
@@ -465,16 +465,16 @@ namespace tainicom.Aether.Physics2D.Common.PolygonManipulation
         /// <summary>Specifies an Edge. Edges are used to represent simplicies in simplical chains</summary>
         private sealed class Edge
         {
-            public Edge(Vector2 edgeStart, Vector2 edgeEnd)
+            public Edge(XNAVector2 edgeStart, XNAVector2 edgeEnd)
             {
                 EdgeStart = edgeStart;
                 EdgeEnd = edgeEnd;
             }
 
-            public Vector2 EdgeStart { get; private set; }
-            public Vector2 EdgeEnd { get; private set; }
+            public XNAVector2 EdgeStart { get; private set; }
+            public XNAVector2 EdgeEnd { get; private set; }
 
-            public Vector2 GetCenter()
+            public XNAVector2 GetCenter()
             {
                 return (EdgeStart + EdgeEnd) / 2f;
             }
@@ -505,7 +505,7 @@ namespace tainicom.Aether.Physics2D.Common.PolygonManipulation
                 }
 
                 // Return true if the fields match
-                return VectorEqual(EdgeStart, e.EdgeStart) && VectorEqual(EdgeEnd, e.EdgeEnd);
+                return XNAVectorEqual(EdgeStart, e.EdgeStart) && XNAVectorEqual(EdgeEnd, e.EdgeEnd);
             }
 
             public override int GetHashCode()

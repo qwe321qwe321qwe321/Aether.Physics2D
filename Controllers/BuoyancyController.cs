@@ -34,12 +34,12 @@ namespace tainicom.Aether.Physics2D.Controllers
         /// <summary>
         /// Acts like waterflow. Defaults to 0,0.
         /// </summary>
-        public Vector2 Velocity;
+        public XNAVector2 Velocity;
 
         private AABB _container;
 
-        private Vector2 _gravity;
-        private Vector2 _normal;
+        private XNAVector2 _gravity;
+        private XNAVector2 _normal;
         private float _offset;
         private ICollection<Body> _uniqueBodies = new List<Body>();
 
@@ -51,10 +51,10 @@ namespace tainicom.Aether.Physics2D.Controllers
         /// <param name="linearDragCoefficient">Linear drag coefficient of the fluid</param>
         /// <param name="rotationalDragCoefficient">Rotational drag coefficient of the fluid</param>
         /// <param name="gravity">The direction gravity acts. Buoyancy force will act in opposite direction of gravity.</param>
-        public BuoyancyController(AABB container, float density, float linearDragCoefficient, float rotationalDragCoefficient, Vector2 gravity)
+        public BuoyancyController(AABB container, float density, float linearDragCoefficient, float rotationalDragCoefficient, XNAVector2 gravity)
         {
             Container = container;
-            _normal = new Vector2(0, 1);
+            _normal = new XNAVector2(0, 1);
             Density = density;
             LinearDragCoefficient = linearDragCoefficient;
             AngularDragCoefficient = rotationalDragCoefficient;
@@ -87,8 +87,8 @@ namespace tainicom.Aether.Physics2D.Controllers
 
             foreach (Body body in _uniqueBodies)
             {
-                Vector2 areac = Vector2.Zero;
-                Vector2 massc = Vector2.Zero;
+                XNAVector2 areac = XNAVector2.Zero;
+                XNAVector2 massc = XNAVector2.Zero;
                 float area = 0;
                 float mass = 0;
 
@@ -101,7 +101,7 @@ namespace tainicom.Aether.Physics2D.Controllers
 
                     Shape shape = fixture.Shape;
 
-                    Vector2 sc;
+                    XNAVector2 sc;
                     float sarea = shape.ComputeSubmergedArea(ref _normal, _offset, ref body._xf, out sc);
                     area += sarea;
                     areac.X += sarea * sc.X;
@@ -121,11 +121,11 @@ namespace tainicom.Aether.Physics2D.Controllers
                     continue;
 
                 //Buoyancy
-                Vector2 buoyancyForce = -Density * area * _gravity;
+                XNAVector2 buoyancyForce = -Density * area * _gravity;
                 body.ApplyForce(buoyancyForce, massc);
 
                 //Linear drag
-                Vector2 dragForce = body.GetLinearVelocityFromWorldPoint(areac) - Velocity;
+                XNAVector2 dragForce = body.GetLinearVelocityFromWorldPoint(areac) - Velocity;
                 dragForce *= -LinearDragCoefficient * area;
                 body.ApplyForce(dragForce, areac);
 

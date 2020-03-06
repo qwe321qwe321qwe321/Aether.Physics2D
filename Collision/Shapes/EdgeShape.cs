@@ -41,12 +41,12 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
         /// <summary>
         /// Edge start vertex
         /// </summary>
-        internal Vector2 _vertex1;
+        internal XNAVector2 _vertex1;
 
         /// <summary>
         /// Edge end vertex
         /// </summary>
-        internal Vector2 _vertex2;
+        internal XNAVector2 _vertex2;
 
         internal EdgeShape()
             : base(0)
@@ -60,7 +60,7 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
         /// </summary>
         /// <param name="start">The start of the edge.</param>
         /// <param name="end">The end of the edge.</param>
-        public EdgeShape(Vector2 start, Vector2 end)
+        public EdgeShape(XNAVector2 start, XNAVector2 end)
             : base(0)
         {
             ShapeType = ShapeType.Edge;
@@ -86,17 +86,17 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
         /// <summary>
         /// Optional adjacent vertices. These are used for smooth collision.
         /// </summary>
-        public Vector2 Vertex0 { get; set; }
+        public XNAVector2 Vertex0 { get; set; }
 
         /// <summary>
         /// Optional adjacent vertices. These are used for smooth collision.
         /// </summary>
-        public Vector2 Vertex3 { get; set; }
+        public XNAVector2 Vertex3 { get; set; }
 
         /// <summary>
         /// These are the edge vertices
         /// </summary>
-        public Vector2 Vertex1
+        public XNAVector2 Vertex1
         {
             get { return _vertex1; }
             set
@@ -109,7 +109,7 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
         /// <summary>
         /// These are the edge vertices
         /// </summary>
-        public Vector2 Vertex2
+        public XNAVector2 Vertex2
         {
             get { return _vertex2; }
             set
@@ -124,7 +124,7 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
         /// </summary>
         /// <param name="start">The start.</param>
         /// <param name="end">The end.</param>
-        public void Set(Vector2 start, Vector2 end)
+        public void Set(XNAVector2 start, XNAVector2 end)
         {
             _vertex1 = start;
             _vertex2 = end;
@@ -134,7 +134,7 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             ComputeProperties();
         }
 
-        public override bool TestPoint(ref Transform transform, ref Vector2 point)
+        public override bool TestPoint(ref Transform transform, ref XNAVector2 point)
         {
             return false;
         }
@@ -149,21 +149,21 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             output = new RayCastOutput();
 
             // Put the ray into the edge's frame of reference.
-            Vector2 p1 = Complex.Divide(input.Point1 - transform.p, ref transform.q);
-            Vector2 p2 = Complex.Divide(input.Point2 - transform.p, ref transform.q);
-            Vector2 d = p2 - p1;
+            XNAVector2 p1 = Complex.Divide(input.Point1 - transform.p, ref transform.q);
+            XNAVector2 p2 = Complex.Divide(input.Point2 - transform.p, ref transform.q);
+            XNAVector2 d = p2 - p1;
 
-            Vector2 v1 = _vertex1;
-            Vector2 v2 = _vertex2;
-            Vector2 e = v2 - v1;
-            Vector2 normal = new Vector2(e.Y, -e.X); //TODO: Could possibly cache the normal.
+            XNAVector2 v1 = _vertex1;
+            XNAVector2 v2 = _vertex2;
+            XNAVector2 e = v2 - v1;
+            XNAVector2 normal = new XNAVector2(e.Y, -e.X); //TODO: Could possibly cache the normal.
             normal.Normalize();
 
             // q = p1 + t * d
             // dot(normal, q - v1) = 0
             // dot(normal, p1 - v1) + t * dot(normal, d) = 0
-            float numerator = Vector2.Dot(normal, v1 - p1);
-            float denominator = Vector2.Dot(normal, d);
+            float numerator = XNAVector2.Dot(normal, v1 - p1);
+            float denominator = XNAVector2.Dot(normal, d);
 
             if (denominator == 0.0f)
             {
@@ -176,18 +176,18 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
                 return false;
             }
 
-            Vector2 q = p1 + t * d;
+            XNAVector2 q = p1 + t * d;
 
             // q = v1 + s * r
             // s = dot(q - v1, r) / dot(r, r)
-            Vector2 r = v2 - v1;
-            float rr = Vector2.Dot(r, r);
+            XNAVector2 r = v2 - v1;
+            float rr = XNAVector2.Dot(r, r);
             if (rr == 0.0f)
             {
                 return false;
             }
 
-            float s = Vector2.Dot(q - v1, r) / rr;
+            float s = XNAVector2.Dot(q - v1, r) / rr;
             if (s < 0.0f || 1.0f < s)
             {
                 return false;
@@ -207,15 +207,15 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
 
         public override void ComputeAABB(out AABB aabb, ref Transform transform, int childIndex)
         {
-            // OPT: Vector2 v1 = Transform.Multiply(ref _vertex1, ref transform);            
+            // OPT: XNAVector2 v1 = Transform.Multiply(ref _vertex1, ref transform);            
             float v1X = (_vertex1.X * transform.q.Real - _vertex1.Y * transform.q.Imaginary) + transform.p.X;
             float v1Y = (_vertex1.Y * transform.q.Real + _vertex1.X * transform.q.Imaginary) + transform.p.Y;
-            // OPT: Vector2 v2 = Transform.Multiply(ref _vertex2, ref transform);
+            // OPT: XNAVector2 v2 = Transform.Multiply(ref _vertex2, ref transform);
             float v2X = (_vertex2.X * transform.q.Real - _vertex2.Y * transform.q.Imaginary) + transform.p.X;
             float v2Y = (_vertex2.Y * transform.q.Real + _vertex2.X * transform.q.Imaginary) + transform.p.Y;
 
-            // OPT: aabb.LowerBound = Vector2.Min(v1, v2);
-            // OPT: aabb.UpperBound = Vector2.Max(v1, v2);
+            // OPT: aabb.LowerBound = XNAVector2.Min(v1, v2);
+            // OPT: aabb.UpperBound = XNAVector2.Max(v1, v2);
             if (v1X < v2X)
             {
                 aabb.LowerBound.X = v1X;
@@ -237,7 +237,7 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
                 aabb.UpperBound.Y = v1Y;
             }
 
-            // OPT: Vector2 r = new Vector2(Radius, Radius);
+            // OPT: XNAVector2 r = new XNAVector2(Radius, Radius);
             // OPT: aabb.LowerBound = aabb.LowerBound - r;
             // OPT: aabb.UpperBound = aabb.LowerBound + r;
             aabb.LowerBound.X -= Radius;
@@ -251,9 +251,9 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             MassData.Centroid = 0.5f * (_vertex1 + _vertex2);
         }
 
-        public override float ComputeSubmergedArea(ref Vector2 normal, float offset, ref Transform xf, out Vector2 sc)
+        public override float ComputeSubmergedArea(ref XNAVector2 normal, float offset, ref Transform xf, out XNAVector2 sc)
         {
-            sc = Vector2.Zero;
+            sc = XNAVector2.Zero;
             return 0;
         }
 

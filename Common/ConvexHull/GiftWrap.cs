@@ -56,8 +56,8 @@ namespace tainicom.Aether.Physics2D.Common.ConvexHull
                         continue;
                     }
 
-                    Vector2 r = vertices[ie] - vertices[hull[m]];
-                    Vector2 v = vertices[j] - vertices[hull[m]];
+                    XNAVector2 r = vertices[ie] - vertices[hull[m]];
+                    XNAVector2 v = vertices[j] - vertices[hull[m]];
                     float c = MathUtils.Cross(ref r, ref v);
                     if (c < 0.0f)
                     {

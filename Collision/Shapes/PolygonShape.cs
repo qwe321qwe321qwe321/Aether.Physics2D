@@ -111,11 +111,11 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
                 for (int i = 0; i < _vertices.Count; ++i)
                 {
                     int next = i + 1 < _vertices.Count ? i + 1 : 0;
-                    Vector2 edge = _vertices[next] - _vertices[i];
+                    XNAVector2 edge = _vertices[next] - _vertices[i];
                     Debug.Assert(edge.LengthSquared() > Settings.Epsilon * Settings.Epsilon);
 
                     //FPE optimization: Normals.Add(MathHelper.Cross(edge, 1.0f));
-                    Vector2 temp = new Vector2(edge.Y, -edge.X);
+                    XNAVector2 temp = new XNAVector2(edge.Y, -edge.X);
                     temp.Normalize();
                     _normals.Add(temp);
                 }
@@ -162,13 +162,13 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
                 return;
 
             //FPE optimization: Consolidated the calculate centroid and mass code to a single method.
-            Vector2 center = Vector2.Zero;
+            XNAVector2 center = XNAVector2.Zero;
             float area = 0.0f;
             float I = 0.0f;
 
             // pRef is the reference point for forming triangles.
             // It's location doesn't change the result (except for rounding error).
-            Vector2 s = Vector2.Zero;
+            XNAVector2 s = XNAVector2.Zero;
 
             // This code would put the reference point inside the polygon.
             for (int i = 0; i < Vertices.Count; ++i)
@@ -182,8 +182,8 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             for (int i = 0; i < Vertices.Count; ++i)
             {
                 // Triangle vertices.
-                Vector2 e1 = Vertices[i] - s;
-                Vector2 e2 = i + 1 < Vertices.Count ? Vertices[i + 1] - s : Vertices[0] - s;
+                XNAVector2 e1 = Vertices[i] - s;
+                XNAVector2 e2 = i + 1 < Vertices.Count ? Vertices[i + 1] - s : Vertices[0] - s;
 
                 float D = MathUtils.Cross(ref e1, ref e2);
 
@@ -219,16 +219,16 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             MassData.Inertia = _density * I;
 
             // Shift to center of mass then to original body origin.
-            MassData.Inertia += MassData.Mass * (Vector2.Dot(MassData.Centroid, MassData.Centroid) - Vector2.Dot(center, center));
+            MassData.Inertia += MassData.Mass * (XNAVector2.Dot(MassData.Centroid, MassData.Centroid) - XNAVector2.Dot(center, center));
         }
 
-        public override bool TestPoint(ref Transform transform, ref Vector2 point)
+        public override bool TestPoint(ref Transform transform, ref XNAVector2 point)
         {
-            Vector2 pLocal = Complex.Divide(point - transform.p, ref transform.q);
+            XNAVector2 pLocal = Complex.Divide(point - transform.p, ref transform.q);
 
             for (int i = 0; i < Vertices.Count; ++i)
             {
-                float dot = Vector2.Dot(Normals[i], pLocal - Vertices[i]);
+                float dot = XNAVector2.Dot(Normals[i], pLocal - Vertices[i]);
                 if (dot > 0.0f)
                 {
                     return false;
@@ -243,9 +243,9 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             output = new RayCastOutput();
 
             // Put the ray into the polygon's frame of reference.
-            Vector2 p1 = Complex.Divide(input.Point1 - transform.p, ref transform.q);
-            Vector2 p2 = Complex.Divide(input.Point2 - transform.p, ref transform.q);
-            Vector2 d = p2 - p1;
+            XNAVector2 p1 = Complex.Divide(input.Point1 - transform.p, ref transform.q);
+            XNAVector2 p2 = Complex.Divide(input.Point2 - transform.p, ref transform.q);
+            XNAVector2 d = p2 - p1;
 
             float lower = 0.0f, upper = input.MaxFraction;
 
@@ -256,8 +256,8 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
                 // p = p1 + a * d
                 // dot(normal, p - v) = 0
                 // dot(normal, p1 - v) + a * dot(normal, d) = 0
-                float numerator = Vector2.Dot(Normals[i], Vertices[i] - p1);
-                float denominator = Vector2.Dot(Normals[i], d);
+                float numerator = XNAVector2.Dot(Normals[i], Vertices[i] - p1);
+                float denominator = XNAVector2.Dot(Normals[i], d);
 
                 if (denominator == 0.0f)
                 {
@@ -325,13 +325,13 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
 
             for (int i = 1; i < Vertices.Count; ++i)
             {
-                // OPT: Vector2 v = Transform.Multiply(Vertices[i], ref transform);
+                // OPT: XNAVector2 v = Transform.Multiply(Vertices[i], ref transform);
                 vert = Vertices[i];
                 float vX = (vert.X * transform.q.Real - vert.Y * transform.q.Imaginary) + transform.p.X;
                 float vY = (vert.Y * transform.q.Real + vert.X * transform.q.Imaginary) + transform.p.Y;
 
-                // OPT: Vector2.Min(ref aabb.LowerBound, ref v, out aabb.LowerBound);
-                // OPT: Vector2.Max(ref aabb.UpperBound, ref v, out aabb.UpperBound);
+                // OPT: XNAVector2.Min(ref aabb.LowerBound, ref v, out aabb.LowerBound);
+                // OPT: XNAVector2.Max(ref aabb.UpperBound, ref v, out aabb.UpperBound);
                 Debug.Assert(aabb.LowerBound.X <= aabb.UpperBound.X);
                 if (vX < aabb.LowerBound.X) aabb.LowerBound.X = vX;
                 else if (vX > aabb.UpperBound.X) aabb.UpperBound.X = vX;
@@ -340,7 +340,7 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
                 else if (vY > aabb.UpperBound.Y) aabb.UpperBound.Y = vY;
             }
 
-            // OPT: Vector2 r = new Vector2(Radius, Radius);
+            // OPT: XNAVector2 r = new XNAVector2(Radius, Radius);
             // OPT: aabb.LowerBound = aabb.LowerBound - r;
             // OPT: aabb.UpperBound = aabb.UpperBound + r;
             aabb.LowerBound.X -= Radius;
@@ -349,13 +349,13 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             aabb.UpperBound.Y += Radius;
         }
 
-        public override float ComputeSubmergedArea(ref Vector2 normal, float offset, ref Transform xf, out Vector2 sc)
+        public override float ComputeSubmergedArea(ref XNAVector2 normal, float offset, ref Transform xf, out XNAVector2 sc)
         {
-            sc = Vector2.Zero;
+            sc = XNAVector2.Zero;
 
             //Transform plane into shape co-ordinates
-            Vector2 normalL = Complex.Divide(ref normal, ref xf.q);
-            float offsetL = offset - Vector2.Dot(normal, xf.p);
+            XNAVector2 normalL = Complex.Divide(ref normal, ref xf.q);
+            float offsetL = offset - XNAVector2.Dot(normal, xf.p);
 
             float[] depths = new float[Settings.MaxPolygonVertices];
             int diveCount = 0;
@@ -366,7 +366,7 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             int i;
             for (i = 0; i < Vertices.Count; i++)
             {
-                depths[i] = Vector2.Dot(normalL, Vertices[i]) - offsetL;
+                depths[i] = XNAVector2.Dot(normalL, Vertices[i]) - offsetL;
                 bool isSubmerged = depths[i] < -Settings.Epsilon;
                 if (i > 0)
                 {
@@ -419,13 +419,13 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             float intoLambda = (0 - depths[intoIndex]) / (depths[intoIndex2] - depths[intoIndex]);
             float outoLambda = (0 - depths[outoIndex]) / (depths[outoIndex2] - depths[outoIndex]);
 
-            Vector2 intoVec = new Vector2(Vertices[intoIndex].X * (1 - intoLambda) + Vertices[intoIndex2].X * intoLambda, Vertices[intoIndex].Y * (1 - intoLambda) + Vertices[intoIndex2].Y * intoLambda);
-            Vector2 outoVec = new Vector2(Vertices[outoIndex].X * (1 - outoLambda) + Vertices[outoIndex2].X * outoLambda, Vertices[outoIndex].Y * (1 - outoLambda) + Vertices[outoIndex2].Y * outoLambda);
+            XNAVector2 intoVec = new XNAVector2(Vertices[intoIndex].X * (1 - intoLambda) + Vertices[intoIndex2].X * intoLambda, Vertices[intoIndex].Y * (1 - intoLambda) + Vertices[intoIndex2].Y * intoLambda);
+            XNAVector2 outoVec = new XNAVector2(Vertices[outoIndex].X * (1 - outoLambda) + Vertices[outoIndex2].X * outoLambda, Vertices[outoIndex].Y * (1 - outoLambda) + Vertices[outoIndex2].Y * outoLambda);
 
             //Initialize accumulator
             float area = 0;
-            Vector2 center = new Vector2(0, 0);
-            Vector2 p2 = Vertices[intoIndex2];
+            XNAVector2 center = new XNAVector2(0, 0);
+            XNAVector2 p2 = Vertices[intoIndex2];
 
             const float k_inv3 = 1.0f / 3.0f;
 
@@ -434,15 +434,15 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             while (i != outoIndex2)
             {
                 i = (i + 1) % Vertices.Count;
-                Vector2 p3;
+                XNAVector2 p3;
                 if (i == outoIndex2)
                     p3 = outoVec;
                 else
                     p3 = Vertices[i];
                 //Add the triangle formed by intoVec,p2,p3
                 {
-                    Vector2 e1 = p2 - intoVec;
-                    Vector2 e2 = p3 - intoVec;
+                    XNAVector2 e1 = p2 - intoVec;
+                    XNAVector2 e2 = p3 - intoVec;
 
                     float D = MathUtils.Cross(ref e1, ref e2);
 

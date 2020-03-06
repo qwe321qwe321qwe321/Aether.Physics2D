@@ -15,9 +15,9 @@ namespace tainicom.Aether.Physics2D.Fluids
         private HashGrid _hashGrid = new HashGrid();
         private Dictionary<SpringHash, Spring> _springs = new Dictionary<SpringHash, Spring>();
         private List<SpringHash> _springsToRemove = new List<SpringHash>();
-        private Vector2 _totalForce;
+        private XNAVector2 _totalForce;
 
-        public FluidSystem1(Vector2 gravity)
+        public FluidSystem1(XNAVector2 gravity)
         {
             Gravity = gravity;
             Particles = new List<FluidParticle>();
@@ -27,7 +27,7 @@ namespace tainicom.Aether.Physics2D.Fluids
         public FluidDefinition Definition { get; private set; }
         public List<FluidParticle> Particles { get; private set; }
         public int ParticlesCount { get { return Particles.Count; } }
-        public Vector2 Gravity { get; set; }
+        public XNAVector2 Gravity { get; set; }
 
         public void DefaultDefinition()
         {
@@ -41,7 +41,7 @@ namespace tainicom.Aether.Physics2D.Fluids
             _influenceRadiusSquared = Definition.InfluenceRadius * Definition.InfluenceRadius;
         }
 
-        public FluidParticle AddParticle(Vector2 position)
+        public FluidParticle AddParticle(XNAVector2 position)
         {
             FluidParticle particle = new FluidParticle(position) { Index = Particles.Count };
             Particles.Add(particle);
@@ -53,21 +53,21 @@ namespace tainicom.Aether.Physics2D.Fluids
             //TODO
         }
 
-        public void ApplyForce(Vector2 f)
+        public void ApplyForce(XNAVector2 f)
         {
             _totalForce += f;
         }
 
         private void ApplyForces()
         {
-            Vector2 f = Gravity + _totalForce;
+            XNAVector2 f = Gravity + _totalForce;
 
             for (int i = 0; i < Particles.Count; ++i)
             {
                 Particles[i].ApplyForce(ref f);
             }
 
-            _totalForce = Vector2.Zero;
+            _totalForce = XNAVector2.Zero;
         }
 
         private void ApplyViscosity(FluidParticle p, float timeStep)
@@ -82,15 +82,15 @@ namespace tainicom.Aether.Physics2D.Fluids
                 }
 
                 float q;
-                Vector2.DistanceSquared(ref p.Position, ref neighbour.Position, out q);
+                XNAVector2.DistanceSquared(ref p.Position, ref neighbour.Position, out q);
 
                 if (q > _influenceRadiusSquared)
                 {
                     continue;
                 }
 
-                Vector2 direction;
-                Vector2.Subtract(ref neighbour.Position, ref p.Position, out direction);
+                XNAVector2 direction;
+                XNAVector2.Subtract(ref neighbour.Position, ref p.Position, out direction);
 
                 if (direction.LengthSquared() < float.Epsilon)
                 {
@@ -99,11 +99,11 @@ namespace tainicom.Aether.Physics2D.Fluids
 
                 direction.Normalize();
 
-                Vector2 deltaVelocity;
-                Vector2.Subtract(ref p.Velocity, ref neighbour.Velocity, out deltaVelocity);
+                XNAVector2 deltaVelocity;
+                XNAVector2.Subtract(ref p.Velocity, ref neighbour.Velocity, out deltaVelocity);
 
                 float u;
-                Vector2.Dot(ref deltaVelocity, ref direction, out u);
+                XNAVector2.Dot(ref deltaVelocity, ref direction, out u);
 
                 if (u > 0.0f)
                 {
@@ -111,12 +111,12 @@ namespace tainicom.Aether.Physics2D.Fluids
 
                     float impulseFactor = 0.5f * timeStep * q * (u * (Definition.ViscositySigma + Definition.ViscosityBeta * u));
 
-                    Vector2 impulse;
+                    XNAVector2 impulse;
 
-                    Vector2.Multiply(ref direction, -impulseFactor, out impulse);
+                    XNAVector2.Multiply(ref direction, -impulseFactor, out impulse);
                     p.ApplyImpulse(ref impulse);
 
-                    Vector2.Multiply(ref direction, impulseFactor, out impulse);
+                    XNAVector2.Multiply(ref direction, impulseFactor, out impulse);
                     neighbour.ApplyImpulse(ref impulse);
                 }
             }
@@ -128,9 +128,9 @@ namespace tainicom.Aether.Physics2D.Fluids
         //private float _q;
         //private float _qq;
 
-        //private Vector2 _rij;
+        //private XNAVector2 _rij;
         //private float _d;
-        //private Vector2 _dx;
+        //private XNAVector2 _dx;
         private float _density;
         private float _densityNear;
         private float _pressure;
@@ -148,7 +148,7 @@ namespace tainicom.Aether.Physics2D.Fluids
 
         //    for (_j = 0; _j < _len2; _j++)
         //    {
-        //        _q = Vector2.DistanceSquared(p.Position, p.Neighbours[_j].Position);
+        //        _q = XNAVector2.DistanceSquared(p.Position, p.Neighbours[_j].Position);
         //        _distanceCache[_j] = _q;
         //        if (_q < _influenceRadiusSquared && _q != 0)
         //        {
@@ -163,7 +163,7 @@ namespace tainicom.Aether.Physics2D.Fluids
         //    _pressure = Definition.Stiffness * (_density - Definition.DensityRest);
         //    _pressureNear = Definition.StiffnessNear * _densityNear;
 
-        //    _dx = Vector2.Zero;
+        //    _dx = XNAVector2.Zero;
 
         //    for (_j = 0; _j < _len2; _j++)
         //    {
@@ -203,7 +203,7 @@ namespace tainicom.Aether.Physics2D.Fluids
                     continue;
 
                 float q;
-                Vector2.DistanceSquared(ref particle.Position, ref neighbour.Position, out q);
+                XNAVector2.DistanceSquared(ref particle.Position, ref neighbour.Position, out q);
                 _distanceCache[i] = q;
 
                 if (q > _influenceRadiusSquared)
@@ -223,7 +223,7 @@ namespace tainicom.Aether.Physics2D.Fluids
             particle.Density = _density + _densityNear;
             particle.Pressure = _pressure + _pressureNear;
 
-            Vector2 delta = Vector2.Zero;
+            XNAVector2 delta = XNAVector2.Zero;
 
             for (int i = 0; i < neightborCount; ++i)
             {
@@ -241,24 +241,24 @@ namespace tainicom.Aether.Physics2D.Fluids
 
                 float dispFactor = deltaTime2 * (q * (_pressure + _pressureNear * q));
 
-                Vector2 direction;
-                Vector2.Subtract(ref neighbour.Position, ref particle.Position, out direction);
+                XNAVector2 direction;
+                XNAVector2.Subtract(ref neighbour.Position, ref particle.Position, out direction);
 
                 if (direction.LengthSquared() < float.Epsilon)
                     continue;
 
                 direction.Normalize();
 
-                Vector2 disp;
+                XNAVector2 disp;
 
-                Vector2.Multiply(ref direction, dispFactor, out disp);
-                Vector2.Add(ref neighbour.Position, ref disp, out neighbour.Position);
+                XNAVector2.Multiply(ref direction, dispFactor, out disp);
+                XNAVector2.Add(ref neighbour.Position, ref disp, out neighbour.Position);
 
-                Vector2.Multiply(ref direction, -dispFactor, out disp);
-                Vector2.Add(ref delta, ref disp, out delta);
+                XNAVector2.Multiply(ref direction, -dispFactor, out disp);
+                XNAVector2.Add(ref delta, ref disp, out delta);
             }
 
-            Vector2.Add(ref particle.Position, ref delta, out particle.Position);
+            XNAVector2.Add(ref particle.Position, ref delta, out particle.Position);
         }
 
         private void CreateSprings(FluidParticle p)
@@ -271,7 +271,7 @@ namespace tainicom.Aether.Physics2D.Fluids
                     continue;
 
                 float q;
-                Vector2.DistanceSquared(ref p.Position, ref neighbour.Position, out q);
+                XNAVector2.DistanceSquared(ref p.Position, ref neighbour.Position, out q);
 
                 if (q > _influenceRadiusSquared)
                     continue;
@@ -299,7 +299,7 @@ namespace tainicom.Aether.Physics2D.Fluids
                 {
                     float L = spring.RestLength;
                     float distance;
-                    Vector2.Distance(ref spring.P0.Position, ref spring.P1.Position, out distance);
+                    XNAVector2.Distance(ref spring.P0.Position, ref spring.P1.Position, out distance);
 
                     if (distance > (L + (Definition.YieldRatioStretch * L)))
                     {

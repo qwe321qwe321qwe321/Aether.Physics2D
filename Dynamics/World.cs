@@ -74,11 +74,11 @@ namespace tainicom.Aether.Physics2D.Dynamics
         private Func<int, bool> _queryAABBCallbackWrapper;
         private TOIInput _input = new TOIInput();
         private Fixture _myFixture;
-        private Vector2 _point1;
-        private Vector2 _point2;
+        private XNAVector2 _point1;
+        private XNAVector2 _point2;
         private List<Fixture> _testPointAllFixtures;
         private Stopwatch _watch = new Stopwatch();
-        private Func<Fixture, Vector2, Vector2, float, float> _rayCastCallback;
+        private Func<Fixture, XNAVector2, XNAVector2, float, float> _rayCastCallback;
         private Func<RayCastInput, int, float> _rayCastCallbackWrapper;
 
         internal bool _worldHasNewFixture;
@@ -156,17 +156,17 @@ namespace tainicom.Aether.Physics2D.Dynamics
             _queryAABBCallbackWrapper = QueryAABBCallbackWrapper;
             _rayCastCallbackWrapper = RayCastCallbackWrapper;
 
-            Fluid = new FluidSystem2(new Vector2(0, -1), 5000, 150, 150);
+            Fluid = new FluidSystem2(new XNAVector2(0, -1), 5000, 150, 150);
 
             ContactManager = new ContactManager(new DynamicTreeBroadPhase());
-            Gravity = new Vector2(0f, -9.80665f);
+            Gravity = new XNAVector2(0f, -9.80665f);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="World"/> class.
         /// </summary>
         /// <param name="gravity">The gravity.</param>
-        public World(Vector2 gravity) : this()
+        public World(XNAVector2 gravity) : this()
         {
             Gravity = gravity;
         }
@@ -196,7 +196,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             if (hit)
             {
                 float fraction = output.Fraction;
-                Vector2 point = (1.0f - fraction) * rayCastInput.Point1 + fraction * rayCastInput.Point2;
+                XNAVector2 point = (1.0f - fraction) * rayCastInput.Point1 + fraction * rayCastInput.Point2;
                 return _rayCastCallback(fixture, point, output.Normal, fraction);
             }
 
@@ -848,10 +848,10 @@ namespace tainicom.Aether.Physics2D.Dynamics
         }
 
         /// <summary>
-        /// Change the global gravity vector.
+        /// Change the global gravity XNAVector.
         /// </summary>
         /// <value>The gravity.</value>
-        public Vector2 Gravity;
+        public XNAVector2 Gravity;
         
         /// <summary>
         /// Is the world locked (in the middle of a time step).
@@ -1476,7 +1476,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             for (int i = 0; i < BodyList.Count; i++)
             {
                 Body body = BodyList[i];
-                body._force = Vector2.Zero;
+                body._force = XNAVector2.Zero;
                 body._torque = 0.0f;
             }
         }
@@ -1530,7 +1530,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// <param name="callback">A user implemented callback class.</param>
         /// <param name="point1">The ray starting point.</param>
         /// <param name="point2">The ray ending point.</param>
-        public void RayCast(Func<Fixture, Vector2, Vector2, float, float> callback, Vector2 point1, Vector2 point2)
+        public void RayCast(Func<Fixture, XNAVector2, XNAVector2, float, float> callback, XNAVector2 point1, XNAVector2 point2)
         {
             RayCastInput input = new RayCastInput();
             input.MaxFraction = 1.0f;
@@ -1542,7 +1542,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             _rayCastCallback = null;
         }
 
-        public List<Fixture> RayCast(Vector2 point1, Vector2 point2)
+        public List<Fixture> RayCast(XNAVector2 point1, XNAVector2 point2)
         {
             List<Fixture> affected = new List<Fixture>();
 
@@ -1597,10 +1597,10 @@ namespace tainicom.Aether.Physics2D.Dynamics
                 ControllerRemoved(this, controller);
         }
 
-        public Fixture TestPoint(Vector2 point)
+        public Fixture TestPoint(XNAVector2 point)
         {
             AABB aabb;
-            Vector2 d = new Vector2(Settings.Epsilon, Settings.Epsilon);
+            XNAVector2 d = new XNAVector2(Settings.Epsilon, Settings.Epsilon);
             aabb.LowerBound = point - d;
             aabb.UpperBound = point + d;
 
@@ -1631,10 +1631,10 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// </summary>
         /// <param name="point">The point.</param>
         /// <returns></returns>
-        public List<Fixture> TestPointAll(Vector2 point)
+        public List<Fixture> TestPointAll(XNAVector2 point)
         {
             AABB aabb;
-            Vector2 d = new Vector2(Settings.Epsilon, Settings.Epsilon);
+            XNAVector2 d = new XNAVector2(Settings.Epsilon, Settings.Epsilon);
             aabb.LowerBound = point - d;
             aabb.UpperBound = point + d;
 
@@ -1661,7 +1661,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// The body shift formula is: position -= newOrigin
         /// @param newOrigin the new origin with respect to the old origin
         /// Warning: Calling this method mid-update might cause a crash.
-        public void ShiftOrigin(Vector2 newOrigin)
+        public void ShiftOrigin(XNAVector2 newOrigin)
         {
             foreach (Body b in BodyList)
             {

@@ -24,7 +24,7 @@ namespace tainicom.Aether.Physics2D.Controllers
             Strength = strength;
             MaxRadius = float.MaxValue;
             GravityType = GravityType.DistanceSquared;
-            Points = new List<Vector2>();
+            Points = new List<XNAVector2>();
             Bodies = new List<Body>();
         }
 
@@ -34,7 +34,7 @@ namespace tainicom.Aether.Physics2D.Controllers
             MaxRadius = maxRadius;
             Strength = strength;
             GravityType = GravityType.DistanceSquared;
-            Points = new List<Vector2>();
+            Points = new List<XNAVector2>();
             Bodies = new List<Body>();
         }
 
@@ -43,11 +43,11 @@ namespace tainicom.Aether.Physics2D.Controllers
         public float Strength { get; set; }
         public GravityType GravityType { get; set; }
         public List<Body> Bodies { get; set; }
-        public List<Vector2> Points { get; set; }
+        public List<XNAVector2> Points { get; set; }
 
         public override void Update(float dt)
         {
-            Vector2 f = Vector2.Zero;
+            XNAVector2 f = XNAVector2.Zero;
 
             foreach (Body worldBody in World.BodyList)
             {
@@ -59,7 +59,7 @@ namespace tainicom.Aether.Physics2D.Controllers
                     if (worldBody == controllerBody || (worldBody.BodyType == BodyType.Static && controllerBody.BodyType == BodyType.Static) || !controllerBody.Enabled)
                         continue;
 
-                    Vector2 d = controllerBody.Position - worldBody.Position;
+                    XNAVector2 d = controllerBody.Position - worldBody.Position;
                     float r2 = d.LengthSquared();
 
                     if (r2 <= Settings.Epsilon || r2 > MaxRadius * MaxRadius || r2 < MinRadius * MinRadius)
@@ -78,9 +78,9 @@ namespace tainicom.Aether.Physics2D.Controllers
                     worldBody.ApplyForce(ref f);
                 }
 
-                foreach (Vector2 point in Points)
+                foreach (XNAVector2 point in Points)
                 {
-                    Vector2 d = point - worldBody.Position;
+                    XNAVector2 d = point - worldBody.Position;
                     float r2 = d.LengthSquared();
 
                     if (r2 <= Settings.Epsilon || r2 > MaxRadius * MaxRadius || r2 < MinRadius * MinRadius)
@@ -106,7 +106,7 @@ namespace tainicom.Aether.Physics2D.Controllers
             Bodies.Add(body);
         }
 
-        public void AddPoint(Vector2 point)
+        public void AddPoint(XNAVector2 point)
         {
             Points.Add(point);
         }

@@ -97,8 +97,9 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
     public abstract class Joint
     {
-        private float _breakpoint;
-        private double _breakpointSquared;
+        private float _breakForce;
+        private float _breakForceSquared;
+        private float _breakTorque;
 
         /// <summary>
         /// Indicate if this join is enabled or not. Disabling a joint
@@ -112,7 +113,8 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
         protected Joint()
         {
-            Breakpoint = float.MaxValue;
+            BreakForce = float.MaxValue;
+            BreakTorque = float.MaxValue;
 
             //Connected bodies should not collide by default
             CollideConnected = false;
@@ -155,13 +157,13 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// Get the anchor point on bodyA in world coordinates.
         /// On some joints, this value indicate the anchor point within the world.
         /// </summary>
-        public abstract Vector2 WorldAnchorA { get; set; }
+        public abstract XNAVector2 WorldAnchorA { get; set; }
 
         /// <summary>
         /// Get the anchor point on bodyB in world coordinates.
         /// On some joints, this value indicate the anchor point within the world.
         /// </summary>
-        public abstract Vector2 WorldAnchorB { get; set; }
+        public abstract XNAVector2 WorldAnchorB { get; set; }
 
         /// <summary>
         /// Set the user data pointer.
@@ -175,29 +177,49 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         public bool CollideConnected { get; set; }
 
         /// <summary>
-        /// The Breakpoint simply indicates the maximum Value the JointError can be before it breaks.
+        /// The Breakforce simply indicates the maximum Value the JointError can be before it breaks.
         /// The default value is float.MaxValue, which means it never breaks.
         /// </summary>
-        public float Breakpoint
+        public float BreakForce 
         {
-            get { return _breakpoint; }
-            set
-            {
-                _breakpoint = value;
-                _breakpointSquared = _breakpoint * _breakpoint;
+            get { return _breakForce; }
+            set {
+                _breakForce = value;
+                _breakForceSquared = _breakForce * _breakForce;
             }
         }
 
         /// <summary>
+        /// The Breaktorque simply indicates the maximum torque the JointError can be before it breaks.
+        /// The default value is float.MaxValue, which means it never breaks.
+        /// </summary>
+        public float BreakTorque 
+        {
+            get { return _breakTorque; }
+            set 
+            {
+                _breakTorque = value;
+            }
+        }
+
+        /// <summary>
+        /// The event handler
+        /// </summary>
+        /// <param name="joint"></param>
+        /// <param name="reactForce"></param>
+        /// <param name="reactTorque"></param>
+        /// <param name="isBrokenByTorque"></param>
+        public delegate void OnBrokenHandler(Joint joint, float reactForce, float reactTorque, bool isBrokenByTorque);
+        /// <summary>
         /// Fires when the joint is broken.
         /// </summary>
-        public event Action<Joint, float> Broke;
+        public event OnBrokenHandler OnBrokenEvent;
 
         /// <summary>
         /// Get the reaction force on body at the joint anchor in Newtons.
         /// </summary>
         /// <param name="invDt">The inverse delta time.</param>
-        public abstract Vector2 GetReactionForce(float invDt);
+        public abstract XNAVector2 GetReactionForce(float invDt);
 
         /// <summary>
         /// Get the reaction torque on the body at the joint anchor in N*m.
@@ -235,15 +257,18 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             if (!Enabled)
                 return;
 
-            float jointErrorSquared = GetReactionForce(invDt).LengthSquared();
+            float jointFroceSquared = GetReactionForce(invDt).LengthSquared();
+            float jointTorque = GetReactionTorque(invDt);
 
-            if (Math.Abs(jointErrorSquared) <= _breakpointSquared)
+            if (Math.Abs(jointFroceSquared) <= _breakForceSquared &&
+                Math.Abs(jointTorque) <= _breakTorque) {
                 return;
+            }
 
             Enabled = false;
 
-            if (Broke != null)
-                Broke(this, (float)Math.Sqrt(jointErrorSquared));
+            bool isBrokenByTorque = Math.Abs(jointTorque) > _breakTorque;
+            OnBrokenEvent?.Invoke(this, (float)Math.Sqrt(jointFroceSquared), jointTorque, isBrokenByTorque);
         }
 
         internal abstract void SolveVelocityConstraints(ref SolverData data);

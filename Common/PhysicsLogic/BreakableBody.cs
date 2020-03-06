@@ -26,7 +26,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
         }
 
         private float[] _angularVelocitiesCache = new float[8];
-        private Vector2[] _velocitiesCache = new Vector2[8];
+        private XNAVector2[] _velocitiesCache = new XNAVector2[8];
         
         public List<Fixture> Parts = new List<Fixture>(8);
 
@@ -49,7 +49,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
             State = BreakableBodyState.Unbroken;
         }
 
-        public BreakableBody(World world, IEnumerable<Vertices> vertices, float density, Vector2 position = new Vector2(), float rotation = 0) : this(world)
+        public BreakableBody(World world, IEnumerable<Vertices> vertices, float density, XNAVector2 position = new XNAVector2(), float rotation = 0) : this(world)
         {
             MainBody = World.CreateBody(position, rotation, BodyType.Dynamic);
 
@@ -61,7 +61,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
             }
         }
 
-        public BreakableBody(World world, IEnumerable<Shape> shapes, Vector2 position = new Vector2(), float rotation = 0) : this(world)
+        public BreakableBody(World world, IEnumerable<Shape> shapes, XNAVector2 position = new XNAVector2(), float rotation = 0) : this(world)
         {
             MainBody = World.CreateBody(position, rotation, BodyType.Dynamic);
 
@@ -72,7 +72,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
             }
         }
         
-        public BreakableBody(World world, Vertices vertices, float density, Vector2 position = new Vector2(), float rotation = 0) : this(world)
+        public BreakableBody(World world, Vertices vertices, float density, XNAVector2 position = new XNAVector2(), float rotation = 0) : this(world)
         {
             MainBody = World.CreateBody(position, rotation, BodyType.Dynamic);
             
@@ -129,7 +129,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
             //Enlarge the cache if needed
             if (Parts.Count > _angularVelocitiesCache.Length)
             {
-                _velocitiesCache = new Vector2[Parts.Count];
+                _velocitiesCache = new XNAVector2[Parts.Count];
                 _angularVelocitiesCache = new float[Parts.Count];
             }
 

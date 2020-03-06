@@ -34,7 +34,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             return fixture;
         }
 
-        public Fixture CreateEdge(Vector2 start, Vector2 end)
+        public Fixture CreateEdge(XNAVector2 start, XNAVector2 end)
         {
             EdgeShape edgeShape = new EdgeShape(start, end);
             return CreateFixture(edgeShape);
@@ -52,7 +52,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             return CreateFixture(shape);
         }
 
-        public Fixture CreateRectangle(float width, float height, float density, Vector2 offset)
+        public Fixture CreateRectangle(float width, float height, float density, XNAVector2 offset)
         {
             Vertices rectangleVertices = PolygonTools.CreateRectangle(width / 2, height / 2);
             rectangleVertices.Translate(ref offset);
@@ -69,7 +69,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             return CreateFixture(circleShape);
         }
 
-        public Fixture CreateCircle(float radius, float density, Vector2 offset)
+        public Fixture CreateCircle(float radius, float density, XNAVector2 offset)
         {
             if (radius <= 0)
                 throw new ArgumentOutOfRangeException("radius", "Radius must be more than 0 meters");
@@ -88,7 +88,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             return CreateFixture(polygon);
         }
 
-        public Fixture CreateEllipse(float xRadius, float yRadius, int edges, float density)
+        public Fixture CreateEllipse(float xRadius, float yRadius, int edges, float density, XNAVector2 offset = default)
         {
             if (xRadius <= 0)
                 throw new ArgumentOutOfRangeException("xRadius", "X-radius must be more than 0");
@@ -97,6 +97,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
                 throw new ArgumentOutOfRangeException("yRadius", "Y-radius must be more than 0");
 
             Vertices ellipseVertices = PolygonTools.CreateEllipse(xRadius, yRadius, edges);
+            ellipseVertices.Translate(offset);
             PolygonShape polygonShape = new PolygonShape(ellipseVertices, density);
             return CreateFixture(polygonShape);
         }

@@ -10,13 +10,13 @@ namespace tainicom.Aether.Physics2D.Fluids
 {
     public class FluidParticle
     {
-        public Vector2 Position;
-        public Vector2 PreviousPosition;
+        public XNAVector2 Position;
+        public XNAVector2 PreviousPosition;
 
-        public Vector2 Velocity;
-        public Vector2 Acceleration;
+        public XNAVector2 Velocity;
+        public XNAVector2 Acceleration;
 
-        internal FluidParticle(Vector2 position)
+        internal FluidParticle(XNAVector2 position)
         {
             Neighbours = new List<FluidParticle>();
             IsActive = true;
@@ -41,21 +41,21 @@ namespace tainicom.Aether.Physics2D.Fluids
         public float Damping { get; set; }
         public float Mass { get; set; }
 
-        public void MoveTo(Vector2 p)
+        public void MoveTo(XNAVector2 p)
         {
             Position = p;
             PreviousPosition = p;
 
-            Velocity = Vector2.Zero;
-            Acceleration = Vector2.Zero;
+            Velocity = XNAVector2.Zero;
+            Acceleration = XNAVector2.Zero;
         }
 
-        public void ApplyForce(ref Vector2 force)
+        public void ApplyForce(ref XNAVector2 force)
         {
             Acceleration += force * Mass;
         }
 
-        public void ApplyImpulse(ref Vector2 impulse)
+        public void ApplyImpulse(ref XNAVector2 impulse)
         {
             Velocity += impulse;
         }
@@ -64,12 +64,12 @@ namespace tainicom.Aether.Physics2D.Fluids
         {
             Velocity += Acceleration * deltaTime;
 
-            Vector2 delta = (1.0f - Damping) * Velocity * deltaTime;
+            XNAVector2 delta = (1.0f - Damping) * Velocity * deltaTime;
 
             PreviousPosition = Position;
             Position += delta;
 
-            Acceleration = Vector2.Zero;
+            Acceleration = XNAVector2.Zero;
         }
 
         public void UpdateVelocity(float deltaTime)

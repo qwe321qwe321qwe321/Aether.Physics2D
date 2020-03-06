@@ -43,13 +43,13 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
 {
     public sealed class ContactPositionConstraint
     {
-        public Vector2[] localPoints = new Vector2[Settings.MaxManifoldPoints];
-        public Vector2 localNormal;
-        public Vector2 localPoint;
+        public XNAVector2[] localPoints = new XNAVector2[Settings.MaxManifoldPoints];
+        public XNAVector2 localNormal;
+        public XNAVector2 localPoint;
         public int indexA;
         public int indexB;
         public float invMassA, invMassB;
-        public Vector2 localCenterA, localCenterB;
+        public XNAVector2 localCenterA, localCenterB;
         public float invIA, invIB;
         public ManifoldType type;
         public float radiusA, radiusB;
@@ -58,8 +58,8 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
 
     public sealed class VelocityConstraintPoint
     {
-        public Vector2 rA;
-        public Vector2 rB;
+        public XNAVector2 rA;
+        public XNAVector2 rB;
         public float normalImpulse;
         public float tangentImpulse;
         public float normalMass;
@@ -70,7 +70,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
     public sealed class ContactVelocityConstraint
     {
         public VelocityConstraintPoint[] points = new VelocityConstraintPoint[Settings.MaxManifoldPoints];
-        public Vector2 normal;
+        public XNAVector2 normal;
         public Mat22 normalMass;
         public Mat22 K;
         public int indexA;
@@ -195,8 +195,8 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                         vcp.tangentImpulse = 0.0f;
                     }
 
-                    vcp.rA = Vector2.Zero;
-                    vcp.rB = Vector2.Zero;
+                    vcp.rA = XNAVector2.Zero;
+                    vcp.rB = XNAVector2.Zero;
                     vcp.normalMass = 0.0f;
                     vcp.tangentMass = 0.0f;
                     vcp.velocityBias = 0.0f;
@@ -224,32 +224,32 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                 float mB = vc.invMassB;
                 float iA = vc.invIA;
                 float iB = vc.invIB;
-                Vector2 localCenterA = pc.localCenterA;
-                Vector2 localCenterB = pc.localCenterB;
+                XNAVector2 localCenterA = pc.localCenterA;
+                XNAVector2 localCenterB = pc.localCenterB;
 
-                Vector2 cA = _positions[indexA].c;
+                XNAVector2 cA = _positions[indexA].c;
                 float aA = _positions[indexA].a;
-                Vector2 vA = _velocities[indexA].v;
+                XNAVector2 vA = _velocities[indexA].v;
                 float wA = _velocities[indexA].w;
 
-                Vector2 cB = _positions[indexB].c;
+                XNAVector2 cB = _positions[indexB].c;
                 float aB = _positions[indexB].a;
-                Vector2 vB = _velocities[indexB].v;
+                XNAVector2 vB = _velocities[indexB].v;
                 float wB = _velocities[indexB].w;
 
                 Debug.Assert(manifold.PointCount > 0);
 
-                Transform xfA = new Transform(Vector2.Zero, aA);
-                Transform xfB = new Transform(Vector2.Zero, aB);
+                Transform xfA = new Transform(XNAVector2.Zero, aA);
+                Transform xfB = new Transform(XNAVector2.Zero, aB);
                 xfA.p = cA - Complex.Multiply(ref localCenterA, ref xfA.q);
                 xfB.p = cB - Complex.Multiply(ref localCenterB, ref xfB.q);
 
-                Vector2 normal;
-                FixedArray2<Vector2> points;
+                XNAVector2 normal;
+                FixedArray2<XNAVector2> points;
                 WorldManifold.Initialize(ref manifold, ref xfA, radiusA, ref xfB, radiusB, out normal, out points);
 
                 vc.normal = normal;
-                Vector2 tangent = MathUtils.Rot270(ref vc.normal);
+                XNAVector2 tangent = MathUtils.Rot270(ref vc.normal);
 
                 int pointCount = vc.pointCount;
                 for (int j = 0; j < pointCount; ++j)
@@ -276,7 +276,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
 
                     // Setup a velocity bias for restitution.
                     vcp.velocityBias = 0.0f;
-                    float vRel = Vector2.Dot(vc.normal, vB + MathUtils.Cross(wB, ref vcp.rB) - vA - MathUtils.Cross(wA, ref vcp.rA));
+                    float vRel = XNAVector2.Dot(vc.normal, vB + MathUtils.Cross(wB, ref vcp.rB) - vA - MathUtils.Cross(wA, ref vcp.rA));
                     if (vRel < -Settings.VelocityThreshold)
                     {
                         vcp.velocityBias = -vc.restitution * vRel;
@@ -303,8 +303,8 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                     if (k11 * k11 < k_maxConditionNumber * (k11 * k22 - k12 * k12))
                     {
                         // K is safe to invert.
-                        vc.K.ex = new Vector2(k11, k12);
-                        vc.K.ey = new Vector2(k12, k22);
+                        vc.K.ex = new XNAVector2(k11, k12);
+                        vc.K.ey = new XNAVector2(k12, k22);
                         vc.normalMass = vc.K.Inverse;
                     }
                     else
@@ -332,18 +332,18 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                 float iB = vc.invIB;
                 int pointCount = vc.pointCount;
 
-                Vector2 vA = _velocities[indexA].v;
+                XNAVector2 vA = _velocities[indexA].v;
                 float wA = _velocities[indexA].w;
-                Vector2 vB = _velocities[indexB].v;
+                XNAVector2 vB = _velocities[indexB].v;
                 float wB = _velocities[indexB].w;
 
-                Vector2 normal = vc.normal;
-                Vector2 tangent = MathUtils.Rot270(ref normal);
+                XNAVector2 normal = vc.normal;
+                XNAVector2 tangent = MathUtils.Rot270(ref normal);
 
                 for (int j = 0; j < pointCount; ++j)
                 {
                     VelocityConstraintPoint vcp = vc.points[j];
-                    Vector2 P = vcp.normalImpulse * normal + vcp.tangentImpulse * tangent;
+                    XNAVector2 P = vcp.normalImpulse * normal + vcp.tangentImpulse * tangent;
                     wA -= iA * MathUtils.Cross(ref vcp.rA, ref P);
                     vA -= mA * P;
                     wB += iB * MathUtils.Cross(ref vcp.rB, ref P);
@@ -476,13 +476,13 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                 float iB = vc.invIB;
                 int pointCount = vc.pointCount;
 
-                Vector2 vA = _velocities[indexA].v;
+                XNAVector2 vA = _velocities[indexA].v;
                 float wA = _velocities[indexA].w;
-                Vector2 vB = _velocities[indexB].v;
+                XNAVector2 vB = _velocities[indexB].v;
                 float wB = _velocities[indexB].w;
 
-                Vector2 normal = vc.normal;
-                Vector2 tangent = MathUtils.Rot270(ref normal);
+                XNAVector2 normal = vc.normal;
+                XNAVector2 tangent = MathUtils.Rot270(ref normal);
                 float friction = vc.friction;
 
                 Debug.Assert(pointCount == 1 || pointCount == 2);
@@ -494,10 +494,10 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                     VelocityConstraintPoint vcp = vc.points[j];
 
                     // Relative velocity at contact
-                    Vector2 dv = vB + MathUtils.Cross(wB, ref vcp.rB) - vA - MathUtils.Cross(wA, ref vcp.rA);
+                    XNAVector2 dv = vB + MathUtils.Cross(wB, ref vcp.rB) - vA - MathUtils.Cross(wA, ref vcp.rA);
 
                     // Compute tangent force
-                    float vt = Vector2.Dot(dv, tangent) - vc.tangentSpeed;
+                    float vt = XNAVector2.Dot(dv, tangent) - vc.tangentSpeed;
                     float lambda = vcp.tangentMass * (-vt);
 
                     // b2Clamp the accumulated force
@@ -507,7 +507,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                     vcp.tangentImpulse = newImpulse;
 
                     // Apply contact impulse
-                    Vector2 P = lambda * tangent;
+                    XNAVector2 P = lambda * tangent;
 
                     vA -= mA * P;
                     wA -= iA * MathUtils.Cross(ref vcp.rA, ref P);
@@ -522,10 +522,10 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                     VelocityConstraintPoint vcp = vc.points[0];
 
                     // Relative velocity at contact
-                    Vector2 dv = vB + MathUtils.Cross(wB, ref vcp.rB) - vA - MathUtils.Cross(wA, ref vcp.rA);
+                    XNAVector2 dv = vB + MathUtils.Cross(wB, ref vcp.rB) - vA - MathUtils.Cross(wA, ref vcp.rA);
 
                     // Compute normal impulse
-                    float vn = Vector2.Dot(dv, normal);
+                    float vn = XNAVector2.Dot(dv, normal);
                     float lambda = -vcp.normalMass * (vn - vcp.velocityBias);
 
                     // b2Clamp the accumulated impulse
@@ -534,7 +534,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                     vcp.normalImpulse = newImpulse;
 
                     // Apply contact impulse
-                    Vector2 P = lambda * normal;
+                    XNAVector2 P = lambda * normal;
                     vA -= mA * P;
                     wA -= iA * MathUtils.Cross(ref vcp.rA, ref P);
 
@@ -579,18 +579,18 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                     VelocityConstraintPoint cp1 = vc.points[0];
                     VelocityConstraintPoint cp2 = vc.points[1];
 
-                    Vector2 a = new Vector2(cp1.normalImpulse, cp2.normalImpulse);
+                    XNAVector2 a = new XNAVector2(cp1.normalImpulse, cp2.normalImpulse);
                     Debug.Assert(a.X >= 0.0f && a.Y >= 0.0f);
 
                     // Relative velocity at contact
-                    Vector2 dv1 = vB + MathUtils.Cross(wB, ref cp1.rB) - vA - MathUtils.Cross(wA, ref cp1.rA);
-                    Vector2 dv2 = vB + MathUtils.Cross(wB, ref cp2.rB) - vA - MathUtils.Cross(wA, ref cp2.rA);
+                    XNAVector2 dv1 = vB + MathUtils.Cross(wB, ref cp1.rB) - vA - MathUtils.Cross(wA, ref cp1.rA);
+                    XNAVector2 dv2 = vB + MathUtils.Cross(wB, ref cp2.rB) - vA - MathUtils.Cross(wA, ref cp2.rA);
 
                     // Compute normal velocity
-                    float vn1 = Vector2.Dot(dv1, normal);
-                    float vn2 = Vector2.Dot(dv2, normal);
+                    float vn1 = XNAVector2.Dot(dv1, normal);
+                    float vn2 = XNAVector2.Dot(dv2, normal);
 
-                    Vector2 b = new Vector2();
+                    XNAVector2 b = new XNAVector2();
                     b.X = vn1 - cp1.velocityBias;
                     b.Y = vn2 - cp2.velocityBias;
 
@@ -611,16 +611,16 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                         //
                         // x = - inv(A) * b'
                         //
-                        Vector2 x = -MathUtils.Mul(ref vc.normalMass, ref b);
+                        XNAVector2 x = -MathUtils.Mul(ref vc.normalMass, ref b);
 
                         if (x.X >= 0.0f && x.Y >= 0.0f)
                         {
                             // Get the incremental impulse
-                            Vector2 d = x - a;
+                            XNAVector2 d = x - a;
 
                             // Apply incremental impulse
-                            Vector2 P1 = d.X * normal;
-                            Vector2 P2 = d.Y * normal;
+                            XNAVector2 P1 = d.X * normal;
+                            XNAVector2 P2 = d.Y * normal;
                             vA -= mA * (P1 + P2);
                             wA -= iA * (MathUtils.Cross(ref cp1.rA, ref P1) + MathUtils.Cross(ref cp2.rA, ref P2));
 
@@ -637,8 +637,8 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
 					dv2 = vB + MathUtils.Cross(wB, cp2.rB) - vA - MathUtils.Cross(wA, cp2.rA);
 
 					// Compute normal velocity
-					vn1 = Vector2.Dot(dv1, normal);
-					vn2 = Vector2.Dot(dv2, normal);
+					vn1 = XNAVector2.Dot(dv1, normal);
+					vn2 = XNAVector2.Dot(dv2, normal);
 
 					b2Assert(b2Abs(vn1 - cp1.velocityBias) < k_errorTol);
 					b2Assert(b2Abs(vn2 - cp2.velocityBias) < k_errorTol);
@@ -660,11 +660,11 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                         if (x.X >= 0.0f && vn2 >= 0.0f)
                         {
                             // Get the incremental impulse
-                            Vector2 d = x - a;
+                            XNAVector2 d = x - a;
 
                             // Apply incremental impulse
-                            Vector2 P1 = d.X * normal;
-                            Vector2 P2 = d.Y * normal;
+                            XNAVector2 P1 = d.X * normal;
+                            XNAVector2 P2 = d.Y * normal;
                             vA -= mA * (P1 + P2);
                             wA -= iA * (MathUtils.Cross(ref cp1.rA, ref P1) + MathUtils.Cross(ref cp2.rA, ref P2));
 
@@ -680,7 +680,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
 					dv1 = vB + MathUtils.Cross(wB, cp1.rB) - vA - MathUtils.Cross(wA, cp1.rA);
 
 					// Compute normal velocity
-					vn1 = Vector2.Dot(dv1, normal);
+					vn1 = XNAVector2.Dot(dv1, normal);
 
 					b2Assert(b2Abs(vn1 - cp1.velocityBias) < k_errorTol);
 #endif
@@ -702,11 +702,11 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                         if (x.Y >= 0.0f && vn1 >= 0.0f)
                         {
                             // Resubstitute for the incremental impulse
-                            Vector2 d = x - a;
+                            XNAVector2 d = x - a;
 
                             // Apply incremental impulse
-                            Vector2 P1 = d.X * normal;
-                            Vector2 P2 = d.Y * normal;
+                            XNAVector2 P1 = d.X * normal;
+                            XNAVector2 P2 = d.Y * normal;
                             vA -= mA * (P1 + P2);
                             wA -= iA * (MathUtils.Cross(ref cp1.rA, ref P1) + MathUtils.Cross(ref cp2.rA, ref P2));
 
@@ -722,7 +722,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
 					dv2 = vB + MathUtils.Cross(wB, cp2.rB) - vA - MathUtils.Cross(wA, cp2.rA);
 
 					// Compute normal velocity
-					vn2 = Vector2.Dot(dv2, normal);
+					vn2 = XNAVector2.Dot(dv2, normal);
 
 					b2Assert(b2Abs(vn2 - cp2.velocityBias) < k_errorTol);
 #endif
@@ -742,11 +742,11 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                         if (vn1 >= 0.0f && vn2 >= 0.0f)
                         {
                             // Resubstitute for the incremental impulse
-                            Vector2 d = x - a;
+                            XNAVector2 d = x - a;
 
                             // Apply incremental impulse
-                            Vector2 P1 = d.X * normal;
-                            Vector2 P2 = d.Y * normal;
+                            XNAVector2 P1 = d.X * normal;
+                            XNAVector2 P2 = d.Y * normal;
                             vA -= mA * (P1 + P2);
                             wA -= iA * (MathUtils.Cross(ref cp1.rA, ref P1) + MathUtils.Cross(ref cp2.rA, ref P2));
 
@@ -865,35 +865,35 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
 
                 int indexA = pc.indexA;
                 int indexB = pc.indexB;
-                Vector2 localCenterA = pc.localCenterA;
+                XNAVector2 localCenterA = pc.localCenterA;
                 float mA = pc.invMassA;
                 float iA = pc.invIA;
-                Vector2 localCenterB = pc.localCenterB;
+                XNAVector2 localCenterB = pc.localCenterB;
                 float mB = pc.invMassB;
                 float iB = pc.invIB;
                 int pointCount = pc.pointCount;
 
-                Vector2 cA = _positions[indexA].c;
+                XNAVector2 cA = _positions[indexA].c;
                 float aA = _positions[indexA].a;
-                Vector2 cB = _positions[indexB].c;
+                XNAVector2 cB = _positions[indexB].c;
                 float aB = _positions[indexB].a;
 
                 // Solve normal constraints
                 for (int j = 0; j < pointCount; ++j)
                 {
-                    Transform xfA = new Transform(Vector2.Zero, aA);
-                    Transform xfB = new Transform(Vector2.Zero, aB);
+                    Transform xfA = new Transform(XNAVector2.Zero, aA);
+                    Transform xfB = new Transform(XNAVector2.Zero, aB);
                     xfA.p = cA - Complex.Multiply(ref localCenterA, ref xfA.q);
                     xfB.p = cB - Complex.Multiply(ref localCenterB, ref xfB.q);
 
-                    Vector2 normal;
-                    Vector2 point;
+                    XNAVector2 normal;
+                    XNAVector2 point;
                     float separation;
 
                     PositionSolverManifold.Initialize(pc, ref xfA, ref xfB, j, out normal, out point, out separation);
 
-                    Vector2 rA = point - cA;
-                    Vector2 rB = point - cB;
+                    XNAVector2 rA = point - cA;
+                    XNAVector2 rB = point - cB;
 
                     // Track max constraint error.
                     minSeparation = Math.Min(minSeparation, separation);
@@ -909,7 +909,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                     // Compute normal impulse
                     float impulse = K > 0.0f ? -C / K : 0.0f;
 
-                    Vector2 P = impulse * normal;
+                    XNAVector2 P = impulse * normal;
 
                     cA -= mA * P;
                     aA -= iA * MathUtils.Cross(ref rA, ref P);
@@ -946,8 +946,8 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
 
                 int indexA = pc.indexA;
                 int indexB = pc.indexB;
-                Vector2 localCenterA = pc.localCenterA;
-                Vector2 localCenterB = pc.localCenterB;
+                XNAVector2 localCenterA = pc.localCenterA;
+                XNAVector2 localCenterB = pc.localCenterB;
                 int pointCount = pc.pointCount;
 
                 float mA = 0.0f;
@@ -966,28 +966,28 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                     iB = pc.invIB;
                 }
 
-                Vector2 cA = _positions[indexA].c;
+                XNAVector2 cA = _positions[indexA].c;
                 float aA = _positions[indexA].a;
 
-                Vector2 cB = _positions[indexB].c;
+                XNAVector2 cB = _positions[indexB].c;
                 float aB = _positions[indexB].a;
 
                 // Solve normal constraints
                 for (int j = 0; j < pointCount; ++j)
                 {
-                    Transform xfA = new Transform(Vector2.Zero, aA);
-                    Transform xfB = new Transform(Vector2.Zero, aB);
+                    Transform xfA = new Transform(XNAVector2.Zero, aA);
+                    Transform xfB = new Transform(XNAVector2.Zero, aB);
                     xfA.p = cA - Complex.Multiply(ref localCenterA, ref xfA.q);
                     xfB.p = cB - Complex.Multiply(ref localCenterB, ref xfB.q);
 
-                    Vector2 normal;
-                    Vector2 point;
+                    XNAVector2 normal;
+                    XNAVector2 point;
                     float separation;
 
                     PositionSolverManifold.Initialize(pc, ref xfA, ref xfB, j, out normal, out point, out separation);
 
-                    Vector2 rA = point - cA;
-                    Vector2 rB = point - cB;
+                    XNAVector2 rA = point - cA;
+                    XNAVector2 rB = point - cB;
 
                     // Track max constraint error.
                     minSeparation = Math.Min(minSeparation, separation);
@@ -1003,7 +1003,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                     // Compute normal impulse
                     float impulse = K > 0.0f ? -C / K : 0.0f;
 
-                    Vector2 P = impulse * normal;
+                    XNAVector2 P = impulse * normal;
 
                     cA -= mA * P;
                     aA -= iA * MathUtils.Cross(ref rA, ref P);
@@ -1037,12 +1037,12 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
             /// <param name="radiusA">The radius for A.</param>
             /// <param name="xfB">The transform for B.</param>
             /// <param name="radiusB">The radius for B.</param>
-            /// <param name="normal">World vector pointing from A to B</param>
+            /// <param name="normal">World XNAVector pointing from A to B</param>
             /// <param name="points">Torld contact point (point of intersection).</param>
-            public static void Initialize(ref Manifold manifold, ref Transform xfA, float radiusA, ref Transform xfB, float radiusB, out Vector2 normal, out FixedArray2<Vector2> points)
+            public static void Initialize(ref Manifold manifold, ref Transform xfA, float radiusA, ref Transform xfB, float radiusB, out XNAVector2 normal, out FixedArray2<XNAVector2> points)
             {
-                normal = Vector2.Zero;
-                points = new FixedArray2<Vector2>();
+                normal = XNAVector2.Zero;
+                points = new FixedArray2<XNAVector2>();
 
                 if (manifold.PointCount == 0)
                 {
@@ -1053,17 +1053,17 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                 {
                     case ManifoldType.Circles:
                         {
-                            normal = new Vector2(1.0f, 0.0f);
-                            Vector2 pointA = Transform.Multiply(ref manifold.LocalPoint, ref xfA);
-                            Vector2 pointB = Transform.Multiply(manifold.Points[0].LocalPoint, ref xfB);
-                            if (Vector2.DistanceSquared(pointA, pointB) > Settings.Epsilon * Settings.Epsilon)
+                            normal = new XNAVector2(1.0f, 0.0f);
+                            XNAVector2 pointA = Transform.Multiply(ref manifold.LocalPoint, ref xfA);
+                            XNAVector2 pointB = Transform.Multiply(manifold.Points[0].LocalPoint, ref xfB);
+                            if (XNAVector2.DistanceSquared(pointA, pointB) > Settings.Epsilon * Settings.Epsilon)
                             {
                                 normal = pointB - pointA;
                                 normal.Normalize();
                             }
 
-                            Vector2 cA = pointA + radiusA * normal;
-                            Vector2 cB = pointB - radiusB * normal;
+                            XNAVector2 cA = pointA + radiusA * normal;
+                            XNAVector2 cB = pointB - radiusB * normal;
                             points[0] = 0.5f * (cA + cB);
                         }
                         break;
@@ -1071,13 +1071,13 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                     case ManifoldType.FaceA:
                         {
                             normal = Complex.Multiply(ref manifold.LocalNormal, ref xfA.q);
-                            Vector2 planePoint = Transform.Multiply(ref manifold.LocalPoint, ref xfA);
+                            XNAVector2 planePoint = Transform.Multiply(ref manifold.LocalPoint, ref xfA);
 
                             for (int i = 0; i < manifold.PointCount; ++i)
                             {
-                                Vector2 clipPoint = Transform.Multiply(manifold.Points[i].LocalPoint, ref xfB);
-                                Vector2 cA = clipPoint + (radiusA - Vector2.Dot(clipPoint - planePoint, normal)) * normal;
-                                Vector2 cB = clipPoint - radiusB * normal;
+                                XNAVector2 clipPoint = Transform.Multiply(manifold.Points[i].LocalPoint, ref xfB);
+                                XNAVector2 cA = clipPoint + (radiusA - XNAVector2.Dot(clipPoint - planePoint, normal)) * normal;
+                                XNAVector2 cB = clipPoint - radiusB * normal;
                                 points[i] = 0.5f * (cA + cB);
                             }
                         }
@@ -1086,13 +1086,13 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                     case ManifoldType.FaceB:
                         {
                             normal = Complex.Multiply(ref manifold.LocalNormal, ref xfB.q);
-                            Vector2 planePoint = Transform.Multiply(ref manifold.LocalPoint, ref xfB);
+                            XNAVector2 planePoint = Transform.Multiply(ref manifold.LocalPoint, ref xfB);
 
                             for (int i = 0; i < manifold.PointCount; ++i)
                             {
-                                Vector2 clipPoint = Transform.Multiply(manifold.Points[i].LocalPoint, ref xfA);
-                                Vector2 cB = clipPoint + (radiusB - Vector2.Dot(clipPoint - planePoint, normal)) * normal;
-                                Vector2 cA = clipPoint - radiusA * normal;
+                                XNAVector2 clipPoint = Transform.Multiply(manifold.Points[i].LocalPoint, ref xfA);
+                                XNAVector2 cB = clipPoint + (radiusB - XNAVector2.Dot(clipPoint - planePoint, normal)) * normal;
+                                XNAVector2 cA = clipPoint - radiusA * normal;
                                 points[i] = 0.5f * (cA + cB);
                             }
 
@@ -1106,7 +1106,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
 
         private static class PositionSolverManifold
         {
-            public static void Initialize(ContactPositionConstraint pc, ref Transform xfA, ref Transform xfB, int index, out Vector2 normal, out Vector2 point, out float separation)
+            public static void Initialize(ContactPositionConstraint pc, ref Transform xfA, ref Transform xfB, int index, out XNAVector2 normal, out XNAVector2 point, out float separation)
             {
                 Debug.Assert(pc.pointCount > 0);
 
@@ -1114,26 +1114,26 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                 {
                     case ManifoldType.Circles:
                         {
-                            Vector2 pointA = Transform.Multiply(ref pc.localPoint, ref xfA);
-                            Vector2 pointB = Transform.Multiply(pc.localPoints[0], ref xfB);
+                            XNAVector2 pointA = Transform.Multiply(ref pc.localPoint, ref xfA);
+                            XNAVector2 pointB = Transform.Multiply(pc.localPoints[0], ref xfB);
                             normal = pointB - pointA;
 
                             // Handle zero normalization
-                            if (normal != Vector2.Zero)
+                            if (normal != XNAVector2.Zero)
                                 normal.Normalize();
 
                             point = 0.5f * (pointA + pointB);
-                            separation = Vector2.Dot(pointB - pointA, normal) - pc.radiusA - pc.radiusB;
+                            separation = XNAVector2.Dot(pointB - pointA, normal) - pc.radiusA - pc.radiusB;
                         }
                         break;
 
                     case ManifoldType.FaceA:
                         {
                             Complex.Multiply(ref pc.localNormal, ref xfA.q, out normal);
-                            Vector2 planePoint = Transform.Multiply(ref pc.localPoint, ref xfA);
+                            XNAVector2 planePoint = Transform.Multiply(ref pc.localPoint, ref xfA);
 
-                            Vector2 clipPoint = Transform.Multiply(pc.localPoints[index], ref xfB);
-                            separation = Vector2.Dot(clipPoint - planePoint, normal) - pc.radiusA - pc.radiusB;
+                            XNAVector2 clipPoint = Transform.Multiply(pc.localPoints[index], ref xfB);
+                            separation = XNAVector2.Dot(clipPoint - planePoint, normal) - pc.radiusA - pc.radiusB;
                             point = clipPoint;
                         }
                         break;
@@ -1141,10 +1141,10 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                     case ManifoldType.FaceB:
                         {
                             Complex.Multiply(ref pc.localNormal, ref xfB.q, out normal);
-                            Vector2 planePoint = Transform.Multiply(ref pc.localPoint, ref xfB);
+                            XNAVector2 planePoint = Transform.Multiply(ref pc.localPoint, ref xfB);
 
-                            Vector2 clipPoint = Transform.Multiply(pc.localPoints[index], ref xfA);
-                            separation = Vector2.Dot(clipPoint - planePoint, normal) - pc.radiusA - pc.radiusB;
+                            XNAVector2 clipPoint = Transform.Multiply(pc.localPoints[index], ref xfA);
+                            separation = XNAVector2.Dot(clipPoint - planePoint, normal) - pc.radiusA - pc.radiusB;
                             point = clipPoint;
 
                             // Ensure normal points from A to B
@@ -1152,8 +1152,8 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                         }
                         break;
                     default:
-                        normal = Vector2.Zero;
-                        point = Vector2.Zero;
+                        normal = XNAVector2.Zero;
+                        point = XNAVector2.Zero;
                         separation = 0;
                         break;
 

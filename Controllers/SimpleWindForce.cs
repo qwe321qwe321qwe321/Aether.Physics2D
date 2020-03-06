@@ -19,7 +19,7 @@ namespace tainicom.Aether.Physics2D.Controllers
         /// <summary>
         /// Direction of the windforce
         /// </summary>
-        public Vector2 Direction { get; set; }
+        public XNAVector2 Direction { get; set; }
 
         /// <summary>
         /// The amount of Direction randomization. Allowed range is 0-1.
@@ -42,36 +42,36 @@ namespace tainicom.Aether.Physics2D.Controllers
 
                 if (decayMultiplier != 0)
                 {
-                    Vector2 forceVector;
+                    XNAVector2 forceXNAVector;
 
                     if (ForceType == ForceTypes.Point)
                     {
-                        forceVector = body.Position - Position;
+                        forceXNAVector = body.Position - Position;
                     }
                     else
                     {
                         Direction.Normalize();
 
-                        forceVector = Direction;
+                        forceXNAVector = Direction;
 
-                        if (forceVector.Length() == 0)
-                            forceVector = new Vector2(0, 1);
+                        if (forceXNAVector.Length() == 0)
+                            forceXNAVector = new XNAVector2(0, 1);
                     }
 
                     //TODO: Consider Divergence:
-                    //forceVector = Vector2.Transform(forceVector, Matrix.CreateRotationZ((MathHelper.Pi - MathHelper.Pi/2) * (float)Randomize.NextDouble()));
+                    //forceXNAVector = XNAVector2.Transform(forceXNAVector, XNAMatrix.CreateRotationZ((MathHelper.Pi - MathHelper.Pi/2) * (float)Randomize.NextDouble()));
 
                     // Calculate random Variation
                     if (Variation != 0)
                     {
                         float strengthVariation = (float)Randomize.NextDouble() * MathHelper.Clamp(Variation, 0, 1);
-                        forceVector.Normalize();
-                        body.ApplyForce(forceVector * strength * decayMultiplier * strengthVariation);
+                        forceXNAVector.Normalize();
+                        body.ApplyForce(forceXNAVector * strength * decayMultiplier * strengthVariation);
                     }
                     else
                     {
-                        forceVector.Normalize();
-                        body.ApplyForce(forceVector * strength * decayMultiplier);
+                        forceXNAVector.Normalize();
+                        body.ApplyForce(forceXNAVector * strength * decayMultiplier);
                     }
                 }
             }

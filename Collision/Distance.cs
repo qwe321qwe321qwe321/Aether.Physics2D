@@ -112,13 +112,13 @@ namespace tainicom.Aether.Physics2D.Collision
         /// </summary>
         /// <param name="direction">The direction.</param>
         /// <returns></returns>
-        public int GetSupport(Vector2 direction)
+        public int GetSupport(XNAVector2 direction)
         {
             int bestIndex = 0;
-            float bestValue = Vector2.Dot(Vertices[0], direction);
+            float bestValue = XNAVector2.Dot(Vertices[0], direction);
             for (int i = 1; i < Vertices.Count; ++i)
             {
-                float value = Vector2.Dot(Vertices[i], direction);
+                float value = XNAVector2.Dot(Vertices[i], direction);
                 if (value > bestValue)
                 {
                     bestIndex = i;
@@ -134,13 +134,13 @@ namespace tainicom.Aether.Physics2D.Collision
         /// </summary>
         /// <param name="direction">The direction.</param>
         /// <returns></returns>
-        public Vector2 GetSupportVertex(Vector2 direction)
+        public XNAVector2 GetSupportVertex(XNAVector2 direction)
         {
             int bestIndex = 0;
-            float bestValue = Vector2.Dot(Vertices[0], direction);
+            float bestValue = XNAVector2.Dot(Vertices[0], direction);
             for (int i = 1; i < Vertices.Count; ++i)
             {
-                float value = Vector2.Dot(Vertices[i], direction);
+                float value = XNAVector2.Dot(Vertices[i], direction);
                 if (value > bestValue)
                 {
                     bestIndex = i;
@@ -204,12 +204,12 @@ namespace tainicom.Aether.Physics2D.Collision
         /// <summary>
         /// Closest point on shapeA
         /// </summary>
-        public Vector2 PointA;
+        public XNAVector2 PointA;
 
         /// <summary>
         /// Closest point on shapeB
         /// </summary>
-        public Vector2 PointB;
+        public XNAVector2 PointB;
     }
 
     internal struct SimplexVertex
@@ -232,17 +232,17 @@ namespace tainicom.Aether.Physics2D.Collision
         /// <summary>
         /// wB - wA
         /// </summary>
-        public Vector2 W;
+        public XNAVector2 W;
 
         /// <summary>
         /// Support point in proxyA
         /// </summary>
-        public Vector2 WA;
+        public XNAVector2 WA;
 
         /// <summary>
         /// Support point in proxyB
         /// </summary>
-        public Vector2 WB;
+        public XNAVector2 WB;
     }
 
     internal struct Simplex
@@ -261,8 +261,8 @@ namespace tainicom.Aether.Physics2D.Collision
                 SimplexVertex v = V[i];
                 v.IndexA = cache.IndexA[i];
                 v.IndexB = cache.IndexB[i];
-                Vector2 wALocal = proxyA.Vertices[v.IndexA];
-                Vector2 wBLocal = proxyB.Vertices[v.IndexB];
+                XNAVector2 wALocal = proxyA.Vertices[v.IndexA];
+                XNAVector2 wBLocal = proxyB.Vertices[v.IndexB];
                 v.WA = Transform.Multiply(ref wALocal, ref transformA);
                 v.WB = Transform.Multiply(ref wBLocal, ref transformB);
                 v.W = v.WB - v.WA;
@@ -289,8 +289,8 @@ namespace tainicom.Aether.Physics2D.Collision
                 SimplexVertex v = V[0];
                 v.IndexA = 0;
                 v.IndexB = 0;
-                Vector2 wALocal = proxyA.Vertices[0];
-                Vector2 wBLocal = proxyB.Vertices[0];
+                XNAVector2 wALocal = proxyA.Vertices[0];
+                XNAVector2 wBLocal = proxyB.Vertices[0];
                 v.WA = Transform.Multiply(ref wALocal, ref transformA);
                 v.WB = Transform.Multiply(ref wBLocal, ref transformB);
                 v.W = v.WB - v.WA;
@@ -311,7 +311,7 @@ namespace tainicom.Aether.Physics2D.Collision
             }
         }
 
-        internal Vector2 GetSearchDirection()
+        internal XNAVector2 GetSearchDirection()
         {
             switch (Count)
             {
@@ -320,33 +320,33 @@ namespace tainicom.Aether.Physics2D.Collision
 
                 case 2:
                     {
-                        Vector2 e12 = V[1].W - V[0].W;
+                        XNAVector2 e12 = V[1].W - V[0].W;
                         float sgn = MathUtils.Cross(e12, -V[0].W);
                         if (sgn > 0.0f)
                         {
                             // Origin is left of e12.
-                            return new Vector2(-e12.Y, e12.X);
+                            return new XNAVector2(-e12.Y, e12.X);
                         }
                         else
                         {
                             // Origin is right of e12.
-                            return new Vector2(e12.Y, -e12.X);
+                            return new XNAVector2(e12.Y, -e12.X);
                         }
                     }
 
                 default:
                     Debug.Assert(false);
-                    return Vector2.Zero;
+                    return XNAVector2.Zero;
             }
         }
 
-        internal Vector2 GetClosestPoint()
+        internal XNAVector2 GetClosestPoint()
         {
             switch (Count)
             {
                 case 0:
                     Debug.Assert(false);
-                    return Vector2.Zero;
+                    return XNAVector2.Zero;
 
                 case 1:
                     return V[0].W;
@@ -355,21 +355,21 @@ namespace tainicom.Aether.Physics2D.Collision
                     return V[0].A * V[0].W + V[1].A * V[1].W;
 
                 case 3:
-                    return Vector2.Zero;
+                    return XNAVector2.Zero;
 
                 default:
                     Debug.Assert(false);
-                    return Vector2.Zero;
+                    return XNAVector2.Zero;
             }
         }
 
-        internal void GetWitnessPoints(out Vector2 pA, out Vector2 pB)
+        internal void GetWitnessPoints(out XNAVector2 pA, out XNAVector2 pB)
         {
             switch (Count)
             {
                 case 0:
-                    pA = Vector2.Zero;
-                    pB = Vector2.Zero;
+                    pA = XNAVector2.Zero;
+                    pB = XNAVector2.Zero;
                     Debug.Assert(false);
                     break;
 
@@ -420,7 +420,7 @@ namespace tainicom.Aether.Physics2D.Collision
         // p = a1 * w1 + a2 * w2
         // a1 + a2 = 1
         //
-        // The vector from the origin to the closest point on the line is
+        // The XNAVector from the origin to the closest point on the line is
         // perpendicular to the line.
         // e12 = w2 - w1
         // dot(p, e) = 0
@@ -441,12 +441,12 @@ namespace tainicom.Aether.Physics2D.Collision
 
         internal void Solve2()
         {
-            Vector2 w1 = V[0].W;
-            Vector2 w2 = V[1].W;
-            Vector2 e12 = w2 - w1;
+            XNAVector2 w1 = V[0].W;
+            XNAVector2 w2 = V[1].W;
+            XNAVector2 e12 = w2 - w1;
 
             // w1 region
-            float d12_2 = -Vector2.Dot(w1, e12);
+            float d12_2 = -XNAVector2.Dot(w1, e12);
             if (d12_2 <= 0.0f)
             {
                 // a2 <= 0, so we clamp it to 0
@@ -458,7 +458,7 @@ namespace tainicom.Aether.Physics2D.Collision
             }
 
             // w2 region
-            float d12_1 = Vector2.Dot(w2, e12);
+            float d12_1 = XNAVector2.Dot(w2, e12);
             if (d12_1 <= 0.0f)
             {
                 // a1 <= 0, so we clamp it to 0
@@ -488,17 +488,17 @@ namespace tainicom.Aether.Physics2D.Collision
         // - inside the triangle
         internal void Solve3()
         {
-            Vector2 w1 = V[0].W;
-            Vector2 w2 = V[1].W;
-            Vector2 w3 = V[2].W;
+            XNAVector2 w1 = V[0].W;
+            XNAVector2 w2 = V[1].W;
+            XNAVector2 w3 = V[2].W;
 
             // Edge12
             // [1      1     ][a1] = [1]
             // [w1.e12 w2.e12][a2] = [0]
             // a3 = 0
-            Vector2 e12 = w2 - w1;
-            float w1e12 = Vector2.Dot(w1, e12);
-            float w2e12 = Vector2.Dot(w2, e12);
+            XNAVector2 e12 = w2 - w1;
+            float w1e12 = XNAVector2.Dot(w1, e12);
+            float w2e12 = XNAVector2.Dot(w2, e12);
             float d12_1 = w2e12;
             float d12_2 = -w1e12;
 
@@ -506,9 +506,9 @@ namespace tainicom.Aether.Physics2D.Collision
             // [1      1     ][a1] = [1]
             // [w1.e13 w3.e13][a3] = [0]
             // a2 = 0
-            Vector2 e13 = w3 - w1;
-            float w1e13 = Vector2.Dot(w1, e13);
-            float w3e13 = Vector2.Dot(w3, e13);
+            XNAVector2 e13 = w3 - w1;
+            float w1e13 = XNAVector2.Dot(w1, e13);
+            float w3e13 = XNAVector2.Dot(w3, e13);
             float d13_1 = w3e13;
             float d13_2 = -w1e13;
 
@@ -516,9 +516,9 @@ namespace tainicom.Aether.Physics2D.Collision
             // [1      1     ][a2] = [1]
             // [w2.e23 w3.e23][a3] = [0]
             // a1 = 0
-            Vector2 e23 = w3 - w2;
-            float w2e23 = Vector2.Dot(w2, e23);
-            float w3e23 = Vector2.Dot(w3, e23);
+            XNAVector2 e23 = w3 - w2;
+            float w2e23 = XNAVector2.Dot(w2, e23);
+            float w3e23 = XNAVector2.Dot(w3, e23);
             float d23_1 = w3e23;
             float d23_2 = -w2e23;
 
@@ -699,7 +699,7 @@ namespace tainicom.Aether.Physics2D.Collision
 
                 //FPE: This code was not used anyway.
                 // Compute closest point.
-                //Vector2 p = simplex.GetClosestPoint();
+                //XNAVector2 p = simplex.GetClosestPoint();
                 //float distanceSqr2 = p.LengthSquared();
 
                 // Ensure progress
@@ -710,7 +710,7 @@ namespace tainicom.Aether.Physics2D.Collision
                 //distanceSqr1 = distanceSqr2;
 
                 // Get search direction.
-                Vector2 d = simplex.GetSearchDirection();
+                XNAVector2 d = simplex.GetSearchDirection();
 
                 // Ensure the search direction is numerically fit.
                 if (d.LengthSquared() < Settings.Epsilon * Settings.Epsilon)
@@ -783,7 +783,7 @@ namespace tainicom.Aether.Physics2D.Collision
                     // Shapes are still no overlapped.
                     // Move the witness points to the outer surface.
                     output.Distance -= rA + rB;
-                    Vector2 normal = output.PointB - output.PointA;
+                    XNAVector2 normal = output.PointB - output.PointA;
                     normal.Normalize();
                     output.PointA += rA * normal;
                     output.PointB -= rB * normal;
@@ -792,7 +792,7 @@ namespace tainicom.Aether.Physics2D.Collision
                 {
                     // Shapes are overlapped when radii are considered.
                     // Move the witness points to the middle.
-                    Vector2 p = 0.5f * (output.PointA + output.PointB);
+                    XNAVector2 p = 0.5f * (output.PointA + output.PointB);
                     output.PointA = p;
                     output.PointB = p;
                     output.Distance = 0.0f;

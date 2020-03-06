@@ -130,9 +130,9 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
                     {
                         int lower = Remainder(i - 1, vNum);
                         int upper = Remainder(i + 1, vNum);
-                        Vector2 d1 = new Vector2(xrem[upper] - xrem[i], yrem[upper] - yrem[i]);
-                        Vector2 d2 = new Vector2(xrem[i] - xrem[lower], yrem[i] - yrem[lower]);
-                        Vector2 d3 = new Vector2(xrem[lower] - xrem[upper], yrem[lower] - yrem[upper]);
+                        XNAVector2 d1 = new XNAVector2(xrem[upper] - xrem[i], yrem[upper] - yrem[i]);
+                        XNAVector2 d2 = new XNAVector2(xrem[i] - xrem[lower], yrem[i] - yrem[lower]);
+                        XNAVector2 d3 = new XNAVector2(xrem[lower] - xrem[upper], yrem[lower] - yrem[upper]);
 
                         d1.Normalize();
                         d2.Normalize();
@@ -362,23 +362,23 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
                 float cross = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1);
                 if (cross > 0)
                 {
-                    Add(new Vector2(x1, y1));
-                    Add(new Vector2(x2, y2));
-                    Add(new Vector2(x3, y3));
+                    Add(new XNAVector2(x1, y1));
+                    Add(new XNAVector2(x2, y2));
+                    Add(new XNAVector2(x3, y3));
                 }
                 else
                 {
-                    Add(new Vector2(x1, y1));
-                    Add(new Vector2(x3, y3));
-                    Add(new Vector2(x2, y2));
+                    Add(new XNAVector2(x1, y1));
+                    Add(new XNAVector2(x3, y3));
+                    Add(new XNAVector2(x2, y2));
                 }
             }
 
             public bool IsInside(float x, float y)
             {
-                Vector2 a = this[0];
-                Vector2 b = this[1];
-                Vector2 c = this[2];
+                XNAVector2 a = this[0];
+                XNAVector2 b = this[1];
+                XNAVector2 c = this[2];
 
                 if (x < a.X && x < b.X && x < c.X) return false;
                 if (x > a.X && x > b.X && x > c.X) return false;

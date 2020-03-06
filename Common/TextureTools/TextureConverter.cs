@@ -52,7 +52,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
         private bool _multipartDetection;
         private bool _pixelOffsetOptimization;
 
-        private Matrix _transform = Matrix.Identity;
+        private XNAMatrix _transform = XNAMatrix.Identity;
 
         #region Properties
         /// <summary>
@@ -94,7 +94,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
         /// <summary>
         /// Can be used for scaling.
         /// </summary>
-        public Matrix Transform
+        public XNAMatrix Transform
         {
             get { return _transform; }
             set { _transform = value; }
@@ -140,7 +140,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
         }
 
         public TextureConverter(byte? alphaTolerance, float? hullTolerance,
-            bool? holeDetection, bool? multipartDetection, bool? pixelOffsetOptimization, Matrix? transform)
+            bool? holeDetection, bool? multipartDetection, bool? pixelOffsetOptimization, XNAMatrix? transform)
         {
             Initialize(null, null, alphaTolerance, hullTolerance, holeDetection,
                 multipartDetection, pixelOffsetOptimization, transform);
@@ -153,7 +153,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
 
         public TextureConverter(uint[] data, int width, byte? alphaTolerance,
             float? hullTolerance, bool? holeDetection, bool? multipartDetection,
-            bool? pixelOffsetOptimization, Matrix? transform)
+            bool? pixelOffsetOptimization, XNAMatrix? transform)
         {
             Initialize(data, width, alphaTolerance, hullTolerance, holeDetection,
                 multipartDetection, pixelOffsetOptimization, transform);
@@ -163,7 +163,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
         #region Initialization
         private void Initialize(uint[] data, int? width, byte? alphaTolerance,
             float? hullTolerance, bool? holeDetection, bool? multipartDetection,
-            bool? pixelOffsetOptimization, Matrix? transform)
+            bool? pixelOffsetOptimization, XNAMatrix? transform)
         {
             if (data != null && !width.HasValue)
                 throw new ArgumentNullException("width", "'width' can't be null if 'data' is set.");
@@ -202,7 +202,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             if (transform.HasValue)
                 Transform = transform.Value;
             else
-                Transform = Matrix.Identity;
+                Transform = XNAMatrix.Identity;
         }
         #endregion
 
@@ -315,10 +315,10 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
 
             List<Vertices> detectedPolygons = new List<Vertices>();
 
-            Vector2? holeEntrance = null;
-            Vector2? polygonEntrance = null;
+            XNAVector2? holeEntrance = null;
+            XNAVector2? polygonEntrance = null;
 
-            List<Vector2> blackList = new List<Vector2>();
+            List<XNAVector2> blackList = new List<XNAVector2>();
 
             bool searchOn;
             do
@@ -327,7 +327,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
                 if (detectedPolygons.Count == 0)
                 {
                     // First pass / single polygon
-                    polygon = new Vertices(CreateSimplePolygon(Vector2.Zero, Vector2.Zero));
+                    polygon = new Vertices(CreateSimplePolygon(XNAVector2.Zero, XNAVector2.Zero));
 
                     if (polygon.Count > 2)
                         polygonEntrance = GetTopMostVertex(polygon);
@@ -335,7 +335,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
                 else if (polygonEntrance.HasValue)
                 {
                     // Multi pass / multiple polygons
-                    polygon = new Vertices(CreateSimplePolygon(polygonEntrance.Value, new Vector2(polygonEntrance.Value.X - 1f, polygonEntrance.Value.Y)));
+                    polygon = new Vertices(CreateSimplePolygon(polygonEntrance.Value, new XNAVector2(polygonEntrance.Value.X - 1f, polygonEntrance.Value.Y)));
                 }
                 else
                     break;
@@ -357,7 +357,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
                                 {
                                     blackList.Add(holeEntrance.Value);
                                     Vertices holePolygon = CreateSimplePolygon(holeEntrance.Value,
-                                                                               new Vector2(holeEntrance.Value.X + 1, holeEntrance.Value.Y));
+                                                                               new XNAVector2(holeEntrance.Value.X + 1, holeEntrance.Value.Y));
 
                                     if (holePolygon != null && holePolygon.Count > 2)
                                     {
@@ -410,7 +410,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             if (PolygonDetectionType == VerticesDetectionType.Separated) // Only when VerticesDetectionType.Separated? -> Recheck.
                 ApplyTriangulationCompatibleWinding(ref detectedPolygons);
 
-            if (_transform != Matrix.Identity)
+            if (_transform != XNAMatrix.Identity)
                 ApplyTransform(ref detectedPolygons);
 
             return detectedPolygons;
@@ -439,7 +439,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
         #region Data[] functions
         private int _tempIsSolidX;
         private int _tempIsSolidY;
-        public bool IsSolid(ref Vector2 v)
+        public bool IsSolid(ref XNAVector2 v)
         {
             _tempIsSolidX = (int)v.X;
             _tempIsSolidY = (int)v.Y;
@@ -469,7 +469,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             return false;
         }
 
-        public bool InBounds(ref Vector2 coord)
+        public bool InBounds(ref XNAVector2 coord)
         {
             return (coord.X >= 0f && coord.X < _width && coord.Y >= 0f && coord.Y < _height);
         }
@@ -481,7 +481,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
         /// <param name="polygon">The polygon to search in.</param>
         /// <param name="lastHoleEntrance">The last entrance point.</param>
         /// <returns>The next holes entrance point. Null if ther are no holes.</returns>
-        private Vector2? SearchHoleEntrance(Vertices polygon, Vector2? lastHoleEntrance)
+        private XNAVector2? SearchHoleEntrance(Vertices polygon, XNAVector2? lastHoleEntrance)
         {
             if (polygon == null)
                 throw new ArgumentNullException("'polygon' can't be null.");
@@ -491,7 +491,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
 
 
             List<float> xCoords;
-            Vector2? entrance;
+            XNAVector2? entrance;
 
             int startY;
             int endY;
@@ -562,7 +562,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
 
                                     if (foundSolid && foundTransparent)
                                     {
-                                        entrance = new Vector2(lastSolid, y);
+                                        entrance = new XNAVector2(lastSolid, y);
 
                                         if (DistanceToHullAcceptable(polygon, entrance.Value, true))
                                             return entrance;
@@ -590,7 +590,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             return null;
         }
 
-        private bool DistanceToHullAcceptableHoles(Vertices polygon, Vector2 point, bool higherDetail)
+        private bool DistanceToHullAcceptableHoles(Vertices polygon, XNAVector2 point, bool higherDetail)
         {
             if (polygon == null)
                 throw new ArgumentNullException("polygon", "'polygon' can't be null.");
@@ -619,7 +619,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             return false;
         }
 
-        private bool DistanceToHullAcceptable(Vertices polygon, Vector2 point, bool higherDetail)
+        private bool DistanceToHullAcceptable(Vertices polygon, XNAVector2 point, bool higherDetail)
         {
             if (polygon == null)
                 throw new ArgumentNullException("polygon", "'polygon' can't be null.");
@@ -628,8 +628,8 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
                 throw new ArgumentException("'polygon.Count' can't be less then 3.");
 
 
-            Vector2 edgeVertex2 = polygon[polygon.Count - 1];
-            Vector2 edgeVertex1;
+            XNAVector2 edgeVertex2 = polygon[polygon.Count - 1];
+            XNAVector2 edgeVertex1;
 
             if (higherDetail)
             {
@@ -637,7 +637,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
                 {
                     edgeVertex1 = polygon[i];
 
-                    if (LineTools.DistanceBetweenPointAndLineSegment(ref point, ref edgeVertex1, ref edgeVertex2) <= _hullTolerance || Vector2.Distance(point, edgeVertex1) <= _hullTolerance)
+                    if (LineTools.DistanceBetweenPointAndLineSegment(ref point, ref edgeVertex1, ref edgeVertex2) <= _hullTolerance || XNAVector2.Distance(point, edgeVertex1) <= _hullTolerance)
                         return false;
 
                     edgeVertex2 = polygon[i];
@@ -661,7 +661,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             }
         }
 
-        private bool InPolygon(Vertices polygon, Vector2 point)
+        private bool InPolygon(Vertices polygon, XNAVector2 point)
         {
             bool inPolygon = !DistanceToHullAcceptableHoles(polygon, point, true);
 
@@ -684,10 +684,10 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             return true;
         }
 
-        private Vector2? GetTopMostVertex(Vertices vertices)
+        private XNAVector2? GetTopMostVertex(Vertices vertices)
         {
             float topMostValue = float.MaxValue;
-            Vector2? topMost = null;
+            XNAVector2? topMost = null;
 
             for (int i = 0; i < vertices.Count; i++)
             {
@@ -768,13 +768,13 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             List<float> edges = new List<float>();
 
             // current edge
-            Vector2 slope;
-            Vector2 vertex1;    // i
-            Vector2 vertex2;    // i - 1
+            XNAVector2 slope;
+            XNAVector2 vertex1;    // i
+            XNAVector2 vertex2;    // i - 1
 
             // next edge
-            Vector2 nextSlope;
-            Vector2 nextVertex; // i + 1
+            XNAVector2 nextSlope;
+            XNAVector2 nextVertex; // i + 1
 
             bool addFind;
 
@@ -830,9 +830,9 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             return edges;
         }
 
-        private bool SplitPolygonEdge(Vertices polygon, Vector2 coordInsideThePolygon, out int vertex1Index, out int vertex2Index)
+        private bool SplitPolygonEdge(Vertices polygon, XNAVector2 coordInsideThePolygon, out int vertex1Index, out int vertex2Index)
         {
-            Vector2 slope;
+            XNAVector2 slope;
             int nearestEdgeVertex1Index = 0;
             int nearestEdgeVertex2Index = 0;
             bool edgeFound = false;
@@ -840,7 +840,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             float shortestDistance = float.MaxValue;
 
             bool edgeCoordFound = false;
-            Vector2 foundEdgeCoord = Vector2.Zero;
+            XNAVector2 foundEdgeCoord = XNAVector2.Zero;
 
             List<float> xCoords = SearchCrossingEdges(polygon, (int)coordInsideThePolygon.Y);
 
@@ -877,10 +877,10 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
                     int edgeVertex1Index;
                     for (edgeVertex1Index = 0; edgeVertex1Index < polygon.Count; edgeVertex1Index++)
                     {
-                        Vector2 tempVector1 = polygon[edgeVertex1Index];
-                        Vector2 tempVector2 = polygon[edgeVertex2Index];
+                        XNAVector2 tempXNAVector1 = polygon[edgeVertex1Index];
+                        XNAVector2 tempXNAVector2 = polygon[edgeVertex2Index];
                         distance = LineTools.DistanceBetweenPointAndLineSegment(ref foundEdgeCoord,
-                                                                                ref tempVector1, ref tempVector2);
+                                                                                ref tempXNAVector1, ref tempXNAVector2);
                         if (distance < shortestDistance)
                         {
                             shortestDistance = distance;
@@ -899,8 +899,8 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
                         slope = polygon[nearestEdgeVertex2Index] - polygon[nearestEdgeVertex1Index];
                         slope.Normalize();
 
-                        Vector2 tempVector = polygon[nearestEdgeVertex1Index];
-                        distance = Vector2.Distance(tempVector, foundEdgeCoord);
+                        XNAVector2 tempXNAVector = polygon[nearestEdgeVertex1Index];
+                        distance = XNAVector2.Distance(tempXNAVector, foundEdgeCoord);
 
                         vertex1Index = nearestEdgeVertex1Index;
                         vertex2Index = nearestEdgeVertex1Index + 1;
@@ -922,7 +922,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
         /// <param name="entrance"></param>
         /// <param name="last"></param>
         /// <returns></returns>
-        private Vertices CreateSimplePolygon(Vector2 entrance, Vector2 last)
+        private Vertices CreateSimplePolygon(XNAVector2 entrance, XNAVector2 last)
         {
             bool entranceFound = false;
             bool endOfHull = false;
@@ -931,18 +931,18 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             Vertices hullArea = new Vertices(32);
             Vertices endOfHullArea = new Vertices(32);
 
-            Vector2 current = Vector2.Zero;
+            XNAVector2 current = XNAVector2.Zero;
 
             #region Entrance check
 
             // Get the entrance point. //todo: alle möglichkeiten testen
-            if (entrance == Vector2.Zero || !InBounds(ref entrance))
+            if (entrance == XNAVector2.Zero || !InBounds(ref entrance))
             {
                 entranceFound = SearchHullEntrance(out entrance);
 
                 if (entranceFound)
                 {
-                    current = new Vector2(entrance.X - 1f, entrance.Y);
+                    current = new XNAVector2(entrance.X - 1f, entrance.Y);
                 }
             }
             else
@@ -956,7 +956,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
                     }
                     else
                     {
-                        Vector2 temp;
+                        XNAVector2 temp;
                         if (SearchNearPixels(false, ref entrance, out temp))
                         {
                             current = temp;
@@ -977,12 +977,12 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
                 polygon.Add(entrance);
                 hullArea.Add(entrance);
 
-                Vector2 next = entrance;
+                XNAVector2 next = entrance;
 
                 do
                 {
                     // Search in the pre vision list for an outstanding point.
-                    Vector2 outstanding;
+                    XNAVector2 outstanding;
                     if (SearchForOutstandingVertex(hullArea, out outstanding))
                     {
                         if (endOfHull)
@@ -1037,7 +1037,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             return polygon;
         }
 
-        private bool SearchNearPixels(bool searchingForSolidPixel, ref Vector2 current, out Vector2 foundPixel)
+        private bool SearchNearPixels(bool searchingForSolidPixel, ref XNAVector2 current, out XNAVector2 foundPixel)
         {
             for (int i = 0; i < ClosepixelsLength; i++)
             {
@@ -1046,17 +1046,17 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
 
                 if (!searchingForSolidPixel ^ IsSolid(ref x, ref y))
                 {
-                    foundPixel = new Vector2(x, y);
+                    foundPixel = new XNAVector2(x, y);
                     return true;
                 }
             }
 
             // Nothing found.
-            foundPixel = Vector2.Zero;
+            foundPixel = XNAVector2.Zero;
             return false;
         }
 
-        private bool IsNearPixel(ref Vector2 current, ref Vector2 near)
+        private bool IsNearPixel(ref XNAVector2 current, ref XNAVector2 near)
         {
             for (int i = 0; i < ClosepixelsLength; i++)
             {
@@ -1075,7 +1075,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             return false;
         }
 
-        private bool SearchHullEntrance(out Vector2 entrance)
+        private bool SearchHullEntrance(out XNAVector2 entrance)
         {
             // Search for first solid pixel.
             for (int y = 0; y <= _height; y++)
@@ -1084,14 +1084,14 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
                 {
                     if (IsSolid(ref x, ref y))
                     {
-                        entrance = new Vector2(x, y);
+                        entrance = new XNAVector2(x, y);
                         return true;
                     }
                 }
             }
 
             // If there are no solid pixels.
-            entrance = Vector2.Zero;
+            entrance = XNAVector2.Zero;
             return false;
         }
 
@@ -1102,7 +1102,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
         /// <param name="start">Search start coordinate.</param>
         /// <param name="entrance">Returns the found entrance coordinate. Null if no other shapes found.</param>
         /// <returns>True if a new shape was found.</returns>
-        private bool SearchNextHullEntrance(List<Vertices> detectedPolygons, Vector2 start, out Vector2? entrance)
+        private bool SearchNextHullEntrance(List<Vertices> detectedPolygons, XNAVector2 start, out XNAVector2? entrance)
         {
             int x;
 
@@ -1116,7 +1116,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
                     if (foundTransparent)
                     {
                         x = i % _width;
-                        entrance = new Vector2(x, (i - x) / (float)_width);
+                        entrance = new XNAVector2(x, (i - x) / (float)_width);
 
                         inPolygon = false;
                         for (int polygonIdx = 0; polygonIdx < detectedPolygons.Count; polygonIdx++)
@@ -1142,7 +1142,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             return false;
         }
 
-        private bool GetNextHullPoint(ref Vector2 last, ref Vector2 current, out Vector2 next)
+        private bool GetNextHullPoint(ref XNAVector2 last, ref XNAVector2 current, out XNAVector2 next)
         {
             int x;
             int y;
@@ -1161,36 +1161,36 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
                 {
                     if (IsSolid(ref x, ref y))
                     {
-                        next = new Vector2(x, y);
+                        next = new XNAVector2(x, y);
                         return true;
                     }
                 }
             }
 
-            next = Vector2.Zero;
+            next = XNAVector2.Zero;
             return false;
         }
 
-        private bool SearchForOutstandingVertex(Vertices hullArea, out Vector2 outstanding)
+        private bool SearchForOutstandingVertex(Vertices hullArea, out XNAVector2 outstanding)
         {
-            Vector2 outstandingResult = Vector2.Zero;
+            XNAVector2 outstandingResult = XNAVector2.Zero;
             bool found = false;
 
             if (hullArea.Count > 2)
             {
                 int hullAreaLastPoint = hullArea.Count - 1;
 
-                Vector2 tempVector1;
-                Vector2 tempVector2 = hullArea[0];
-                Vector2 tempVector3 = hullArea[hullAreaLastPoint];
+                XNAVector2 tempXNAVector1;
+                XNAVector2 tempXNAVector2 = hullArea[0];
+                XNAVector2 tempXNAVector3 = hullArea[hullAreaLastPoint];
 
                 // Search between the first and last hull point.
                 for (int i = 1; i < hullAreaLastPoint; i++)
                 {
-                    tempVector1 = hullArea[i];
+                    tempXNAVector1 = hullArea[i];
 
                     // Check if the distance is over the one that's tolerable.
-                    if (LineTools.DistanceBetweenPointAndLineSegment(ref tempVector1, ref tempVector2, ref tempVector3) >= _hullTolerance)
+                    if (LineTools.DistanceBetweenPointAndLineSegment(ref tempXNAVector1, ref tempXNAVector2, ref tempXNAVector3) >= _hullTolerance)
                     {
                         outstandingResult = hullArea[i];
                         found = true;
@@ -1203,7 +1203,7 @@ namespace tainicom.Aether.Physics2D.Common.TextureTools
             return found;
         }
 
-        private int GetIndexOfFirstPixelToCheck(ref Vector2 last, ref Vector2 current)
+        private int GetIndexOfFirstPixelToCheck(ref XNAVector2 last, ref XNAVector2 current)
         {
             // .: pixel
             // l: last position

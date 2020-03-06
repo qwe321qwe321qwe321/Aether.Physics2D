@@ -29,7 +29,7 @@ namespace tainicom.Aether.Physics2D.Fluids
             return ((ulong)x * 2185031351ul) ^ ((ulong)y * 4232417593ul);
         }
 
-        private ulong HashKey(Vector2 position)
+        private ulong HashKey(XNAVector2 position)
         {
             return HashKey(
                 (int)Math.Floor(position.X / GridSize),
@@ -66,7 +66,7 @@ namespace tainicom.Aether.Physics2D.Fluids
             bucket.Add(particle);
         }
 
-        public void Find(ref Vector2 position, List<FluidParticle> neighbours)
+        public void Find(ref XNAVector2 position, List<FluidParticle> neighbours)
         {
             int ix = (int)Math.Floor(position.X / GridSize);
             int iy = (int)Math.Floor(position.Y / GridSize);

@@ -50,16 +50,16 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
     public class FrictionJoint : Joint
     {
         // Solver shared
-        private Vector2 _linearImpulse;
+        private XNAVector2 _linearImpulse;
         private float _angularImpulse;
 
         // Solver temp
         private int _indexA;
         private int _indexB;
-        private Vector2 _rA;
-        private Vector2 _rB;
-        private Vector2 _localCenterA;
-        private Vector2 _localCenterB;
+        private XNAVector2 _rA;
+        private XNAVector2 _rB;
+        private XNAVector2 _localCenterA;
+        private XNAVector2 _localCenterB;
         private float _invMassA;
         private float _invMassB;
         private float _invIA;
@@ -79,40 +79,40 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// <param name="bodyB"></param>
         /// <param name="anchor"></param>
         /// <param name="useWorldCoordinates">Set to true if you are using world coordinates as anchors.</param>
-        public FrictionJoint(Body bodyA, Body bodyB, Vector2 anchor, bool useWorldCoordinates = false)
+        public FrictionJoint(Body bodyA, Body bodyB, XNAVector2 anchorA, XNAVector2 anchorB, bool useWorldCoordinates = false)
             : base(bodyA, bodyB)
         {
             JointType = JointType.Friction;
 
             if (useWorldCoordinates)
             {
-                LocalAnchorA = BodyA.GetLocalPoint(anchor);
-                LocalAnchorB = BodyB.GetLocalPoint(anchor);
+                LocalAnchorA = BodyA.GetLocalPoint(anchorA);
+                LocalAnchorB = BodyB.GetLocalPoint(anchorB);
             }
             else
             {
-                LocalAnchorA = anchor;
-                LocalAnchorB = anchor;
+                LocalAnchorA = anchorA;
+                LocalAnchorB = anchorB;
             }
         }
 
         /// <summary>
         /// The local anchor point on BodyA
         /// </summary>
-        public Vector2 LocalAnchorA { get; set; }
+        public XNAVector2 LocalAnchorA { get; set; }
 
         /// <summary>
         /// The local anchor point on BodyB
         /// </summary>
-        public Vector2 LocalAnchorB { get; set; }
+        public XNAVector2 LocalAnchorB { get; set; }
 
-        public override Vector2 WorldAnchorA
+        public override XNAVector2 WorldAnchorA
         {
             get { return BodyA.GetWorldPoint(LocalAnchorA); }
             set { LocalAnchorA = BodyA.GetLocalPoint(value); }
         }
 
-        public override Vector2 WorldAnchorB
+        public override XNAVector2 WorldAnchorB
         {
             get { return BodyB.GetWorldPoint(LocalAnchorB); }
             set { LocalAnchorB = BodyB.GetLocalPoint(value); }
@@ -128,7 +128,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// </summary>
         public float MaxTorque { get; set; }
 
-        public override Vector2 GetReactionForce(float invDt)
+        public override XNAVector2 GetReactionForce(float invDt)
         {
             return invDt * _linearImpulse;
         }
@@ -150,17 +150,17 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             _invIB = BodyB._invI;
 
             float aA = data.positions[_indexA].a;
-            Vector2 vA = data.velocities[_indexA].v;
+            XNAVector2 vA = data.velocities[_indexA].v;
             float wA = data.velocities[_indexA].w;
 
             float aB = data.positions[_indexB].a;
-            Vector2 vB = data.velocities[_indexB].v;
+            XNAVector2 vB = data.velocities[_indexB].v;
             float wB = data.velocities[_indexB].w;
 
             Complex qA = Complex.FromAngle(aA);
             Complex qB = Complex.FromAngle(aB);
 
-            // Compute the effective mass matrix.
+            // Compute the effective mass XNAMatrix.
             _rA = Complex.Multiply(LocalAnchorA - _localCenterA, ref qA);
             _rB = Complex.Multiply(LocalAnchorB - _localCenterB, ref qB);
 
@@ -196,7 +196,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 _linearImpulse *= data.step.dtRatio;
                 _angularImpulse *= data.step.dtRatio;
 
-                Vector2 P = new Vector2(_linearImpulse.X, _linearImpulse.Y);
+                XNAVector2 P = new XNAVector2(_linearImpulse.X, _linearImpulse.Y);
                 vA -= mA * P;
                 wA -= iA * (MathUtils.Cross(ref _rA, ref P) + _angularImpulse);
                 vB += mB * P;
@@ -204,7 +204,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             }
             else
             {
-                _linearImpulse = Vector2.Zero;
+                _linearImpulse = XNAVector2.Zero;
                 _angularImpulse = 0.0f;
             }
 
@@ -216,9 +216,9 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
         internal override void SolveVelocityConstraints(ref SolverData data)
         {
-            Vector2 vA = data.velocities[_indexA].v;
+            XNAVector2 vA = data.velocities[_indexA].v;
             float wA = data.velocities[_indexA].w;
-            Vector2 vB = data.velocities[_indexB].v;
+            XNAVector2 vB = data.velocities[_indexB].v;
             float wB = data.velocities[_indexB].w;
 
             float mA = _invMassA, mB = _invMassB;
@@ -242,10 +242,10 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
             // Solve linear friction
             {
-                Vector2 Cdot = vB + MathUtils.Cross(wB, ref _rB) - vA - MathUtils.Cross(wA, ref _rA);
+                XNAVector2 Cdot = vB + MathUtils.Cross(wB, ref _rB) - vA - MathUtils.Cross(wA, ref _rA);
 
-                Vector2 impulse = -MathUtils.Mul(ref _linearMass, ref Cdot);
-                Vector2 oldImpulse = _linearImpulse;
+                XNAVector2 impulse = -MathUtils.Mul(ref _linearMass, ref Cdot);
+                XNAVector2 oldImpulse = _linearImpulse;
                 _linearImpulse += impulse;
 
                 float maxImpulse = h * MaxForce;

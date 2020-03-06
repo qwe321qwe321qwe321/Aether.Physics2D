@@ -45,7 +45,7 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
         /// <summary>
         /// The position of the shape's centroid relative to the shape's origin.
         /// </summary>
-        public Vector2 Centroid { get; internal set; }
+        public XNAVector2 Centroid { get; internal set; }
 
         /// <summary>
         /// The rotational inertia of the shape about the local origin.
@@ -204,7 +204,7 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
         /// <param name="transform">The shape world transform.</param>
         /// <param name="point">A point in world coordinates.</param>
         /// <returns>True if the point is inside the shape</returns>
-        public abstract bool TestPoint(ref Transform transform, ref Vector2 point);
+        public abstract bool TestPoint(ref Transform transform, ref XNAVector2 point);
 
         /// <summary>
         /// Cast a ray against a child shape.
@@ -233,6 +233,6 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
         /// <summary>
         /// Used for the buoyancy controller
         /// </summary>
-        public abstract float ComputeSubmergedArea(ref Vector2 normal, float offset, ref Transform xf, out Vector2 sc);
+        public abstract float ComputeSubmergedArea(ref XNAVector2 normal, float offset, ref Transform xf, out XNAVector2 sc);
     }
 }

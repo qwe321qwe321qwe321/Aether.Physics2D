@@ -145,30 +145,30 @@ namespace tainicom.Aether.Physics2D.Collision
         /// </summary>
         /// <param name="aabb"></param>
         /// <returns></returns>
-        public static bool RayCastAABB(AABB aabb, Vector2 p1, Vector2 p2)
+        public static bool RayCastAABB(AABB aabb, XNAVector2 p1, XNAVector2 p2)
         {
             AABB segmentAABB = new AABB();
             {
-                Vector2.Min(ref p1, ref p2, out segmentAABB.LowerBound);
-                Vector2.Max(ref p1, ref p2, out segmentAABB.UpperBound);
+                XNAVector2.Min(ref p1, ref p2, out segmentAABB.LowerBound);
+                XNAVector2.Max(ref p1, ref p2, out segmentAABB.UpperBound);
             }
             if (!AABB.TestOverlap(ref aabb, ref segmentAABB)) return false;
 
-            Vector2 rayDir = p2 - p1;
-            Vector2 rayPos = p1;
+            XNAVector2 rayDir = p2 - p1;
+            XNAVector2 rayPos = p1;
 
-            Vector2 norm = new Vector2(-rayDir.Y, rayDir.X); //normal to ray
+            XNAVector2 norm = new XNAVector2(-rayDir.Y, rayDir.X); //normal to ray
             if (norm.Length() == 0.0f)
                 return true; //if ray is just a point, return true (iff point is within aabb, as tested earlier)
             norm.Normalize();
 
-            float dPos = Vector2.Dot(rayPos, norm);
+            float dPos = XNAVector2.Dot(rayPos, norm);
 
             var verts = aabb.Vertices;
-            float d0 = Vector2.Dot(verts[0], norm) - dPos;
+            float d0 = XNAVector2.Dot(verts[0], norm) - dPos;
             for (int i = 1; i < 4; i++)
             {
-                float d = Vector2.Dot(verts[i], norm) - dPos;
+                float d = XNAVector2.Dot(verts[i], norm) - dPos;
                 if (Math.Sign(d) != Math.Sign(d0))
                     //return true if the ray splits the vertices (ie: sign of dot products with normal are not all same)
                     return true;
@@ -206,8 +206,8 @@ namespace tainicom.Aether.Physics2D.Collision
             stack.Push(this);
 
             float maxFraction = input.MaxFraction;
-            Vector2 p1 = input.Point1;
-            Vector2 p2 = p1 + (input.Point2 - input.Point1) * maxFraction;
+            XNAVector2 p1 = input.Point1;
+            XNAVector2 p2 = p1 + (input.Point2 - input.Point1) * maxFraction;
 
             while (stack.Count > 0)
             {

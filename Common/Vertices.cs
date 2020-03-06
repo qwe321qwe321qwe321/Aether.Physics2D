@@ -56,13 +56,13 @@ namespace tainicom.Aether.Physics2D.Common
     }
     
     [DebuggerDisplay("Count = {Count} Vertices = {ToString()}")]
-    public class Vertices : List<Vector2>
+    public class Vertices : List<XNAVector2>
     {
         public Vertices() { }
 
         public Vertices(int capacity) : base(capacity) { }
 
-        public Vertices(IEnumerable<Vector2> vertices)
+        public Vertices(IEnumerable<XNAVector2> vertices)
         {
             AddRange(vertices);
         }
@@ -88,7 +88,7 @@ namespace tainicom.Aether.Physics2D.Common
         /// Gets the next vertex. Used for iterating all the edges with wrap-around.
         /// </summary>
         /// <param name="index">The current index</param>
-        public Vector2 NextVertex(int index)
+        public XNAVector2 NextVertex(int index)
         {
             return this[NextIndex(index)];
         }
@@ -106,7 +106,7 @@ namespace tainicom.Aether.Physics2D.Common
         /// Gets the previous vertex. Used for iterating all the edges with wrap-around.
         /// </summary>
         /// <param name="index">The current index</param>
-        public Vector2 PreviousVertex(int index)
+        public XNAVector2 PreviousVertex(int index)
         {
             return this[PreviousIndex(index)];
         }
@@ -129,8 +129,8 @@ namespace tainicom.Aether.Physics2D.Common
             {
                 int j = (i + 1) % Count;
 
-                Vector2 vi = this[i];
-                Vector2 vj = this[j];
+                XNAVector2 vi = this[i];
+                XNAVector2 vj = this[j];
 
                 area += vi.X * vj.Y;
                 area -= vi.Y * vj.X;
@@ -153,22 +153,22 @@ namespace tainicom.Aether.Physics2D.Common
         /// Gets the centroid.
         /// </summary>
         /// <returns></returns>
-        public Vector2 GetCentroid()
+        public XNAVector2 GetCentroid()
         {
             //The simplest polygon which can exist in the Euclidean plane has 3 sides.
             if (Count < 3)
-                return new Vector2(float.NaN, float.NaN);
+                return new XNAVector2(float.NaN, float.NaN);
 
             // Same algorithm is used by Box2D
-            Vector2 c = Vector2.Zero;
+            XNAVector2 c = XNAVector2.Zero;
             float area = 0.0f;
             const float inv3 = 1.0f / 3.0f;
 
             for (int i = 0; i < Count; ++i)
             {
                 // Triangle vertices.
-                Vector2 current = this[i];
-                Vector2 next = (i + 1 < Count ? this[i + 1] : this[0]);
+                XNAVector2 current = this[i];
+                XNAVector2 next = (i + 1 < Count ? this[i + 1] : this[0]);
 
                 float triangleArea = 0.5f * (current.X * next.Y - current.Y * next.X);
                 area += triangleArea;
@@ -188,8 +188,8 @@ namespace tainicom.Aether.Physics2D.Common
         public AABB GetAABB()
         {
             AABB aabb;
-            Vector2 lowerBound = new Vector2(float.MaxValue, float.MaxValue);
-            Vector2 upperBound = new Vector2(float.MinValue, float.MinValue);
+            XNAVector2 lowerBound = new XNAVector2(float.MaxValue, float.MaxValue);
+            XNAVector2 upperBound = new XNAVector2(float.MinValue, float.MinValue);
 
             for (int i = 0; i < Count; ++i)
             {
@@ -219,24 +219,24 @@ namespace tainicom.Aether.Physics2D.Common
         }
 
         /// <summary>
-        /// Translates the vertices with the specified vector.
+        /// Translates the vertices with the specified XNAVector.
         /// </summary>
         /// <param name="value">The value.</param>
-        public void Translate(Vector2 value)
+        public void Translate(XNAVector2 value)
         {
             Translate(ref value);
         }
 
         /// <summary>
-        /// Translates the vertices with the specified vector.
+        /// Translates the vertices with the specified XNAVector.
         /// </summary>
-        /// <param name="value">The vector.</param>
-        public void Translate(ref Vector2 value)
+        /// <param name="value">The XNAVector.</param>
+        public void Translate(ref XNAVector2 value)
         {
             Debug.Assert(!AttachedToBody, "Translating vertices that are used by a Body can result in unstable behavior. Use Body.Position instead.");
 
             for (int i = 0; i < Count; i++)
-                this[i] = Vector2.Add(this[i], value);
+                this[i] = XNAVector2.Add(this[i], value);
 
             if (Holes != null && Holes.Count > 0)
             {
@@ -248,24 +248,24 @@ namespace tainicom.Aether.Physics2D.Common
         }
 
         /// <summary>
-        /// Scales the vertices with the specified vector.
+        /// Scales the vertices with the specified XNAVector.
         /// </summary>
         /// <param name="value">The Value.</param>
-        public void Scale(Vector2 value)
+        public void Scale(XNAVector2 value)
         {
             Scale(ref value);
         }
 
         /// <summary>
-        /// Scales the vertices with the specified vector.
+        /// Scales the vertices with the specified XNAVector.
         /// </summary>
         /// <param name="value">The Value.</param>
-        public void Scale(ref Vector2 value)
+        public void Scale(ref XNAVector2 value)
         {
             Debug.Assert(!AttachedToBody, "Scaling vertices that are used by a Body can result in unstable behavior.");
 
             for (int i = 0; i < Count; i++)
-                this[i] = Vector2.Multiply(this[i], value);
+                this[i] = XNAVector2.Multiply(this[i], value);
 
             if (Holes != null && Holes.Count > 0)
             {
@@ -292,8 +292,8 @@ namespace tainicom.Aether.Physics2D.Common
 
             for (int i = 0; i < Count; i++)
             {
-                Vector2 position = this[i];
-                this[i] = new Vector2((position.X * num1 + position.Y * -num2), (position.X * num2 + position.Y * num1));
+                XNAVector2 position = this[i];
+                this[i] = new XNAVector2((position.X * num1 + position.Y * -num2), (position.X * num2 + position.Y * num1));
             }
 
             if (Holes != null && Holes.Count > 0)
@@ -330,7 +330,7 @@ namespace tainicom.Aether.Physics2D.Common
             for (int i = 0; i < Count; ++i)
             {
                 int next = i + 1 < Count ? i + 1 : 0;
-                Vector2 edge = this[next] - this[i];
+                XNAVector2 edge = this[next] - this[i];
 
                 for (int j = 0; j < Count; ++j)
                 {
@@ -338,7 +338,7 @@ namespace tainicom.Aether.Physics2D.Common
                     if (j == i || j == next)
                         continue;
 
-                    Vector2 r = this[j] - this[i];
+                    XNAVector2 r = this[j] - this[i];
 
                     float s = edge.X * r.Y - edge.Y * r.X;
 
@@ -386,14 +386,14 @@ namespace tainicom.Aether.Physics2D.Common
 
             for (int i = 0; i < Count; ++i)
             {
-                Vector2 a1 = this[i];
-                Vector2 a2 = NextVertex(i);
+                XNAVector2 a1 = this[i];
+                XNAVector2 a2 = NextVertex(i);
                 for (int j = i + 1; j < Count; ++j)
                 {
-                    Vector2 b1 = this[j];
-                    Vector2 b2 = NextVertex(j);
+                    XNAVector2 b1 = this[j];
+                    XNAVector2 b2 = NextVertex(j);
 
-                    Vector2 temp;
+                    XNAVector2 temp;
 
                     if (LineTools.LineIntersect2(ref a1, ref a2, ref b1, ref b2, out temp))
                         return false;
@@ -429,7 +429,7 @@ namespace tainicom.Aether.Physics2D.Common
             for (int i = 0; i < Count; ++i)
             {
                 int next = i + 1 < Count ? i + 1 : 0;
-                Vector2 edge = this[next] - this[i];
+                XNAVector2 edge = this[next] - this[i];
                 if (edge.LengthSquared() <= Settings.Epsilon*Settings.Epsilon)
                 {
                     return PolygonError.SideTooSmall;
@@ -448,16 +448,16 @@ namespace tainicom.Aether.Physics2D.Common
         /// <param name="axis">The axis.</param>
         /// <param name="min">The min.</param>
         /// <param name="max">The max.</param>
-        public void ProjectToAxis(ref Vector2 axis, out float min, out float max)
+        public void ProjectToAxis(ref XNAVector2 axis, out float min, out float max)
         {
             // To project a point on an axis use the dot product
-            float dotProduct = Vector2.Dot(axis, this[0]);
+            float dotProduct = XNAVector2.Dot(axis, this[0]);
             min = dotProduct;
             max = dotProduct;
 
             for (int i = 0; i < Count; i++)
             {
-                dotProduct = Vector2.Dot(this[i], axis);
+                dotProduct = XNAVector2.Dot(this[i], axis);
                 if (dotProduct < min)
                 {
                     min = dotProduct;
@@ -480,7 +480,7 @@ namespace tainicom.Aether.Physics2D.Common
         /// <returns>-1 if the winding number is zero and the point is outside
         /// the polygon, 1 if the point is inside the polygon, and 0 if the point
         /// is on the polygons edge.</returns>
-        public int PointInPolygon(ref Vector2 point)
+        public int PointInPolygon(ref XNAVector2 point)
         {
             // Winding number
             int wn = 0;
@@ -489,13 +489,13 @@ namespace tainicom.Aether.Physics2D.Common
             for (int i = 0; i < Count; i++)
             {
                 // Get points
-                Vector2 p1 = this[i];
-                Vector2 p2 = this[NextIndex(i)];
+                XNAVector2 p1 = this[i];
+                XNAVector2 p2 = this[NextIndex(i)];
 
                 // Test if a point is directly on the edge
-                Vector2 edge = p2 - p1;
+                XNAVector2 edge = p2 - p1;
                 float area = MathUtils.Area(ref p1, ref p2, ref point);
-                if (area == 0f && Vector2.Dot(point - p1, edge) >= 0f && Vector2.Dot(point - p2, edge) <= 0f)
+                if (area == 0f && XNAVector2.Dot(point - p1, edge) >= 0f && XNAVector2.Dot(point - p2, edge) <= 0f)
                 {
                     return 0;
                 }
@@ -523,7 +523,7 @@ namespace tainicom.Aether.Physics2D.Common
         /// If this sum is 2pi then the point is an interior point, if 0 then the point is an exterior point. 
         /// ref: http://ozviz.wasp.uwa.edu.au/~pbourke/geometry/insidepoly/  - Solution 2 
         /// </summary>
-        public bool PointInPolygonAngle(ref Vector2 point)
+        public bool PointInPolygonAngle(ref XNAVector2 point)
         {
             double angle = 0;
 
@@ -531,10 +531,10 @@ namespace tainicom.Aether.Physics2D.Common
             for (int i = 0; i < Count; i++)
             {
                 // Get points
-                Vector2 p1 = this[i] - point;
-                Vector2 p2 = this[NextIndex(i)] - point;
+                XNAVector2 p1 = this[i] - point;
+                XNAVector2 p2 = this[NextIndex(i)] - point;
 
-                angle += MathUtils.VectorAngle(ref p1, ref p2);
+                angle += MathUtils.XNAVectorAngle(ref p1, ref p2);
             }
 
             if (Math.Abs(angle) < Math.PI)
@@ -546,22 +546,22 @@ namespace tainicom.Aether.Physics2D.Common
         }
 
         /// <summary>
-        /// Transforms the polygon using the defined matrix.
+        /// Transforms the polygon using the defined XNAMatrix.
         /// </summary>
-        /// <param name="transform">The matrix to use as transformation.</param>
-        public void Transform(ref Matrix transform)
+        /// <param name="transform">The XNAMatrix to use as transformation.</param>
+        public void Transform(ref XNAMatrix transform)
         {
             // Transform main polygon
             for (int i = 0; i < Count; i++)
-                this[i] = Vector2.Transform(this[i], transform);
+                this[i] = XNAVector2.Transform(this[i], transform);
 
             // Transform holes
             if (Holes != null && Holes.Count > 0)
             {
                 for (int i = 0; i < Holes.Count; i++)
                 {
-                    Vector2[] temp = Holes[i].ToArray();
-                    Vector2.Transform(temp, ref transform, temp);
+                    XNAVector2[] temp = Holes[i].ToArray();
+                    XNAVector2.Transform(temp, ref transform, temp);
 
                     Holes[i] = new Vertices(temp);
                 }

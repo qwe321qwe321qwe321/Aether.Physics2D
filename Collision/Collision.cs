@@ -112,7 +112,7 @@ namespace tainicom.Aether.Physics2D.Collision
         /// <summary>
         /// Usage depends on manifold type
         /// </summary>
-        public Vector2 LocalPoint;
+        public XNAVector2 LocalPoint;
 
         /// <summary>
         /// The non-penetration impulse
@@ -155,12 +155,12 @@ namespace tainicom.Aether.Physics2D.Collision
         /// <summary>
         /// Not use for Type.SeparationFunction.Points
         /// </summary>
-        public Vector2 LocalNormal;
+        public XNAVector2 LocalNormal;
 
         /// <summary>
         /// Usage depends on manifold type
         /// </summary>
-        public Vector2 LocalPoint;
+        public XNAVector2 LocalPoint;
 
         /// <summary>
         /// The number of manifold points
@@ -207,7 +207,7 @@ namespace tainicom.Aether.Physics2D.Collision
     public struct ClipVertex
     {
         public ContactID ID;
-        public Vector2 V;
+        public XNAVector2 V;
     }
 
     /// <summary>
@@ -225,12 +225,12 @@ namespace tainicom.Aether.Physics2D.Collision
         /// <summary>
         /// The starting point of the ray.
         /// </summary>
-        public Vector2 Point1;
+        public XNAVector2 Point1;
 
         /// <summary>
         /// The ending point of the ray.
         /// </summary>
-        public Vector2 Point2;
+        public XNAVector2 Point2;
     }
 
     /// <summary>
@@ -247,7 +247,7 @@ namespace tainicom.Aether.Physics2D.Collision
         /// <summary>
         /// The normal of the face of the shape the ray has hit.
         /// </summary>
-        public Vector2 Normal;
+        public XNAVector2 Normal;
     }
 
     /// <summary>
@@ -258,28 +258,28 @@ namespace tainicom.Aether.Physics2D.Collision
         /// <summary>
         /// The lower vertex
         /// </summary>
-        public Vector2 LowerBound;
+        public XNAVector2 LowerBound;
 
         /// <summary>
         /// The upper vertex
         /// </summary>
-        public Vector2 UpperBound;
+        public XNAVector2 UpperBound;
 
-        public AABB(Vector2 min, Vector2 max)
+        public AABB(XNAVector2 min, XNAVector2 max)
             : this(ref min, ref max)
         {
         }
 
-        public AABB(ref Vector2 min, ref Vector2 max)
+        public AABB(ref XNAVector2 min, ref XNAVector2 max)
         {
             LowerBound = min;
             UpperBound = max;
         }
 
-        public AABB(Vector2 center, float width, float height)
+        public AABB(XNAVector2 center, float width, float height)
         {
-            LowerBound = center - new Vector2(width / 2, height / 2);
-            UpperBound = center + new Vector2(width / 2, height / 2);
+            LowerBound = center - new XNAVector2(width / 2, height / 2);
+            UpperBound = center + new XNAVector2(width / 2, height / 2);
         }
 
         public float Width
@@ -295,7 +295,7 @@ namespace tainicom.Aether.Physics2D.Collision
         /// <summary>
         /// Get the center of the AABB.
         /// </summary>
-        public Vector2 Center
+        public XNAVector2 Center
         {
             get { return 0.5f * (LowerBound + UpperBound); }
         }
@@ -303,7 +303,7 @@ namespace tainicom.Aether.Physics2D.Collision
         /// <summary>
         /// Get the extents of the AABB (half-widths).
         /// </summary>
-        public Vector2 Extents
+        public XNAVector2 Extents
         {
             get { return 0.5f * (UpperBound - LowerBound); }
         }
@@ -331,9 +331,9 @@ namespace tainicom.Aether.Physics2D.Collision
             {
                 Vertices vertices = new Vertices(4);
                 vertices.Add(UpperBound);
-                vertices.Add(new Vector2(UpperBound.X, LowerBound.Y));
+                vertices.Add(new XNAVector2(UpperBound.X, LowerBound.Y));
                 vertices.Add(LowerBound);
-                vertices.Add(new Vector2(LowerBound.X, UpperBound.Y));
+                vertices.Add(new XNAVector2(LowerBound.X, UpperBound.Y));
                 return vertices;
             }
         }
@@ -351,7 +351,7 @@ namespace tainicom.Aether.Physics2D.Collision
         /// </summary>
         public AABB Q2
         {
-            get { return new AABB(new Vector2(LowerBound.X, Center.Y), new Vector2(Center.X, UpperBound.Y)); }
+            get { return new AABB(new XNAVector2(LowerBound.X, Center.Y), new XNAVector2(Center.X, UpperBound.Y)); }
         }
 
         /// <summary>
@@ -367,7 +367,7 @@ namespace tainicom.Aether.Physics2D.Collision
         /// </summary>
         public AABB Q4
         {
-            get { return new AABB(new Vector2(Center.X, LowerBound.Y), new Vector2(UpperBound.X, Center.Y)); }
+            get { return new AABB(new XNAVector2(Center.X, LowerBound.Y), new XNAVector2(UpperBound.X, Center.Y)); }
         }
 
         /// <summary>
@@ -378,7 +378,7 @@ namespace tainicom.Aether.Physics2D.Collision
         /// </returns>
         public bool IsValid()
         {
-            Vector2 d = UpperBound - LowerBound;
+            XNAVector2 d = UpperBound - LowerBound;
             bool valid = d.X >= 0.0f && d.Y >= 0.0f;
             valid = valid && LowerBound.IsValid() && UpperBound.IsValid();
             return valid;
@@ -390,8 +390,8 @@ namespace tainicom.Aether.Physics2D.Collision
         /// <param name="aabb">The aabb.</param>
         public void Combine(ref AABB aabb)
         {
-            Vector2.Min(ref LowerBound, ref aabb.LowerBound, out LowerBound);
-            Vector2.Max(ref UpperBound, ref aabb.UpperBound, out UpperBound);
+            XNAVector2.Min(ref LowerBound, ref aabb.LowerBound, out LowerBound);
+            XNAVector2.Max(ref UpperBound, ref aabb.UpperBound, out UpperBound);
         }
 
         /// <summary>
@@ -401,8 +401,8 @@ namespace tainicom.Aether.Physics2D.Collision
         /// <param name="aabb2">The aabb2.</param>
         public void Combine(ref AABB aabb1, ref AABB aabb2)
         {
-            Vector2.Min(ref aabb1.LowerBound, ref aabb2.LowerBound, out LowerBound);
-            Vector2.Max(ref aabb1.UpperBound, ref aabb2.UpperBound, out UpperBound);
+            XNAVector2.Min(ref aabb1.LowerBound, ref aabb2.LowerBound, out LowerBound);
+            XNAVector2.Max(ref aabb1.UpperBound, ref aabb2.UpperBound, out UpperBound);
         }
 
         /// <summary>
@@ -429,7 +429,7 @@ namespace tainicom.Aether.Physics2D.Collision
         /// <returns>
         /// 	<c>true</c> if it contains the specified point; otherwise, <c>false</c>.
         /// </returns>
-        public bool Contains(ref Vector2 point)
+        public bool Contains(ref XNAVector2 point)
         {
             //using epsilon to try and gaurd against float rounding errors.
             return (point.X > (LowerBound.X + Settings.Epsilon) && point.X < (UpperBound.X - Settings.Epsilon) &&
@@ -468,11 +468,11 @@ namespace tainicom.Aether.Physics2D.Collision
             float tmin = -Settings.MaxFloat;
             float tmax = Settings.MaxFloat;
 
-            Vector2 p = input.Point1;
-            Vector2 d = input.Point2 - input.Point1;
-            Vector2 absD = MathUtils.Abs(d);
+            XNAVector2 p = input.Point1;
+            XNAVector2 d = input.Point2 - input.Point1;
+            XNAVector2 absD = MathUtils.Abs(d);
 
-            Vector2 normal = Vector2.Zero;
+            XNAVector2 normal = XNAVector2.Zero;
 
             for (int i = 0; i < 2; ++i)
             {
@@ -497,7 +497,7 @@ namespace tainicom.Aether.Physics2D.Collision
                     float t1 = (lowerBound_i - p_i) * inv_d;
                     float t2 = (upperBound_i - p_i) * inv_d;
 
-                    // Sign of the normal vector.
+                    // Sign of the normal XNAVector.
                     float s = -1.0f;
 
                     if (t1 > t2)
@@ -562,14 +562,14 @@ namespace tainicom.Aether.Physics2D.Collision
     {
         public int i1, i2;
 
-        public Vector2 v1, v2;
+        public XNAVector2 v1, v2;
 
-        public Vector2 normal;
+        public XNAVector2 normal;
 
-        public Vector2 sideNormal1;
+        public XNAVector2 sideNormal1;
         public float sideOffset1;
 
-        public Vector2 sideNormal2;
+        public XNAVector2 sideNormal2;
         public float sideOffset2;
     }
 
@@ -658,11 +658,11 @@ namespace tainicom.Aether.Physics2D.Collision
         {
             manifold.PointCount = 0;
 
-            Vector2 pA = Transform.Multiply(ref circleA._position, ref xfA);
-            Vector2 pB = Transform.Multiply(ref circleB._position, ref xfB);
+            XNAVector2 pA = Transform.Multiply(ref circleA._position, ref xfA);
+            XNAVector2 pB = Transform.Multiply(ref circleB._position, ref xfB);
 
-            Vector2 d = pB - pA;
-            float distSqr = Vector2.Dot(d, d);
+            XNAVector2 d = pB - pA;
+            float distSqr = XNAVector2.Dot(d, d);
             float radius = circleA.Radius + circleB.Radius;
             if (distSqr > radius * radius)
             {
@@ -671,7 +671,7 @@ namespace tainicom.Aether.Physics2D.Collision
 
             manifold.Type = ManifoldType.Circles;
             manifold.LocalPoint = circleA.Position;
-            manifold.LocalNormal = Vector2.Zero;
+            manifold.LocalNormal = XNAVector2.Zero;
             manifold.PointCount = 1;
 
             ManifoldPoint p0 = manifold.Points[0];
@@ -695,8 +695,8 @@ namespace tainicom.Aether.Physics2D.Collision
             manifold.PointCount = 0;
 
             // Compute circle position in the frame of the polygon.
-            Vector2 c = Transform.Multiply(ref circleB._position, ref xfB);
-            Vector2 cLocal = Transform.Divide(ref c, ref xfA);
+            XNAVector2 c = Transform.Multiply(ref circleB._position, ref xfB);
+            XNAVector2 cLocal = Transform.Divide(ref c, ref xfA);
 
             // Find the min separating edge.
             int normalIndex = 0;
@@ -706,8 +706,8 @@ namespace tainicom.Aether.Physics2D.Collision
 
             for (int i = 0; i < vertexCount; ++i)
             {
-                Vector2 value1 = polygonA.Normals[i];
-                Vector2 value2 = cLocal - polygonA.Vertices[i];
+                XNAVector2 value1 = polygonA.Normals[i];
+                XNAVector2 value2 = cLocal - polygonA.Vertices[i];
                 float s = value1.X * value2.X + value1.Y * value2.Y;
 
                 if (s > radius)
@@ -726,8 +726,8 @@ namespace tainicom.Aether.Physics2D.Collision
             // Vertices that subtend the incident face.
             int vertIndex1 = normalIndex;
             int vertIndex2 = vertIndex1 + 1 < vertexCount ? vertIndex1 + 1 : 0;
-            Vector2 v1 = polygonA.Vertices[vertIndex1];
-            Vector2 v2 = polygonA.Vertices[vertIndex2];
+            XNAVector2 v1 = polygonA.Vertices[vertIndex1];
+            XNAVector2 v2 = polygonA.Vertices[vertIndex2];
 
             // If the center is inside the polygon ...
             if (separation < Settings.Epsilon)
@@ -805,9 +805,9 @@ namespace tainicom.Aether.Physics2D.Collision
             }
             else
             {
-                Vector2 faceCenter = 0.5f * (v1 + v2);
-                Vector2 value1 = cLocal - faceCenter;
-                Vector2 value2 = polygonA.Normals[vertIndex1];
+                XNAVector2 faceCenter = 0.5f * (v1 + v2);
+                XNAVector2 value1 = cLocal - faceCenter;
+                XNAVector2 value2 = polygonA.Normals[vertIndex1];
                 float separation2 = value1.X * value2.X + value1.Y * value2.Y;
                 if (separation2 > radius)
                 {
@@ -888,16 +888,16 @@ namespace tainicom.Aether.Physics2D.Collision
             int iv1 = edge1;
             int iv2 = edge1 + 1 < count1 ? edge1 + 1 : 0;
 
-            Vector2 v11 = poly1.Vertices[iv1];
-            Vector2 v12 = poly1.Vertices[iv2];
+            XNAVector2 v11 = poly1.Vertices[iv1];
+            XNAVector2 v12 = poly1.Vertices[iv2];
 
-            Vector2 localTangent = v12 - v11;
+            XNAVector2 localTangent = v12 - v11;
             localTangent.Normalize();
 
-            Vector2 localNormal = new Vector2(localTangent.Y, -localTangent.X);
-            Vector2 planePoint = 0.5f * (v11 + v12);
+            XNAVector2 localNormal = new XNAVector2(localTangent.Y, -localTangent.X);
+            XNAVector2 planePoint = 0.5f * (v11 + v12);
 
-            Vector2 tangent = Complex.Multiply(ref localTangent, ref xf1.q);
+            XNAVector2 tangent = Complex.Multiply(ref localTangent, ref xf1.q);
 
             float normalx = tangent.Y;
             float normaly = -tangent.X;
@@ -937,7 +937,7 @@ namespace tainicom.Aether.Physics2D.Collision
             int pointCount = 0;
             for (int i = 0; i < Settings.MaxManifoldPoints; ++i)
             {
-                Vector2 value = clipPoints2[i].V;
+                XNAVector2 value = clipPoints2[i].V;
                 float separation = normalx * value.X + normaly * value.Y - frontOffset;
 
                 if (separation <= totalRadius)
@@ -979,14 +979,14 @@ namespace tainicom.Aether.Physics2D.Collision
             manifold.PointCount = 0;
 
             // Compute circle in frame of edge
-            Vector2 Q = Transform.Divide(Transform.Multiply(ref circleB._position, ref transformB), ref transformA);
+            XNAVector2 Q = Transform.Divide(Transform.Multiply(ref circleB._position, ref transformB), ref transformA);
 
-            Vector2 A = edgeA.Vertex1, B = edgeA.Vertex2;
-            Vector2 e = B - A;
+            XNAVector2 A = edgeA.Vertex1, B = edgeA.Vertex2;
+            XNAVector2 e = B - A;
 
             // Barycentric coordinates
-            float u = Vector2.Dot(e, B - Q);
-            float v = Vector2.Dot(e, Q - A);
+            float u = XNAVector2.Dot(e, B - Q);
+            float v = XNAVector2.Dot(e, Q - A);
 
             float radius = edgeA.Radius + circleB.Radius;
 
@@ -994,7 +994,7 @@ namespace tainicom.Aether.Physics2D.Collision
             cf.IndexB = 0;
             cf.TypeB = (byte)ContactFeatureType.Vertex;
 
-            Vector2 P, d;
+            XNAVector2 P, d;
 
             // Region A
             if (v <= 0.0f)
@@ -1002,7 +1002,7 @@ namespace tainicom.Aether.Physics2D.Collision
                 P = A;
                 d = Q - P;
                 float dd;
-                Vector2.Dot(ref d, ref d, out dd);
+                XNAVector2.Dot(ref d, ref d, out dd);
                 if (dd > radius * radius)
                 {
                     return;
@@ -1011,10 +1011,10 @@ namespace tainicom.Aether.Physics2D.Collision
                 // Is there an edge connected to A?
                 if (edgeA.HasVertex0)
                 {
-                    Vector2 A1 = edgeA.Vertex0;
-                    Vector2 B1 = A;
-                    Vector2 e1 = B1 - A1;
-                    float u1 = Vector2.Dot(e1, B1 - Q);
+                    XNAVector2 A1 = edgeA.Vertex0;
+                    XNAVector2 B1 = A;
+                    XNAVector2 e1 = B1 - A1;
+                    float u1 = XNAVector2.Dot(e1, B1 - Q);
 
                     // Is the circle in Region AB of the previous edge?
                     if (u1 > 0.0f)
@@ -1027,7 +1027,7 @@ namespace tainicom.Aether.Physics2D.Collision
                 cf.TypeA = (byte)ContactFeatureType.Vertex;
                 manifold.PointCount = 1;
                 manifold.Type = ManifoldType.Circles;
-                manifold.LocalNormal = Vector2.Zero;
+                manifold.LocalNormal = XNAVector2.Zero;
                 manifold.LocalPoint = P;
                 ManifoldPoint mp = new ManifoldPoint();
                 mp.Id.Key = 0;
@@ -1043,7 +1043,7 @@ namespace tainicom.Aether.Physics2D.Collision
                 P = B;
                 d = Q - P;
                 float dd;
-                Vector2.Dot(ref d, ref d, out dd);
+                XNAVector2.Dot(ref d, ref d, out dd);
                 if (dd > radius * radius)
                 {
                     return;
@@ -1052,10 +1052,10 @@ namespace tainicom.Aether.Physics2D.Collision
                 // Is there an edge connected to B?
                 if (edgeA.HasVertex3)
                 {
-                    Vector2 B2 = edgeA.Vertex3;
-                    Vector2 A2 = B;
-                    Vector2 e2 = B2 - A2;
-                    float v2 = Vector2.Dot(e2, Q - A2);
+                    XNAVector2 B2 = edgeA.Vertex3;
+                    XNAVector2 A2 = B;
+                    XNAVector2 e2 = B2 - A2;
+                    float v2 = XNAVector2.Dot(e2, Q - A2);
 
                     // Is the circle in Region AB of the next edge?
                     if (v2 > 0.0f)
@@ -1068,7 +1068,7 @@ namespace tainicom.Aether.Physics2D.Collision
                 cf.TypeA = (byte)ContactFeatureType.Vertex;
                 manifold.PointCount = 1;
                 manifold.Type = ManifoldType.Circles;
-                manifold.LocalNormal = Vector2.Zero;
+                manifold.LocalNormal = XNAVector2.Zero;
                 manifold.LocalPoint = P;
                 ManifoldPoint mp = new ManifoldPoint();
                 mp.Id.Key = 0;
@@ -1080,21 +1080,21 @@ namespace tainicom.Aether.Physics2D.Collision
 
             // Region AB
             float den;
-            Vector2.Dot(ref e, ref e, out den);
+            XNAVector2.Dot(ref e, ref e, out den);
             Debug.Assert(den > 0.0f);
             P = (1.0f / den) * (u * A + v * B);
             d = Q - P;
             float dd2;
-            Vector2.Dot(ref d, ref d, out dd2);
+            XNAVector2.Dot(ref d, ref d, out dd2);
             if (dd2 > radius * radius)
             {
                 return;
             }
 
-            Vector2 n = new Vector2(-e.Y, e.X);
-            if (Vector2.Dot(n, Q - A) < 0.0f)
+            XNAVector2 n = new XNAVector2(-e.Y, e.X);
+            if (XNAVector2.Dot(n, Q - A) < 0.0f)
             {
-                n = new Vector2(-n.X, -n.Y);
+                n = new XNAVector2(-n.X, -n.Y);
             }
             n.Normalize();
 
@@ -1131,14 +1131,14 @@ namespace tainicom.Aether.Physics2D.Collision
             /// </summary>
             internal struct TempPolygon
             {
-                public Vector2[] Vertices;
-                public Vector2[] Normals;
+                public XNAVector2[] Vertices;
+                public XNAVector2[] Normals;
                 public int Count;
 
                 internal TempPolygon(int maxPolygonVertices)
                 {
-                    Vertices = new Vector2[maxPolygonVertices];
-                    Normals = new Vector2[maxPolygonVertices];
+                    Vertices = new XNAVector2[maxPolygonVertices];
+                    Normals = new XNAVector2[maxPolygonVertices];
                     Count = 0;
                 }
             }
@@ -1157,12 +1157,12 @@ namespace tainicom.Aether.Physics2D.Collision
 
                 TempPolygon tempPolygonB = new TempPolygon(Settings.MaxPolygonVertices);
                 Transform xf;
-                Vector2 centroidB;
-                Vector2 normal0 = new Vector2();
-                Vector2 normal1;
-                Vector2 normal2 = new Vector2();
-                Vector2 normal;
-                Vector2 lowerLimit, upperLimit;
+                XNAVector2 centroidB;
+                XNAVector2 normal0 = new XNAVector2();
+                XNAVector2 normal1;
+                XNAVector2 normal2 = new XNAVector2();
+                XNAVector2 normal;
+                XNAVector2 lowerLimit, upperLimit;
                 float radius;
                 bool front;
 
@@ -1170,39 +1170,39 @@ namespace tainicom.Aether.Physics2D.Collision
 
                 centroidB = Transform.Multiply(polygonB.MassData.Centroid, ref xf);
 
-                Vector2 v0 = edgeA.Vertex0;
-                Vector2 v1 = edgeA._vertex1;
-                Vector2 v2 = edgeA._vertex2;
-                Vector2 v3 = edgeA.Vertex3;
+                XNAVector2 v0 = edgeA.Vertex0;
+                XNAVector2 v1 = edgeA._vertex1;
+                XNAVector2 v2 = edgeA._vertex2;
+                XNAVector2 v3 = edgeA.Vertex3;
 
                 bool hasVertex0 = edgeA.HasVertex0;
                 bool hasVertex3 = edgeA.HasVertex3;
 
-                Vector2 edge1 = v2 - v1;
+                XNAVector2 edge1 = v2 - v1;
                 edge1.Normalize();
-                normal1 = new Vector2(edge1.Y, -edge1.X);
-                float offset1 = Vector2.Dot(normal1, centroidB - v1);
+                normal1 = new XNAVector2(edge1.Y, -edge1.X);
+                float offset1 = XNAVector2.Dot(normal1, centroidB - v1);
                 float offset0 = 0.0f, offset2 = 0.0f;
                 bool convex1 = false, convex2 = false;
 
                 // Is there a preceding edge?
                 if (hasVertex0)
                 {
-                    Vector2 edge0 = v1 - v0;
+                    XNAVector2 edge0 = v1 - v0;
                     edge0.Normalize();
-                    normal0 = new Vector2(edge0.Y, -edge0.X);
+                    normal0 = new XNAVector2(edge0.Y, -edge0.X);
                     convex1 = MathUtils.Cross(ref edge0, ref edge1) >= 0.0f;
-                    offset0 = Vector2.Dot(normal0, centroidB - v0);
+                    offset0 = XNAVector2.Dot(normal0, centroidB - v0);
                 }
 
                 // Is there a following edge?
                 if (hasVertex3)
                 {
-                    Vector2 edge2 = v3 - v2;
+                    XNAVector2 edge2 = v3 - v2;
                     edge2.Normalize();
-                    normal2 = new Vector2(edge2.Y, -edge2.X);
+                    normal2 = new XNAVector2(edge2.Y, -edge2.X);
                     convex2 = MathUtils.Cross(ref edge1, ref edge2) > 0.0f;
-                    offset2 = Vector2.Dot(normal2, centroidB - v2);
+                    offset2 = XNAVector2.Dot(normal2, centroidB - v2);
                 }
 
                 // Determine front or back collision. Determine collision normal limits.
@@ -1417,10 +1417,10 @@ namespace tainicom.Aether.Physics2D.Collision
 
                     // Search for the polygon normal that is most anti-parallel to the edge normal.
                     int bestIndex = 0;
-                    float bestValue = Vector2.Dot(normal, tempPolygonB.Normals[0]);
+                    float bestValue = XNAVector2.Dot(normal, tempPolygonB.Normals[0]);
                     for (int i = 1; i < tempPolygonB.Count; ++i)
                     {
-                        float value = Vector2.Dot(normal, tempPolygonB.Normals[i]);
+                        float value = XNAVector2.Dot(normal, tempPolygonB.Normals[i]);
                         if (value < bestValue)
                         {
                             bestValue = value;
@@ -1490,10 +1490,10 @@ namespace tainicom.Aether.Physics2D.Collision
                     rf.normal = tempPolygonB.Normals[rf.i1];
                 }
 
-                rf.sideNormal1 = new Vector2(rf.normal.Y, -rf.normal.X);
+                rf.sideNormal1 = new XNAVector2(rf.normal.Y, -rf.normal.X);
                 rf.sideNormal2 = -rf.sideNormal1;
-                rf.sideOffset1 = Vector2.Dot(rf.sideNormal1, rf.v1);
-                rf.sideOffset2 = Vector2.Dot(rf.sideNormal2, rf.v2);
+                rf.sideOffset1 = XNAVector2.Dot(rf.sideNormal1, rf.v1);
+                rf.sideOffset2 = XNAVector2.Dot(rf.sideNormal2, rf.v2);
 
                 // Clip incident edge against extruded edge1 side edges.
                 FixedArray2<ClipVertex> clipPoints1;
@@ -1531,7 +1531,7 @@ namespace tainicom.Aether.Physics2D.Collision
                 int pointCount = 0;
                 for (int i = 0; i < Settings.MaxManifoldPoints; ++i)
                 {
-                    float separation = Vector2.Dot(rf.normal, clipPoints2[i].V - rf.v1);
+                    float separation = XNAVector2.Dot(rf.normal, clipPoints2[i].V - rf.v1);
 
                     if (separation <= radius)
                     {
@@ -1559,7 +1559,7 @@ namespace tainicom.Aether.Physics2D.Collision
                 manifold.PointCount = pointCount;
             }
 
-            private static EPAxis ComputeEdgeSeparation(ref TempPolygon polygonB, ref Vector2 normal, ref Vector2 v1, bool front)
+            private static EPAxis ComputeEdgeSeparation(ref TempPolygon polygonB, ref XNAVector2 normal, ref XNAVector2 v1, bool front)
             {
                 EPAxis axis;
                 axis.Type = EPAxisType.EdgeA;
@@ -1568,7 +1568,7 @@ namespace tainicom.Aether.Physics2D.Collision
 
                 for (int i = 0; i < polygonB.Count; ++i)
                 {
-                    float s = Vector2.Dot(normal, polygonB.Vertices[i] - v1);
+                    float s = XNAVector2.Dot(normal, polygonB.Vertices[i] - v1);
                     if (s < axis.Separation)
                     {
                         axis.Separation = s;
@@ -1578,21 +1578,21 @@ namespace tainicom.Aether.Physics2D.Collision
                 return axis;
             }
 
-            private static EPAxis ComputePolygonSeparation(ref TempPolygon polygonB, ref Vector2 normal, ref Vector2 v1, ref Vector2 v2, ref Vector2 lowerLimit, ref Vector2 upperLimit, float radius)
+            private static EPAxis ComputePolygonSeparation(ref TempPolygon polygonB, ref XNAVector2 normal, ref XNAVector2 v1, ref XNAVector2 v2, ref XNAVector2 lowerLimit, ref XNAVector2 upperLimit, float radius)
             {
                 EPAxis axis;
                 axis.Type = EPAxisType.Unknown;
                 axis.Index = -1;
                 axis.Separation = -Settings.MaxFloat;
 
-                Vector2 perp = new Vector2(-normal.Y, normal.X);
+                XNAVector2 perp = new XNAVector2(-normal.Y, normal.X);
 
                 for (int i = 0; i < polygonB.Count; ++i)
                 {
-                    Vector2 n = -polygonB.Normals[i];
+                    XNAVector2 n = -polygonB.Normals[i];
 
-                    float s1 = Vector2.Dot(n, polygonB.Vertices[i] - v1);
-                    float s2 = Vector2.Dot(n, polygonB.Vertices[i] - v2);
+                    float s1 = XNAVector2.Dot(n, polygonB.Vertices[i] - v1);
+                    float s2 = XNAVector2.Dot(n, polygonB.Vertices[i] - v2);
                     float s = Math.Min(s1, s2);
 
                     if (s > radius)
@@ -1605,16 +1605,16 @@ namespace tainicom.Aether.Physics2D.Collision
                     }
 
                     // Adjacency
-                    if (Vector2.Dot(n, perp) >= 0.0f)
+                    if (XNAVector2.Dot(n, perp) >= 0.0f)
                     {
-                        if (Vector2.Dot(n - upperLimit, normal) < -Settings.AngularSlop)
+                        if (XNAVector2.Dot(n - upperLimit, normal) < -Settings.AngularSlop)
                         {
                             continue;
                         }
                     }
                     else
                     {
-                        if (Vector2.Dot(n - lowerLimit, normal) < -Settings.AngularSlop)
+                        if (XNAVector2.Dot(n - lowerLimit, normal) < -Settings.AngularSlop)
                         {
                             continue;
                         }
@@ -1641,7 +1641,7 @@ namespace tainicom.Aether.Physics2D.Collision
         /// <param name="offset">The offset.</param>
         /// <param name="vertexIndexA">The vertex index A.</param>
         /// <returns></returns>
-        private static int ClipSegmentToLine(out FixedArray2<ClipVertex> vOut, ref FixedArray2<ClipVertex> vIn, Vector2 normal, float offset, int vertexIndexA)
+        private static int ClipSegmentToLine(out FixedArray2<ClipVertex> vOut, ref FixedArray2<ClipVertex> vIn, XNAVector2 normal, float offset, int vertexIndexA)
         {
             vOut = new FixedArray2<ClipVertex>();
 
@@ -1695,16 +1695,16 @@ namespace tainicom.Aether.Physics2D.Collision
         /// <returns></returns>
         private static float EdgeSeparation(PolygonShape poly1, ref Transform xf1To2, int edge1, PolygonShape poly2)
         {
-            List<Vector2> vertices1 = poly1.Vertices;
-            List<Vector2> normals1 = poly1.Normals;
+            List<XNAVector2> vertices1 = poly1.Vertices;
+            List<XNAVector2> normals1 = poly1.Normals;
 
             int count2 = poly2.Vertices.Count;
-            List<Vector2> vertices2 = poly2.Vertices;
+            List<XNAVector2> vertices2 = poly2.Vertices;
 
             Debug.Assert(0 <= edge1 && edge1 < poly1.Vertices.Count);
 
             // Convert normal from poly1's frame into poly2's frame.
-            Vector2 normal1 = Complex.Multiply(normals1[edge1], ref xf1To2.q);
+            XNAVector2 normal1 = Complex.Multiply(normals1[edge1], ref xf1To2.q);
 
             // Find support vertex on poly2 for -normal.
             int index = 0;
@@ -1720,8 +1720,8 @@ namespace tainicom.Aether.Physics2D.Collision
                 }
             }
 
-            Vector2 v1 = Transform.Multiply(vertices1[edge1], ref xf1To2);
-            Vector2 v2 = vertices2[index];
+            XNAVector2 v1 = Transform.Multiply(vertices1[edge1], ref xf1To2);
+            XNAVector2 v2 = vertices2[index];
             float separation = MathUtils.Dot(v2 - v1, ref normal1);
 
             return separation;
@@ -1739,13 +1739,13 @@ namespace tainicom.Aether.Physics2D.Collision
         private static float FindMaxSeparation(out int edgeIndex, PolygonShape poly1, ref Transform xf1, PolygonShape poly2, ref Transform xf2)
         {
             int count1 = poly1.Vertices.Count;
-            List<Vector2> normals1 = poly1.Normals;
+            List<XNAVector2> normals1 = poly1.Normals;
 
             var xf1To2 = Transform.Divide(ref xf1, ref xf2);
 
-            // Vector pointing from the centroid of poly1 to the centroid of poly2.
-            Vector2 c2local = Transform.Divide(poly2.MassData.Centroid, ref xf1To2);
-            Vector2 dLocal1 = c2local - poly1.MassData.Centroid;            
+            // XNAVector pointing from the centroid of poly1 to the centroid of poly2.
+            XNAVector2 c2local = Transform.Divide(poly2.MassData.Centroid, ref xf1To2);
+            XNAVector2 dLocal1 = c2local - poly1.MassData.Centroid;            
 
             // Find edge normal on poly1 that has the largest projection onto d.
             int edge = 0;
@@ -1830,7 +1830,7 @@ namespace tainicom.Aether.Physics2D.Collision
             Debug.Assert(0 <= edge1 && edge1 < poly1.Vertices.Count);
 
             // Get the normal of the reference edge in poly2's frame.
-            Vector2 normal1 = Complex.Divide(Complex.Multiply(normals1[edge1], ref xf1.q), ref xf2.q);
+            XNAVector2 normal1 = Complex.Divide(Complex.Multiply(normals1[edge1], ref xf1.q), ref xf2.q);
 
 
             // Find the incident edge on poly2.
@@ -1838,7 +1838,7 @@ namespace tainicom.Aether.Physics2D.Collision
             float minDot = Settings.MaxFloat;
             for (int i = 0; i < count2; ++i)
             {
-                float dot = Vector2.Dot(normal1, normals2[i]);
+                float dot = XNAVector2.Dot(normal1, normals2[i]);
                 if (dot < minDot)
                 {
                     minDot = dot;

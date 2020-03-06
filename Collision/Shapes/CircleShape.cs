@@ -38,7 +38,7 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
     /// </summary>
     public class CircleShape : Shape
     {
-        internal Vector2 _position;
+        internal XNAVector2 _position;
 
         /// <summary>
         /// Create a new circle with the desired radius and density.
@@ -52,7 +52,7 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             Debug.Assert(density >= 0);
 
             ShapeType = ShapeType.Circle;
-            _position = Vector2.Zero;
+            _position = XNAVector2.Zero;
             Radius = radius; // The Radius property cache 2radius and calls ComputeProperties(). So no need to call ComputeProperties() here.
         }
 
@@ -61,7 +61,7 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
         {
             ShapeType = ShapeType.Circle;
             _radius = 0.0f;
-            _position = Vector2.Zero;
+            _position = XNAVector2.Zero;
         }
 
         public override int ChildCount
@@ -72,7 +72,7 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
         /// <summary>
         /// Get or set the position of the circle
         /// </summary>
-        public Vector2 Position
+        public XNAVector2 Position
         {
             get { return _position; }
             set
@@ -82,11 +82,11 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             }
         }
 
-        public override bool TestPoint(ref Transform transform, ref Vector2 point)
+        public override bool TestPoint(ref Transform transform, ref XNAVector2 point)
         {
-            Vector2 center = transform.p + Complex.Multiply(ref _position, ref transform.q);
-            Vector2 d = point - center;
-            return Vector2.Dot(d, d) <= _2radius;
+            XNAVector2 center = transform.p + Complex.Multiply(ref _position, ref transform.q);
+            XNAVector2 d = point - center;
+            return XNAVector2.Dot(d, d) <= _2radius;
         }
 
         public override bool RayCast(out RayCastOutput output, ref RayCastInput input, ref Transform transform, int childIndex)
@@ -98,14 +98,14 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
 
             output = new RayCastOutput();
 
-            Vector2 position = transform.p + Complex.Multiply(ref _position, ref transform.q);
-            Vector2 s = input.Point1 - position;
-            float b = Vector2.Dot(s, s) - _2radius;
+            XNAVector2 position = transform.p + Complex.Multiply(ref _position, ref transform.q);
+            XNAVector2 s = input.Point1 - position;
+            float b = XNAVector2.Dot(s, s) - _2radius;
 
             // Solve quadratic equation.
-            Vector2 r = input.Point2 - input.Point1;
-            float c = Vector2.Dot(s, r);
-            float rr = Vector2.Dot(r, r);
+            XNAVector2 r = input.Point2 - input.Point1;
+            float c = XNAVector2.Dot(s, r);
+            float rr = XNAVector2.Dot(r, r);
             float sigma = c * c - rr * b;
 
             // Check for negative discriminant and short segment.
@@ -134,12 +134,12 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
 
         public override void ComputeAABB(out AABB aabb, ref Transform transform, int childIndex)
         {
-            // OPT: Vector2 p = transform.p + Complex.Multiply(ref _position, ref transform.q);
+            // OPT: XNAVector2 p = transform.p + Complex.Multiply(ref _position, ref transform.q);
             var pX = (_position.X * transform.q.Real - _position.Y * transform.q.Imaginary) + transform.p.X;
             var pY = (_position.Y * transform.q.Real + _position.X * transform.q.Imaginary) + transform.p.Y;
 
-            // OPT: aabb.LowerBound = new Vector2(p.X - Radius, p.Y - Radius);
-            // OPT: aabb.UpperBound = new Vector2(p.X + Radius, p.Y + Radius);
+            // OPT: aabb.LowerBound = new XNAVector2(p.X - Radius, p.Y - Radius);
+            // OPT: aabb.UpperBound = new XNAVector2(p.X + Radius, p.Y + Radius);
             aabb.LowerBound.X = pX - Radius;
             aabb.LowerBound.Y = pY - Radius;
             aabb.UpperBound.X = pX + Radius;
@@ -154,15 +154,15 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             MassData.Centroid = Position;
 
             // inertia about the local origin
-            MassData.Inertia = MassData.Mass * (0.5f * _2radius + Vector2.Dot(Position, Position));
+            MassData.Inertia = MassData.Mass * (0.5f * _2radius + XNAVector2.Dot(Position, Position));
         }
 
-        public override float ComputeSubmergedArea(ref Vector2 normal, float offset, ref Transform xf, out Vector2 sc)
+        public override float ComputeSubmergedArea(ref XNAVector2 normal, float offset, ref Transform xf, out XNAVector2 sc)
         {
-            sc = Vector2.Zero;
+            sc = XNAVector2.Zero;
 
-            Vector2 p = Transform.Multiply(ref _position, ref xf);
-            float l = -(Vector2.Dot(normal, p) - offset);
+            XNAVector2 p = Transform.Multiply(ref _position, ref xf);
+            float l = -(XNAVector2.Dot(normal, p) - offset);
             if (l < -Radius + Settings.Epsilon)
             {
                 //Completely dry

@@ -14,7 +14,7 @@ using tainicom.Aether.Physics2D.Dynamics;
 namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
 {
     // Original Code by Steven Lu - see http://www.box2d.org/forum/viewtopic.php?f=3&t=1688
-    // Ported to Farseer 3.0 by Nicolás Hormazábal
+    // Ported to Farseer 3.0 by Nicolï¿½s Hormazï¿½bal
 
     internal struct ShapeData
     {
@@ -116,11 +116,11 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
         /// <param name="radius">The explosion radius </param>
         /// <param name="maxForce">The explosion force at the explosion point (then is inversely proportional to the square of the distance)</param>
         /// <returns>A list of bodies and the amount of force that was applied to them.</returns>
-        public Dictionary<Fixture, Vector2> Activate(Vector2 pos, float radius, float maxForce)
+        public Dictionary<Fixture, XNAVector2> Activate(XNAVector2 pos, float radius, float maxForce)
         {
             AABB aabb;
-            aabb.LowerBound = pos + new Vector2(-radius, -radius);
-            aabb.UpperBound = pos + new Vector2(radius, radius);
+            aabb.LowerBound = pos + new XNAVector2(-radius, -radius);
+            aabb.UpperBound = pos + new XNAVector2(radius, radius);
             Fixture[] shapes = new Fixture[MaxShapes];
 
             // More than 5 shapes in an explosion could be possible, but still strange.
@@ -154,9 +154,9 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
                 }, ref aabb);
 
             if (exit)
-                return new Dictionary<Fixture, Vector2>();
+                return new Dictionary<Fixture, XNAVector2>();
 
-            Dictionary<Fixture, Vector2> exploded = new Dictionary<Fixture, Vector2>(shapeCount + containedShapeCount);
+            Dictionary<Fixture, XNAVector2> exploded = new Dictionary<Fixture, XNAVector2>(shapeCount + containedShapeCount);
 
             // Per shape max/min angles for now.
             float[] vals = new float[shapeCount * 2];
@@ -169,13 +169,13 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
                 {
                     // We create a "diamond" approximation of the circle
                     Vertices v = new Vertices();
-                    Vector2 vec = Vector2.Zero + new Vector2(cs.Radius, 0);
+                    XNAVector2 vec = XNAVector2.Zero + new XNAVector2(cs.Radius, 0);
                     v.Add(vec);
-                    vec = Vector2.Zero + new Vector2(0, cs.Radius);
+                    vec = XNAVector2.Zero + new XNAVector2(0, cs.Radius);
                     v.Add(vec);
-                    vec = Vector2.Zero + new Vector2(-cs.Radius, cs.Radius);
+                    vec = XNAVector2.Zero + new XNAVector2(-cs.Radius, cs.Radius);
                     v.Add(vec);
-                    vec = Vector2.Zero + new Vector2(0, -cs.Radius);
+                    vec = XNAVector2.Zero + new XNAVector2(0, -cs.Radius);
                     v.Add(vec);
                     ps = new PolygonShape(v, 0);
                 }
@@ -184,7 +184,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
 
                 if ((shapes[i].Body.BodyType == BodyType.Dynamic) && ps != null)
                 {
-                    Vector2 toCentroid = shapes[i].Body.GetWorldPoint(ps.MassData.Centroid) - pos;
+                    XNAVector2 toCentroid = shapes[i].Body.GetWorldPoint(ps.MassData.Centroid) - pos;
                     float angleToCentroid = (float)Math.Atan2(toCentroid.Y, toCentroid.X);
                     float min = float.MaxValue;
                     float max = float.MinValue;
@@ -193,7 +193,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
 
                     for (int j = 0; j < ps.Vertices.Count; ++j)
                     {
-                        Vector2 toVertex = (shapes[i].Body.GetWorldPoint(ps.Vertices[j]) - pos);
+                        XNAVector2 toVertex = (shapes[i].Body.GetWorldPoint(ps.Vertices[j]) - pos);
                         float newAngle = (float)Math.Atan2(toVertex.Y, toVertex.X);
                         float diff = (newAngle - angleToCentroid);
 
@@ -252,8 +252,8 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
 
                 midpt = midpt / 2;
 
-                Vector2 p1 = pos;
-                Vector2 p2 = radius * new Vector2((float)Math.Cos(midpt), (float)Math.Sin(midpt)) + pos;
+                XNAVector2 p1 = pos;
+                XNAVector2 p2 = radius * new XNAVector2((float)Math.Cos(midpt), (float)Math.Sin(midpt)) + pos;
 
                 // RaycastOne
                 bool hitClosest = false;
@@ -342,9 +342,9 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
                      j < _data[i].Max || MathUtils.FloatEquals(j, _data[i].Max, 0.0001f);
                      j += offset)
                 {
-                    Vector2 p1 = pos;
-                    Vector2 p2 = pos + radius * new Vector2((float)Math.Cos(j), (float)Math.Sin(j));
-                    Vector2 hitpoint = Vector2.Zero;
+                    XNAVector2 p1 = pos;
+                    XNAVector2 p2 = pos + radius * new XNAVector2((float)Math.Cos(j), (float)Math.Sin(j));
+                    XNAVector2 hitpoint = XNAVector2.Zero;
                     float minlambda = float.MaxValue;
 
                     List<Fixture> fl = _data[i].Body.FixtureList;
@@ -371,7 +371,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
                         float impulse = (arclen / (MinRays + insertedRays)) * maxForce * 180.0f / MathHelper.Pi * (1.0f - Math.Min(1.0f, minlambda));
 
                         // We Apply the impulse!!!
-                        Vector2 vectImp = Vector2.Dot(impulse * new Vector2((float)Math.Cos(j), (float)Math.Sin(j)), -ro.Normal) * new Vector2((float)Math.Cos(j), (float)Math.Sin(j));
+                        XNAVector2 vectImp = XNAVector2.Dot(impulse * new XNAVector2((float)Math.Cos(j), (float)Math.Sin(j)), -ro.Normal) * new XNAVector2((float)Math.Cos(j), (float)Math.Sin(j));
                         _data[i].Body.ApplyLinearImpulse(ref vectImp, ref hitpoint);
 
                         // We gather the fixtures for returning them
@@ -395,7 +395,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
                     continue;
 
                 float impulse = MinRays * maxForce * 180.0f / MathHelper.Pi;
-                Vector2 hitPoint;
+                XNAVector2 hitPoint;
 
                 CircleShape circShape = fix.Shape as CircleShape;
                 if (circShape != null)
@@ -408,7 +408,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
                     hitPoint = fix.Body.GetWorldPoint(shape.MassData.Centroid);
                 }
 
-                Vector2 vectImp = impulse * (hitPoint - pos);
+                XNAVector2 vectImp = impulse * (hitPoint - pos);
 
                 fix.Body.ApplyLinearImpulse(ref vectImp, ref hitPoint);
 

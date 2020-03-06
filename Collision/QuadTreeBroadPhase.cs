@@ -119,7 +119,7 @@ namespace tainicom.Aether.Physics2D.Collision
                 throw new KeyNotFoundException("proxyID not found in register");
         }
 
-        public void MoveProxy(int proxyId, ref AABB aabb, Vector2 displacement)
+        public void MoveProxy(int proxyId, ref AABB aabb, XNAVector2 displacement)
         {
             AABB fatAABB;
             GetFatAABB(proxyId, out fatAABB);
@@ -130,12 +130,12 @@ namespace tainicom.Aether.Physics2D.Collision
 
             // Extend AABB.
             AABB b = aabb;
-            Vector2 r = new Vector2(Settings.AABBExtension, Settings.AABBExtension);
+            XNAVector2 r = new XNAVector2(Settings.AABBExtension, Settings.AABBExtension);
             b.LowerBound = b.LowerBound - r;
             b.UpperBound = b.UpperBound + r;
 
             // Predict AABB displacement.
-            Vector2 d = Settings.AABBMultiplier * displacement;
+            XNAVector2 d = Settings.AABBMultiplier * displacement;
 
             if (d.X < 0.0f)
                 b.LowerBound.X += d.X;
@@ -188,7 +188,7 @@ namespace tainicom.Aether.Physics2D.Collision
             _quadTree.RayCast(TransformRayCallback(callback), ref input);
         }
 
-        public void ShiftOrigin(Vector2 newOrigin)
+        public void ShiftOrigin(XNAVector2 newOrigin)
         {
             //TODO
         }
@@ -197,7 +197,7 @@ namespace tainicom.Aether.Physics2D.Collision
 
         private AABB Fatten(ref AABB aabb)
         {
-            Vector2 r = new Vector2(Settings.AABBExtension, Settings.AABBExtension);
+            XNAVector2 r = new XNAVector2(Settings.AABBExtension, Settings.AABBExtension);
             return new AABB(aabb.LowerBound - r, aabb.UpperBound + r);
         }
 

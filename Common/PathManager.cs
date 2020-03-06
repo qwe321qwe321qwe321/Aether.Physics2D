@@ -68,7 +68,7 @@ namespace tainicom.Aether.Physics2D.Common
             if (!path.Closed)
                 throw new Exception("The path must be closed to convert to a polygon.");
 
-            List<Vector2> verts = path.GetVertices(subdivisions);
+            List<XNAVector2> verts = path.GetVertices(subdivisions);
 
             List<Vertices> decomposedVerts = Triangulate.ConvexPartition(new Vertices(verts), TriangulationAlgorithm.Bayazit);
 
@@ -90,7 +90,7 @@ namespace tainicom.Aether.Physics2D.Common
         /// <returns></returns>
         public static List<Body> EvenlyDistributeShapesAlongPath(World world, Path path, IEnumerable<Shape> shapes, BodyType type, int copies, object userData = null)
         {
-            List<Vector3> centers = path.SubdivideEvenly(copies);
+            List<XNAVector3> centers = path.SubdivideEvenly(copies);
             List<Body> bodyList = new List<Body>();
 
             for (int i = 0; i < centers.Count; i++)
@@ -99,7 +99,7 @@ namespace tainicom.Aether.Physics2D.Common
 
                 // copy the type from original body
                 b.BodyType = type;
-                b.Position = new Vector2(centers[i].X, centers[i].Y);
+                b.Position = new XNAVector2(centers[i].X, centers[i].Y);
                 b.Rotation = centers[i].Z;
                 b.Tag = userData;
 
@@ -143,9 +143,9 @@ namespace tainicom.Aether.Physics2D.Common
         /// <param name="timeStep">The time step.</param>
         public static void MoveBodyOnPath(Path path, Body body, float time, float strength, float timeStep)
         {
-            Vector2 destination = path.GetPosition(time);
-            Vector2 positionDelta = body.Position - destination;
-            Vector2 velocity = (positionDelta / timeStep) * strength;
+            XNAVector2 destination = path.GetPosition(time);
+            XNAVector2 positionDelta = body.Position - destination;
+            XNAVector2 velocity = (positionDelta / timeStep) * strength;
 
             body.LinearVelocity = -velocity;
         }
@@ -159,7 +159,7 @@ namespace tainicom.Aether.Physics2D.Common
         /// <param name="localAnchorB">The local anchor B.</param>
         /// <param name="connectFirstAndLast">if set to <c>true</c> [connect first and last].</param>
         /// <param name="collideConnected">if set to <c>true</c> [collide connected].</param>
-        public static List<RevoluteJoint> AttachBodiesWithRevoluteJoint(World world, List<Body> bodies, Vector2 localAnchorA, Vector2 localAnchorB, bool connectFirstAndLast, bool collideConnected)
+        public static List<RevoluteJoint> AttachBodiesWithRevoluteJoint(World world, List<Body> bodies, XNAVector2 localAnchorA, XNAVector2 localAnchorB, bool connectFirstAndLast, bool collideConnected)
         {
             List<RevoluteJoint> joints = new List<RevoluteJoint>(bodies.Count + 1);
 

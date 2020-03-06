@@ -22,9 +22,9 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
     /// </summary>
     internal static class FlipcodeDecomposer
     {
-        private static Vector2 _tmpA;
-        private static Vector2 _tmpB;
-        private static Vector2 _tmpC;
+        private static XNAVector2 _tmpA;
+        private static XNAVector2 _tmpB;
+        private static XNAVector2 _tmpC;
 
         /// <summary>
         /// Decompose the polygon into triangles.
@@ -110,7 +110,7 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
         /// <param name="c">The C point.</param>
         /// <param name="p">The point to be tested.</param>
         /// <returns>True if the point is inside the triangle</returns>
-        private static bool InsideTriangle(ref Vector2 a, ref Vector2 b, ref Vector2 c, ref Vector2 p)
+        private static bool InsideTriangle(ref XNAVector2 a, ref XNAVector2 b, ref XNAVector2 c, ref XNAVector2 p)
         {
             //A cross bp
             float abp = (c.X - b.X) * (p.Y - b.Y) - (c.Y - b.Y) * (p.X - b.X);
@@ -145,7 +145,7 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
                 if ((p == u) || (p == v) || (p == w))
                     continue;
 
-                Vector2 point = contour[V[p]];
+                XNAVector2 point = contour[V[p]];
 
                 if (InsideTriangle(ref _tmpA, ref _tmpB, ref _tmpC, ref point))
                     return false;

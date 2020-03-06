@@ -42,13 +42,13 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             MaxImpulse = float.MaxValue;
         }
 
-        public override Vector2 WorldAnchorA
+        public override XNAVector2 WorldAnchorA
         {
             get { return BodyA.Position; }
             set { Debug.Assert(false, "You can't set the world anchor on this joint type."); }
         }
 
-        public override Vector2 WorldAnchorB
+        public override XNAVector2 WorldAnchorB
         {
             get { return BodyB.Position; }
             set { Debug.Assert(false, "You can't set the world anchor on this joint type."); }
@@ -88,11 +88,11 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// </summary>
         public float Softness { get; set; }
 
-        public override Vector2 GetReactionForce(float invDt)
+        public override XNAVector2 GetReactionForce(float invDt)
         {
             //TODO
             //return _inv_dt * _impulse;
-            return Vector2.Zero;
+            return XNAVector2.Zero;
         }
 
         public override float GetReactionTorque(float invDt)

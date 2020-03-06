@@ -104,9 +104,9 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
     /// </summary>
     public class PrismaticJoint : Joint
     {
-        private Vector2 _localXAxis;
-        private Vector2 _localYAxisA;
-        private Vector3 _impulse;
+        private XNAVector2 _localXAxis;
+        private XNAVector2 _localYAxisA;
+        private XNAVector3 _impulse;
         private float _lowerTranslation;
         private float _upperTranslation;
         private float _maxMotorForce;
@@ -118,18 +118,18 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         // Solver temp
         private int _indexA;
         private int _indexB;
-        private Vector2 _localCenterA;
-        private Vector2 _localCenterB;
+        private XNAVector2 _localCenterA;
+        private XNAVector2 _localCenterB;
         private float _invMassA;
         private float _invMassB;
         private float _invIA;
         private float _invIB;
-        private Vector2 _axis, _perp;
+        private XNAVector2 _axis, _perp;
         private float _s1, _s2;
         private float _a1, _a2;
         private Mat33 _K;
         private float _motorMass;
-        private Vector2 _axis1;
+        private XNAVector2 _axis1;
 
         internal PrismaticJoint()
         {
@@ -150,19 +150,19 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// <param name="anchorB">The second body anchor.</param>
         /// <param name="axis">The axis.</param>
         /// <param name="useWorldCoordinates">Set to true if you are using world coordinates as anchors.</param>
-        public PrismaticJoint(Body bodyA, Body bodyB, Vector2 anchorA, Vector2 anchorB, Vector2 axis, bool useWorldCoordinates = false)
+        public PrismaticJoint(Body bodyA, Body bodyB, XNAVector2 anchorA, XNAVector2 anchorB, XNAVector2 axis, bool useWorldCoordinates = false)
             : base(bodyA, bodyB)
         {
             Initialize(anchorA, anchorB, axis, useWorldCoordinates);
         }
 
-        public PrismaticJoint(Body bodyA, Body bodyB, Vector2 anchor, Vector2 axis, bool useWorldCoordinates = false)
+        public PrismaticJoint(Body bodyA, Body bodyB, XNAVector2 anchor, XNAVector2 axis, bool useWorldCoordinates = false)
             : base(bodyA, bodyB)
         {
             Initialize(anchor, anchor, axis, useWorldCoordinates);
         }
 
-        private void Initialize(Vector2 localAnchorA, Vector2 localAnchorB, Vector2 axis, bool useWorldCoordinates)
+        private void Initialize(XNAVector2 localAnchorA, XNAVector2 localAnchorB, XNAVector2 axis, bool useWorldCoordinates)
         {
             JointType = JointType.Prismatic;
 
@@ -186,20 +186,20 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// <summary>
         /// The local anchor point on BodyA
         /// </summary>
-        public Vector2 LocalAnchorA { get; set; }
+        public XNAVector2 LocalAnchorA { get; set; }
 
         /// <summary>
         /// The local anchor point on BodyB
         /// </summary>
-        public Vector2 LocalAnchorB { get; set; }
+        public XNAVector2 LocalAnchorB { get; set; }
 
-        public override Vector2 WorldAnchorA
+        public override XNAVector2 WorldAnchorA
         {
             get { return BodyA.GetWorldPoint(LocalAnchorA); }
             set { LocalAnchorA = BodyA.GetLocalPoint(value); }
         }
 
-        public override Vector2 WorldAnchorB
+        public override XNAVector2 WorldAnchorB
         {
             get { return BodyB.GetWorldPoint(LocalAnchorB); }
             set { LocalAnchorB = BodyB.GetLocalPoint(value); }
@@ -213,10 +213,10 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         {
             get
             {
-                Vector2 d = BodyB.GetWorldPoint(LocalAnchorB) - BodyA.GetWorldPoint(LocalAnchorA);
-                Vector2 axis = BodyA.GetWorldVector(ref _localXAxis);
+                XNAVector2 d = BodyB.GetWorldPoint(LocalAnchorB) - BodyA.GetWorldPoint(LocalAnchorA);
+                XNAVector2 axis = BodyA.GetWorldXNAVector(ref _localXAxis);
 
-                return Vector2.Dot(d, axis);
+                return XNAVector2.Dot(d, axis);
             }
         }
 
@@ -231,19 +231,19 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 Transform xf1 = BodyA.GetTransform();
                 Transform xf2 = BodyB.GetTransform();
 
-                Vector2 r1 = Complex.Multiply(LocalAnchorA - BodyA.LocalCenter, ref xf1.q);
-                Vector2 r2 = Complex.Multiply(LocalAnchorB - BodyB.LocalCenter, ref xf2.q);
-                Vector2 p1 = BodyA._sweep.C + r1;
-                Vector2 p2 = BodyB._sweep.C + r2;
-                Vector2 d = p2 - p1;
-                Vector2 axis = BodyA.GetWorldVector(ref _localXAxis);
+                XNAVector2 r1 = Complex.Multiply(LocalAnchorA - BodyA.CenterOfMass, ref xf1.q);
+                XNAVector2 r2 = Complex.Multiply(LocalAnchorB - BodyB.CenterOfMass, ref xf2.q);
+                XNAVector2 p1 = BodyA._sweep.C + r1;
+                XNAVector2 p2 = BodyB._sweep.C + r2;
+                XNAVector2 d = p2 - p1;
+                XNAVector2 axis = BodyA.GetWorldXNAVector(ref _localXAxis);
 
-                Vector2 v1 = BodyA._linearVelocity;
-                Vector2 v2 = BodyB._linearVelocity;
+                XNAVector2 v1 = BodyA._linearVelocity;
+                XNAVector2 v2 = BodyB._linearVelocity;
                 float w1 = BodyA._angularVelocity;
                 float w2 = BodyB._angularVelocity;
 
-                float speed = Vector2.Dot(d, MathUtils.Cross(w1, ref axis)) + Vector2.Dot(axis, v2 + MathUtils.Cross(w2, ref r2) - v1 - MathUtils.Cross(w1, ref r1));
+                float speed = XNAVector2.Dot(d, MathUtils.Cross(w1, ref axis)) + XNAVector2.Dot(axis, v2 + MathUtils.Cross(w2, ref r2) - v1 - MathUtils.Cross(w1, ref r1));
                 return speed;
             }
         }
@@ -380,13 +380,13 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// <summary>
         /// The axis at which the joint moves.
         /// </summary>
-        public Vector2 Axis
+        public XNAVector2 Axis
         {
             get { return _axis1; }
             set
             {
                 _axis1 = value;
-                _localXAxis = BodyA.GetLocalVector(_axis1);
+                _localXAxis = BodyA.GetLocalXNAVector(_axis1);
                 _localXAxis.Normalize();
                 _localYAxisA = MathUtils.Cross(1.0f, ref _localXAxis);
             }
@@ -395,14 +395,14 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// <summary>
         /// The axis in local coordinates relative to BodyA
         /// </summary>
-        public Vector2 LocalXAxis { get { return _localXAxis; } }
+        public XNAVector2 LocalXAxis { get { return _localXAxis; } }
 
         /// <summary>
         /// The reference angle.
         /// </summary>
         public float ReferenceAngle { get; set; }
 
-        public override Vector2 GetReactionForce(float invDt)
+        public override XNAVector2 GetReactionForce(float invDt)
         {
             return invDt * (_impulse.X * _perp + (MotorImpulse + _impulse.Z) * _axis);
         }
@@ -423,23 +423,23 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             _invIA = BodyA._invI;
             _invIB = BodyB._invI;
 
-            Vector2 cA = data.positions[_indexA].c;
+            XNAVector2 cA = data.positions[_indexA].c;
             float aA = data.positions[_indexA].a;
-            Vector2 vA = data.velocities[_indexA].v;
+            XNAVector2 vA = data.velocities[_indexA].v;
             float wA = data.velocities[_indexA].w;
 
-            Vector2 cB = data.positions[_indexB].c;
+            XNAVector2 cB = data.positions[_indexB].c;
             float aB = data.positions[_indexB].a;
-            Vector2 vB = data.velocities[_indexB].v;
+            XNAVector2 vB = data.velocities[_indexB].v;
             float wB = data.velocities[_indexB].w;
 
             Complex qA = Complex.FromAngle(aA);
             Complex qB = Complex.FromAngle(aB);
 
             // Compute the effective masses.
-            Vector2 rA = Complex.Multiply(LocalAnchorA - _localCenterA, ref qA);
-            Vector2 rB = Complex.Multiply(LocalAnchorB - _localCenterB, ref qB);
-            Vector2 d = (cB - cA) + rB - rA;
+            XNAVector2 rA = Complex.Multiply(LocalAnchorA - _localCenterA, ref qA);
+            XNAVector2 rB = Complex.Multiply(LocalAnchorB - _localCenterB, ref qB);
+            XNAVector2 d = (cB - cA) + rB - rA;
 
             float mA = _invMassA, mB = _invMassB;
             float iA = _invIA, iB = _invIB;
@@ -476,15 +476,15 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 float k23 = iA * _a1 + iB * _a2;
                 float k33 = mA + mB + iA * _a1 * _a1 + iB * _a2 * _a2;
 
-                _K.ex = new Vector3(k11, k12, k13);
-                _K.ey = new Vector3(k12, k22, k23);
-                _K.ez = new Vector3(k13, k23, k33);
+                _K.ex = new XNAVector3(k11, k12, k13);
+                _K.ey = new XNAVector3(k12, k22, k23);
+                _K.ez = new XNAVector3(k13, k23, k33);
             }
 
             // Compute motor and limit terms.
             if (_enableLimit)
             {
-                float jointTranslation = Vector2.Dot(_axis, d);
+                float jointTranslation = XNAVector2.Dot(_axis, d);
                 if (Math.Abs(_upperTranslation - _lowerTranslation) < 2.0f * Settings.LinearSlop)
                 {
                     _limitState = LimitState.Equal;
@@ -528,7 +528,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 _impulse *= data.step.dtRatio;
                 MotorImpulse *= data.step.dtRatio;
 
-                Vector2 P = _impulse.X * _perp + (MotorImpulse + _impulse.Z) * _axis;
+                XNAVector2 P = _impulse.X * _perp + (MotorImpulse + _impulse.Z) * _axis;
                 float LA = _impulse.X * _s1 + _impulse.Y + (MotorImpulse + _impulse.Z) * _a1;
                 float LB = _impulse.X * _s2 + _impulse.Y + (MotorImpulse + _impulse.Z) * _a2;
 
@@ -540,7 +540,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             }
             else
             {
-                _impulse = Vector3.Zero;
+                _impulse = XNAVector3.Zero;
                 MotorImpulse = 0.0f;
             }
 
@@ -552,9 +552,9 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
         internal override void SolveVelocityConstraints(ref SolverData data)
         {
-            Vector2 vA = data.velocities[_indexA].v;
+            XNAVector2 vA = data.velocities[_indexA].v;
             float wA = data.velocities[_indexA].w;
-            Vector2 vB = data.velocities[_indexB].v;
+            XNAVector2 vB = data.velocities[_indexB].v;
             float wB = data.velocities[_indexB].w;
 
             float mA = _invMassA, mB = _invMassB;
@@ -563,14 +563,14 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             // Solve linear motor constraint.
             if (_enableMotor && _limitState != LimitState.Equal)
             {
-                float Cdot = Vector2.Dot(_axis, vB - vA) + _a2 * wB - _a1 * wA;
+                float Cdot = XNAVector2.Dot(_axis, vB - vA) + _a2 * wB - _a1 * wA;
                 float impulse = _motorMass * (_motorSpeed - Cdot);
                 float oldImpulse = MotorImpulse;
                 float maxImpulse = data.step.dt * _maxMotorForce;
                 MotorImpulse = MathUtils.Clamp(MotorImpulse + impulse, -maxImpulse, maxImpulse);
                 impulse = MotorImpulse - oldImpulse;
 
-                Vector2 P = impulse * _axis;
+                XNAVector2 P = impulse * _axis;
                 float LA = impulse * _a1;
                 float LB = impulse * _a2;
 
@@ -581,19 +581,19 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 wB += iB * LB;
             }
 
-            Vector2 Cdot1 = new Vector2();
-            Cdot1.X = Vector2.Dot(_perp, vB - vA) + _s2 * wB - _s1 * wA;
+            XNAVector2 Cdot1 = new XNAVector2();
+            Cdot1.X = XNAVector2.Dot(_perp, vB - vA) + _s2 * wB - _s1 * wA;
             Cdot1.Y = wB - wA;
 
             if (_enableLimit && _limitState != LimitState.Inactive)
             {
                 // Solve prismatic and limit constraint in block form.
                 float Cdot2;
-                Cdot2 = Vector2.Dot(_axis, vB - vA) + _a2 * wB - _a1 * wA;
-                Vector3 Cdot = new Vector3(Cdot1.X, Cdot1.Y, Cdot2);
+                Cdot2 = XNAVector2.Dot(_axis, vB - vA) + _a2 * wB - _a1 * wA;
+                XNAVector3 Cdot = new XNAVector3(Cdot1.X, Cdot1.Y, Cdot2);
 
-                Vector3 f1 = _impulse;
-                Vector3 df = _K.Solve33(-Cdot);
+                XNAVector3 f1 = _impulse;
+                XNAVector3 df = _K.Solve33(-Cdot);
                 _impulse += df;
 
                 if (_limitState == LimitState.AtLower)
@@ -606,14 +606,14 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 }
 
                 // f2(1:2) = invK(1:2,1:2) * (-Cdot(1:2) - K(1:2,3) * (f2(3) - f1(3))) + f1(1:2)
-                Vector2 b = -Cdot1 - (_impulse.Z - f1.Z) * new Vector2(_K.ez.X, _K.ez.Y);
-                Vector2 f2r = _K.Solve22(b) + new Vector2(f1.X, f1.Y);
+                XNAVector2 b = -Cdot1 - (_impulse.Z - f1.Z) * new XNAVector2(_K.ez.X, _K.ez.Y);
+                XNAVector2 f2r = _K.Solve22(b) + new XNAVector2(f1.X, f1.Y);
                 _impulse.X = f2r.X;
                 _impulse.Y = f2r.Y;
 
                 df = _impulse - f1;
 
-                Vector2 P = df.X * _perp + df.Z * _axis;
+                XNAVector2 P = df.X * _perp + df.Z * _axis;
                 float LA = df.X * _s1 + df.Y + df.Z * _a1;
                 float LB = df.X * _s2 + df.Y + df.Z * _a2;
 
@@ -626,11 +626,11 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             else
             {
                 // Limit is inactive, just solve the prismatic constraint in block form.
-                Vector2 df = _K.Solve22(-Cdot1);
+                XNAVector2 df = _K.Solve22(-Cdot1);
                 _impulse.X += df.X;
                 _impulse.Y += df.Y;
 
-                Vector2 P = df.X * _perp;
+                XNAVector2 P = df.X * _perp;
                 float LA = df.X * _s1 + df.Y;
                 float LB = df.X * _s2 + df.Y;
 
@@ -649,9 +649,9 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
         internal override bool SolvePositionConstraints(ref SolverData data)
         {
-            Vector2 cA = data.positions[_indexA].c;
+            XNAVector2 cA = data.positions[_indexA].c;
             float aA = data.positions[_indexA].a;
-            Vector2 cB = data.positions[_indexB].c;
+            XNAVector2 cB = data.positions[_indexB].c;
             float aB = data.positions[_indexB].a;
 
             Complex qA = Complex.FromAngle(aA);
@@ -661,21 +661,21 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             float iA = _invIA, iB = _invIB;
 
             // Compute fresh Jacobians
-            Vector2 rA = Complex.Multiply(LocalAnchorA - _localCenterA, ref qA);
-            Vector2 rB = Complex.Multiply(LocalAnchorB - _localCenterB, ref qB);
-            Vector2 d = cB + rB - cA - rA;
+            XNAVector2 rA = Complex.Multiply(LocalAnchorA - _localCenterA, ref qA);
+            XNAVector2 rB = Complex.Multiply(LocalAnchorB - _localCenterB, ref qB);
+            XNAVector2 d = cB + rB - cA - rA;
 
-            Vector2 axis = Complex.Multiply(ref _localXAxis, ref qA);
+            XNAVector2 axis = Complex.Multiply(ref _localXAxis, ref qA);
             float a1 = MathUtils.Cross(d + rA, axis);
             float a2 = MathUtils.Cross(ref rB, ref axis);
-            Vector2 perp = Complex.Multiply(ref _localYAxisA, ref qA);
+            XNAVector2 perp = Complex.Multiply(ref _localYAxisA, ref qA);
 
             float s1 = MathUtils.Cross(d + rA, perp);
             float s2 = MathUtils.Cross(ref rB, ref perp);
 
-            Vector3 impulse;
-            Vector2 C1 = new Vector2();
-            C1.X = Vector2.Dot(perp, d);
+            XNAVector3 impulse;
+            XNAVector2 C1 = new XNAVector2();
+            C1.X = XNAVector2.Dot(perp, d);
             C1.Y = aB - aA - ReferenceAngle;
 
             float linearError = Math.Abs(C1.X);
@@ -685,7 +685,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             float C2 = 0.0f;
             if (_enableLimit)
             {
-                float translation = Vector2.Dot(axis, d);
+                float translation = XNAVector2.Dot(axis, d);
                 if (Math.Abs(_upperTranslation - _lowerTranslation) < 2.0f * Settings.LinearSlop)
                 {
                     // Prevent large angular corrections
@@ -724,11 +724,11 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 float k33 = mA + mB + iA * a1 * a1 + iB * a2 * a2;
 
                 Mat33 K = new Mat33();
-                K.ex = new Vector3(k11, k12, k13);
-                K.ey = new Vector3(k12, k22, k23);
-                K.ez = new Vector3(k13, k23, k33);
+                K.ex = new XNAVector3(k11, k12, k13);
+                K.ey = new XNAVector3(k12, k22, k23);
+                K.ez = new XNAVector3(k13, k23, k33);
 
-                Vector3 C = new Vector3();
+                XNAVector3 C = new XNAVector3();
                 C.X = C1.X;
                 C.Y = C1.Y;
                 C.Z = C2;
@@ -746,17 +746,17 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 }
 
                 Mat22 K = new Mat22();
-                K.ex = new Vector2(k11, k12);
-                K.ey = new Vector2(k12, k22);
+                K.ex = new XNAVector2(k11, k12);
+                K.ey = new XNAVector2(k12, k22);
 
-                Vector2 impulse1 = K.Solve(-C1);
-                impulse = new Vector3();
+                XNAVector2 impulse1 = K.Solve(-C1);
+                impulse = new XNAVector3();
                 impulse.X = impulse1.X;
                 impulse.Y = impulse1.Y;
                 impulse.Z = 0.0f;
             }
 
-            Vector2 P = impulse.X * perp + impulse.Z * axis;
+            XNAVector2 P = impulse.X * perp + impulse.Z * axis;
             float LA = impulse.X * s1 + impulse.Y + impulse.Z * a1;
             float LB = impulse.X * s2 + impulse.Y + impulse.Z * a2;
 

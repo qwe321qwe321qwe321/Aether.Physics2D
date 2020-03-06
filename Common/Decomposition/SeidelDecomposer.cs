@@ -52,7 +52,7 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
 
             List<Point> compatList = new List<Point>(vertices.Count);
 
-            foreach (Vector2 vertex in vertices)
+            foreach (XNAVector2 vertex in vertices)
             {
                 compatList.Add(new Point(vertex.X, vertex.Y));
             }
@@ -67,7 +67,7 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
 
                 foreach (Point outTriangle in triangle)
                 {
-                    outTriangles.Add(new Vector2(outTriangle.X, outTriangle.Y));
+                    outTriangles.Add(new XNAVector2(outTriangle.X, outTriangle.Y));
                 }
 
                 list.Add(outTriangles);
@@ -86,7 +86,7 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
         {
             List<Point> compatList = new List<Point>(vertices.Count);
 
-            foreach (Vector2 vertex in vertices)
+            foreach (XNAVector2 vertex in vertices)
             {
                 compatList.Add(new Point(vertex.X, vertex.Y));
             }
@@ -102,7 +102,7 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
                 List<Point> points = trapezoid.GetVertices();
                 foreach (Point point in points)
                 {
-                    verts.Add(new Vector2(point.X, point.Y));
+                    verts.Add(new XNAVector2(point.X, point.Y));
                 }
 
                 list.Add(verts);

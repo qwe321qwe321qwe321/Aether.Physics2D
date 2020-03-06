@@ -33,7 +33,7 @@ namespace tainicom.Aether.Physics2D.Common.ConvexHull
             //Sort by X-axis
             pointSet.Sort(_pointComparer);
 
-            Vector2[] h = new Vector2[pointSet.Count];
+            XNAVector2[] h = new XNAVector2[pointSet.Count];
             Vertices res;
 
             int top = -1; // indices for bottom and top of the stack
@@ -136,9 +136,9 @@ namespace tainicom.Aether.Physics2D.Common.ConvexHull
             return res;
         }
 
-        private class PointComparer : Comparer<Vector2>
+        private class PointComparer : Comparer<XNAVector2>
         {
-            public override int Compare(Vector2 a, Vector2 b)
+            public override int Compare(XNAVector2 a, XNAVector2 b)
             {
                 int f = a.X.CompareTo(b.X);
                 return f != 0 ? f : a.Y.CompareTo(b.Y);

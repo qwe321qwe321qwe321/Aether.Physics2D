@@ -35,69 +35,68 @@ namespace tainicom.Aether.Physics2D.Common
 {
     public static class MathUtils
     {
-        public static float Cross(ref Vector2 a, ref Vector2 b)
+        public static float Cross(ref XNAVector2 a, ref XNAVector2 b)
         {
             return a.X * b.Y - a.Y * b.X;
         }
 
-        public static float Cross(Vector2 a, Vector2 b)
+        public static float Cross(XNAVector2 a, XNAVector2 b)
         {
             return Cross(ref a, ref b);
         }
 
-        /// Perform the cross product on two vectors.
-        public static Vector3 Cross(ref Vector3 a, ref Vector3 b)
+        /// Perform the cross product on two XNAVectors.
+        public static XNAVector3 Cross(ref XNAVector3 a, ref XNAVector3 b)
         {
-            return new Vector3( a.Y * b.Z - a.Z * b.Y, 
+            return new XNAVector3( a.Y * b.Z - a.Z * b.Y, 
                                 a.Z * b.X - a.X * b.Z, 
                                 a.X * b.Y - a.Y * b.X);
         }
 
-        public static Vector2 Cross(Vector2 a, float s)
+        public static XNAVector2 Cross(XNAVector2 a, float s)
         {
-            return new Vector2(s * a.Y, -s * a.X);
+            return new XNAVector2(s * a.Y, -s * a.X);
         }
 
-        public static Vector2 Rot270(ref Vector2 a)
+        public static XNAVector2 Rot270(ref XNAVector2 a)
         {
-            return new Vector2(a.Y, -a.X);
+            return new XNAVector2(a.Y, -a.X);
         }
 
-        public static Vector2 Cross(float s, ref Vector2 a)
+        public static XNAVector2 Cross(float s, ref XNAVector2 a)
         {
-            return new Vector2(-s * a.Y, s * a.X);
+            return new XNAVector2(-s * a.Y, s * a.X);
         }
 
-        public static Vector2 Rot90(ref Vector2 a)
+        public static XNAVector2 Rot90(ref XNAVector2 a)
         {
-            return new Vector2(-a.Y, a.X);
+            return new XNAVector2(-a.Y, a.X);
         }
 
-        public static Vector2 Abs(Vector2 v)
+        public static XNAVector2 Abs(XNAVector2 v)
         {
-            return new Vector2(Math.Abs(v.X), Math.Abs(v.Y));
+            return new XNAVector2(Math.Abs(v.X), Math.Abs(v.Y));
         }
 
-        public static Vector2 Mul(ref Mat22 A, Vector2 v)
+        public static XNAVector2 Mul(ref Mat22 A, XNAVector2 v)
         {
             return Mul(ref A, ref v);
         }
 
-        public static Vector2 Mul(ref Mat22 A, ref Vector2 v)
+        public static XNAVector2 Mul(ref Mat22 A, ref XNAVector2 v)
         {
-            return new Vector2(A.ex.X * v.X + A.ey.X * v.Y, A.ex.Y * v.X + A.ey.Y * v.Y);
+            return new XNAVector2(A.ex.X * v.X + A.ey.X * v.Y, A.ex.Y * v.X + A.ey.Y * v.Y);
         }
         
-        public static Vector2 MulT(ref Mat22 A, Vector2 v)
+        public static XNAVector2 MulT(ref Mat22 A, XNAVector2 v)
         {
             return MulT(ref A, ref v);
         }
 
-        public static Vector2 MulT(ref Mat22 A, ref Vector2 v)
+        public static XNAVector2 MulT(ref Mat22 A, ref XNAVector2 v)
         {
-            return new Vector2(v.X * A.ex.X + v.Y * A.ex.Y, v.X * A.ey.X + v.Y * A.ey.Y);
+            return new XNAVector2(v.X * A.ex.X + v.Y * A.ex.Y, v.X * A.ey.X + v.Y * A.ey.Y);
         }
-
 
         // A^T * B
         public static void MulT(ref Mat22 A, ref Mat22 B, out Mat22 C)
@@ -109,8 +108,8 @@ namespace tainicom.Aether.Physics2D.Common
             C.ey.Y = A.ey.X * B.ey.X + A.ey.Y * B.ey.Y;
         }
 
-        /// Multiply a matrix times a vector.
-        public static Vector3 Mul(Mat33 A, Vector3 v)
+        /// Multiply a XNAMatrix times a XNAVector.
+        public static XNAVector3 Mul(Mat33 A, XNAVector3 v)
         {
             return v.X * A.ex + v.Y * A.ey + v.Z * A.ez;
         }
@@ -122,16 +121,16 @@ namespace tainicom.Aether.Physics2D.Common
             b = tmp;
         }
 
-        /// Multiply a matrix times a vector.
-        public static Vector2 Mul22(Mat33 A, Vector2 v)
+        /// Multiply a XNAMatrix times a XNAVector.
+        public static XNAVector2 Mul22(Mat33 A, XNAVector2 v)
         {
-            return new Vector2(A.ex.X * v.X + A.ey.X * v.Y, A.ex.Y * v.X + A.ey.Y * v.Y);
+            return new XNAVector2(A.ex.X * v.X + A.ey.X * v.Y, A.ex.Y * v.X + A.ey.Y * v.Y);
         }
         
-        /// Get the skew vector such that dot(skew_vec, other) == cross(vec, other)
-        public static Vector2 Skew(Vector2 input)
+        /// Get the skew XNAVector such that dot(skew_vec, other) == cross(vec, other)
+        public static XNAVector2 Skew(XNAVector2 input)
         {
-            return new Vector2(-input.Y, input.X);
+            return new XNAVector2(-input.Y, input.X);
         }
 
         /// <summary>
@@ -153,7 +152,7 @@ namespace tainicom.Aether.Physics2D.Common
             return !float.IsInfinity(x);
         }
 
-        public static bool IsValid(this Vector2 x)
+        public static bool IsValid(this XNAVector2 x)
         {
             return IsValid(x.X) && IsValid(x.Y);
         }
@@ -184,22 +183,22 @@ namespace tainicom.Aether.Physics2D.Common
             return Math.Max(low, Math.Min(a, high));
         }
 
-        public static Vector2 Clamp(Vector2 a, Vector2 low, Vector2 high)
+        public static XNAVector2 Clamp(XNAVector2 a, XNAVector2 low, XNAVector2 high)
         {
-            return Vector2.Max(low, Vector2.Min(a, high));
+            return XNAVector2.Max(low, XNAVector2.Min(a, high));
         }
 
-        public static void Cross(ref Vector2 a, ref Vector2 b, out float c)
+        public static void Cross(ref XNAVector2 a, ref XNAVector2 b, out float c)
         {
             c = a.X * b.Y - a.Y * b.X;
         }
 
         /// <summary>
-        /// Return the angle between two vectors on a plane
-        /// The angle is from vector 1 to vector 2, positive anticlockwise
+        /// Return the angle between two XNAVectors on a plane
+        /// The angle is from XNAVector 1 to XNAVector 2, positive anticlockwise
         /// The result is between -pi -> pi
         /// </summary>
-        public static double VectorAngle(ref Vector2 p1, ref Vector2 p2)
+        public static double XNAVectorAngle(ref XNAVector2 p1, ref XNAVector2 p2)
         {
             double theta1 = Math.Atan2(p1.Y, p1.X);
             double theta2 = Math.Atan2(p2.Y, p2.X);
@@ -212,21 +211,21 @@ namespace tainicom.Aether.Physics2D.Common
             return (dtheta);
         }
 
-        /// Perform the dot product on two vectors.
-        public static float Dot(Vector3 a, Vector3 b)
+        /// Perform the dot product on two XNAVectors.
+        public static float Dot(XNAVector3 a, XNAVector3 b)
         {
             return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
         }
 
-        /// Perform the dot product on two vectors.
-        public static float Dot(Vector2 a, ref Vector2 b)
+        /// Perform the dot product on two XNAVectors.
+        public static float Dot(XNAVector2 a, ref XNAVector2 b)
         {
             return a.X * b.X + a.Y * b.Y;
         }
 
-        public static double VectorAngle(Vector2 p1, Vector2 p2)
+        public static double XNAVectorAngle(XNAVector2 p1, XNAVector2 p2)
         {
-            return VectorAngle(ref p1, ref p2);
+            return XNAVectorAngle(ref p1, ref p2);
         }
 
         /// <summary>
@@ -234,7 +233,7 @@ namespace tainicom.Aether.Physics2D.Common
         /// </summary>
         /// <returns>Positive number if point is left, negative if point is right, 
         /// and 0 if points are collinear.</returns>
-        public static float Area(Vector2 a, Vector2 b, Vector2 c)
+        public static float Area(XNAVector2 a, XNAVector2 b, XNAVector2 c)
         {
             return Area(ref a, ref b, ref c);
         }
@@ -244,7 +243,7 @@ namespace tainicom.Aether.Physics2D.Common
         /// </summary>
         /// <returns>Positive number if point is left, negative if point is right, 
         /// and 0 if points are collinear.</returns>
-        public static float Area(ref Vector2 a, ref Vector2 b, ref Vector2 c)
+        public static float Area(ref XNAVector2 a, ref XNAVector2 b, ref XNAVector2 c)
         {
             return a.X * (b.Y - c.Y) + b.X * (c.Y - a.Y) + c.X * (a.Y - b.Y);
         }
@@ -257,14 +256,14 @@ namespace tainicom.Aether.Physics2D.Common
         /// <param name="c">Third vertex</param>
         /// <param name="tolerance">The tolerance</param>
         /// <returns></returns>
-        public static bool IsCollinear(ref Vector2 a, ref Vector2 b, ref Vector2 c, float tolerance = 0)
+        public static bool IsCollinear(ref XNAVector2 a, ref XNAVector2 b, ref XNAVector2 c, float tolerance = 0)
         {
             return FloatInRange(Area(ref a, ref b, ref c), -tolerance, tolerance);
         }
 
-        public static void Cross(float s, ref Vector2 a, out Vector2 b)
+        public static void Cross(float s, ref XNAVector2 a, out XNAVector2 b)
         {
-            b = new Vector2(-s * a.Y, s * a.X);
+            b = new XNAVector2(-s * a.Y, s * a.X);
         }
 
         public static bool FloatEquals(float value1, float value2)
@@ -315,25 +314,25 @@ namespace tainicom.Aether.Physics2D.Common
     }
 
     /// <summary>
-    /// A 2-by-2 matrix. Stored in column-major order.
+    /// A 2-by-2 XNAMatrix. Stored in column-major order.
     /// </summary>
     public struct Mat22
     {
-        public Vector2 ex, ey;
+        public XNAVector2 ex, ey;
 
         /// <summary>
-        /// Construct this matrix using columns.
+        /// Construct this XNAMatrix using columns.
         /// </summary>
         /// <param name="c1">The c1.</param>
         /// <param name="c2">The c2.</param>
-        public Mat22(Vector2 c1, Vector2 c2)
+        public Mat22(XNAVector2 c1, XNAVector2 c2)
         {
             ex = c1;
             ey = c2;
         }
 
         /// <summary>
-        /// Construct this matrix using scalars.
+        /// Construct this XNAMatrix using scalars.
         /// </summary>
         /// <param name="a11">The a11.</param>
         /// <param name="a12">The a12.</param>
@@ -341,8 +340,8 @@ namespace tainicom.Aether.Physics2D.Common
         /// <param name="a22">The a22.</param>
         public Mat22(float a11, float a12, float a21, float a22)
         {
-            ex = new Vector2(a11, a21);
-            ey = new Vector2(a12, a22);
+            ex = new XNAVector2(a11, a21);
+            ey = new XNAVector2(a12, a22);
         }
 
         public Mat22 Inverse
@@ -368,18 +367,18 @@ namespace tainicom.Aether.Physics2D.Common
         }
 
         /// <summary>
-        /// Initialize this matrix using columns.
+        /// Initialize this XNAMatrix using columns.
         /// </summary>
         /// <param name="c1">The c1.</param>
         /// <param name="c2">The c2.</param>
-        public void Set(Vector2 c1, Vector2 c2)
+        public void Set(XNAVector2 c1, XNAVector2 c2)
         {
             ex = c1;
             ey = c2;
         }
 
         /// <summary>
-        /// Set this to the identity matrix.
+        /// Set this to the identity XNAMatrix.
         /// </summary>
         public void SetIdentity()
         {
@@ -390,7 +389,7 @@ namespace tainicom.Aether.Physics2D.Common
         }
 
         /// <summary>
-        /// Set this matrix to all zeros.
+        /// Set this XNAMatrix to all zeros.
         /// </summary>
         public void SetZero()
         {
@@ -401,12 +400,12 @@ namespace tainicom.Aether.Physics2D.Common
         }
 
         /// <summary>
-        /// Solve A * x = b, where b is a column vector. This is more efficient
+        /// Solve A * x = b, where b is a column XNAVector. This is more efficient
         /// than computing the inverse in one-shot cases.
         /// </summary>
         /// <param name="b">The b.</param>
         /// <returns></returns>
-        public Vector2 Solve(Vector2 b)
+        public XNAVector2 Solve(XNAVector2 b)
         {
             float a11 = ex.X, a12 = ey.X, a21 = ex.Y, a22 = ey.Y;
             float det = a11 * a22 - a12 * a21;
@@ -415,7 +414,7 @@ namespace tainicom.Aether.Physics2D.Common
                 det = 1.0f / det;
             }
 
-            return new Vector2(det * (a22 * b.X - a12 * b.Y), det * (a11 * b.Y - a21 * b.X));
+            return new XNAVector2(det * (a22 * b.X - a12 * b.Y), det * (a11 * b.Y - a21 * b.X));
         }
 
         public static void Add(ref Mat22 A, ref Mat22 B, out Mat22 R)
@@ -426,19 +425,19 @@ namespace tainicom.Aether.Physics2D.Common
     }
 
     /// <summary>
-    /// A 3-by-3 matrix. Stored in column-major order.
+    /// A 3-by-3 XNAMatrix. Stored in column-major order.
     /// </summary>
     public struct Mat33
     {
-        public Vector3 ex, ey, ez;
+        public XNAVector3 ex, ey, ez;
 
         /// <summary>
-        /// Construct this matrix using columns.
+        /// Construct this XNAMatrix using columns.
         /// </summary>
         /// <param name="c1">The c1.</param>
         /// <param name="c2">The c2.</param>
         /// <param name="c3">The c3.</param>
-        public Mat33(Vector3 c1, Vector3 c2, Vector3 c3)
+        public Mat33(XNAVector3 c1, XNAVector3 c2, XNAVector3 c3)
         {
             ex = c1;
             ey = c2;
@@ -446,40 +445,40 @@ namespace tainicom.Aether.Physics2D.Common
         }
 
         /// <summary>
-        /// Set this matrix to all zeros.
+        /// Set this XNAMatrix to all zeros.
         /// </summary>
         public void SetZero()
         {
-            ex = Vector3.Zero;
-            ey = Vector3.Zero;
-            ez = Vector3.Zero;
+            ex = XNAVector3.Zero;
+            ey = XNAVector3.Zero;
+            ez = XNAVector3.Zero;
         }
 
         /// <summary>
-        /// Solve A * x = b, where b is a column vector. This is more efficient
+        /// Solve A * x = b, where b is a column XNAVector. This is more efficient
         /// than computing the inverse in one-shot cases.
         /// </summary>
         /// <param name="b">The b.</param>
         /// <returns></returns>
-        public Vector3 Solve33(Vector3 b)
+        public XNAVector3 Solve33(XNAVector3 b)
         {
-            float det = Vector3.Dot(ex, Vector3.Cross(ey, ez));
+            float det = XNAVector3.Dot(ex, XNAVector3.Cross(ey, ez));
             if (det != 0.0f)
             {
                 det = 1.0f / det;
             }
 
-            return new Vector3(det * Vector3.Dot(b, Vector3.Cross(ey, ez)), det * Vector3.Dot(ex, Vector3.Cross(b, ez)), det * Vector3.Dot(ex, Vector3.Cross(ey, b)));
+            return new XNAVector3(det * XNAVector3.Dot(b, XNAVector3.Cross(ey, ez)), det * XNAVector3.Dot(ex, XNAVector3.Cross(b, ez)), det * XNAVector3.Dot(ex, XNAVector3.Cross(ey, b)));
         }
 
         /// <summary>
-        /// Solve A * x = b, where b is a column vector. This is more efficient
+        /// Solve A * x = b, where b is a column XNAVector. This is more efficient
         /// than computing the inverse in one-shot cases. Solve only the upper
-        /// 2-by-2 matrix equation.
+        /// 2-by-2 XNAMatrix equation.
         /// </summary>
         /// <param name="b">The b.</param>
         /// <returns></returns>
-        public Vector2 Solve22(Vector2 b)
+        public XNAVector2 Solve22(XNAVector2 b)
         {
             float a11 = ex.X, a12 = ey.X, a21 = ex.Y, a22 = ey.Y;
             float det = a11 * a22 - a12 * a21;
@@ -489,11 +488,11 @@ namespace tainicom.Aether.Physics2D.Common
                 det = 1.0f / det;
             }
 
-            return new Vector2(det * (a22 * b.X - a12 * b.Y), det * (a11 * b.Y - a21 * b.X));
+            return new XNAVector2(det * (a22 * b.X - a12 * b.Y), det * (a11 * b.Y - a21 * b.X));
         }
 
-        /// Get the inverse of this matrix as a 2-by-2.
-        /// Returns the zero matrix if singular.
+        /// Get the inverse of this XNAMatrix as a 2-by-2.
+        /// Returns the zero XNAMatrix if singular.
         public void GetInverse22(ref Mat33 M)
         {
             float a = ex.X, b = ey.X, c = ex.Y, d = ey.Y;
@@ -508,8 +507,8 @@ namespace tainicom.Aether.Physics2D.Common
             M.ez.X = 0.0f; M.ez.Y = 0.0f; M.ez.Z = 0.0f;
         }
 
-        /// Get the symmetric inverse of this matrix as a 3-by-3.
-        /// Returns the zero matrix if singular.
+        /// Get the symmetric inverse of this XNAMatrix as a 3-by-3.
+        /// Returns the zero XNAMatrix if singular.
         public void GetSymInverse33(ref Mat33 M)
         {
             float det = MathUtils.Dot(ex, MathUtils.Cross(ref ey, ref ez));
@@ -543,63 +542,74 @@ namespace tainicom.Aether.Physics2D.Common
     /// </summary>
     public struct Transform
     {
-        private static readonly Transform _identity = new Transform(Vector2.Zero, Complex.One);
+        private static readonly Transform _identity = new Transform(XNAVector2.Zero, Complex.One);
 
         public Complex q;
-        public Vector2 p;
+        public XNAVector2 p;
 
         public static Transform Identity { get { return _identity; } }
 
         /// <summary>
-        /// Initialize using a position vector and a Complex rotation.
+        /// Initialize using a position XNAVector and a Complex rotation.
         /// </summary>
         /// <param name="position">The position.</param>
         /// <param name="rotation">The rotation</param>
-        public Transform(Vector2 position, Complex rotation)
+        public Transform(XNAVector2 position, Complex rotation)
         {
             q = rotation;
             p = position;
         }
 
         /// <summary>
-        /// Initialize using a position vector and a rotation.
+        /// Initialize using a position XNAVector and a rotation.
         /// </summary>
         /// <param name="position">The position.</param>
         /// <param name="angle">The rotation angle</param>
-        public Transform(Vector2 position, float angle)
+        public Transform(XNAVector2 position, float angle)
             : this(position, Complex.FromAngle(angle))
         {
         }
                 
-        public static Vector2 Multiply(Vector2 left, ref Transform right)
+        public static XNAVector2 Multiply(XNAVector2 left, ref Transform right)
         {
             return Multiply(ref left, ref right);
         }
 
-        public static Vector2 Multiply(ref Vector2 left, ref Transform right)
+        public static XNAVector2 Multiply(ref XNAVector2 left, ref Transform right)
         {
             // Opt: var result = Complex.Multiply(left, right.q) + right.p;
-            return new Vector2(
+            return new XNAVector2(
                 (left.X * right.q.Real - left.Y * right.q.Imaginary) + right.p.X,
                 (left.Y * right.q.Real + left.X * right.q.Imaginary) + right.p.Y);
         }
 
-        public static Vector2 Divide(Vector2 left, ref Transform right)
+        public static XNAVector2 Multiply(ref Transform right, XNAVector2 left) {
+            return Multiply(ref left, ref right);
+        }
+
+        public static XNAVector2 Multiply(ref Transform right, ref XNAVector2 left) {
+            // Opt: var result = Complex.Multiply(left, right.q) + right.p;
+            return new XNAVector2(
+                (left.X * right.q.Real - left.Y * right.q.Imaginary) + right.p.X,
+                (left.Y * right.q.Real + left.X * right.q.Imaginary) + right.p.Y);
+        }
+
+        public static XNAVector2 Divide(XNAVector2 left, ref Transform right)
         {
             return Divide(ref left, ref right);
         }
 
-        public static Vector2 Divide(ref Vector2 left, ref Transform right)
+        public static XNAVector2 Divide(ref XNAVector2 left, ref Transform right)
         {
             // Opt: var result = Complex.Divide(left - right.p, right);
             float px = left.X - right.p.X;
             float py = left.Y - right.p.Y;
-            return new Vector2(
+            return new XNAVector2(
                 (px * right.q.Real + py * right.q.Imaginary),
                 (py * right.q.Real - px * right.q.Imaginary));
         }
 
-        public static void Divide(Vector2 left, ref Transform right, out Vector2 result)
+        public static void Divide(XNAVector2 left, ref Transform right, out XNAVector2 result)
         {
             // Opt: var result = Complex.Divide(left - right.p, right);
             float px = left.X - right.p.X;
@@ -665,14 +675,14 @@ namespace tainicom.Aether.Physics2D.Common
         /// <summary>
         /// Center world positions
         /// </summary>
-        public Vector2 C;
+        public XNAVector2 C;
 
-        public Vector2 C0;
+        public XNAVector2 C0;
 
         /// <summary>
         /// Local center of mass position
         /// </summary>
-        public Vector2 LocalCenter;
+        public XNAVector2 LocalCenter;
 
         /// <summary>
         /// Get the interpolated transform at a specific time.

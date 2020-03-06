@@ -15,23 +15,23 @@ namespace tainicom.Aether.Physics2D.Common
     /// </summary>
     public static class LineTools
     {
-        public static float DistanceBetweenPointAndLineSegment(ref Vector2 point, ref Vector2 start, ref Vector2 end)
+        public static float DistanceBetweenPointAndLineSegment(ref XNAVector2 point, ref XNAVector2 start, ref XNAVector2 end)
         {
             if (start == end)
-                return Vector2.Distance(point, start);
+                return XNAVector2.Distance(point, start);
 
-            Vector2 v = Vector2.Subtract(end, start);
-            Vector2 w = Vector2.Subtract(point, start);
+            XNAVector2 v = XNAVector2.Subtract(end, start);
+            XNAVector2 w = XNAVector2.Subtract(point, start);
 
-            float c1 = Vector2.Dot(w, v);
-            if (c1 <= 0) return Vector2.Distance(point, start);
+            float c1 = XNAVector2.Dot(w, v);
+            if (c1 <= 0) return XNAVector2.Distance(point, start);
 
-            float c2 = Vector2.Dot(v, v);
-            if (c2 <= c1) return Vector2.Distance(point, end);
+            float c2 = XNAVector2.Dot(v, v);
+            if (c2 <= c1) return XNAVector2.Distance(point, end);
 
             float b = c1 / c2;
-            Vector2 pointOnLine = Vector2.Add(start, Vector2.Multiply(v, b));
-            return Vector2.Distance(point, pointOnLine);
+            XNAVector2 pointOnLine = XNAVector2.Add(start, XNAVector2.Multiply(v, b));
+            return XNAVector2.Distance(point, pointOnLine);
         }
 
         // From Eric Jordan's convex decomposition library
@@ -43,9 +43,9 @@ namespace tainicom.Aether.Physics2D.Common
         ///Grazing lines should not return true.
         /// 
         /// </summary>
-        public static bool LineIntersect2(ref Vector2 a0, ref Vector2 a1, ref Vector2 b0, ref  Vector2 b1, out Vector2 intersectionPoint)
+        public static bool LineIntersect2(ref XNAVector2 a0, ref XNAVector2 a1, ref XNAVector2 b0, ref  XNAVector2 b1, out XNAVector2 intersectionPoint)
         {
-            intersectionPoint = Vector2.Zero;
+            intersectionPoint = XNAVector2.Zero;
 
             if (a0 == b0 || a0 == b1 || a1 == b0 || a1 == b1)
                 return false;
@@ -88,9 +88,9 @@ namespace tainicom.Aether.Physics2D.Common
         }
 
         //From Mark Bayazit's convex decomposition algorithm
-        public static Vector2 LineIntersect(Vector2 p1, Vector2 p2, Vector2 q1, Vector2 q2)
+        public static XNAVector2 LineIntersect(XNAVector2 p1, XNAVector2 p2, XNAVector2 q1, XNAVector2 q2)
         {
-            Vector2 i = Vector2.Zero;
+            XNAVector2 i = XNAVector2.Zero;
             float a1 = p2.Y - p1.Y;
             float b1 = p1.X - p2.X;
             float c1 = a1 * p1.X + b1 * p1.Y;
@@ -132,9 +132,9 @@ namespace tainicom.Aether.Physics2D.Common
         /// <param name="secondIsSegment">Set this to true to require that the
         /// intersection point be on the second line segment.</param>
         /// <returns>True if an intersection is detected, false otherwise.</returns>
-        public static bool LineIntersect(ref Vector2 point1, ref Vector2 point2, ref Vector2 point3, ref Vector2 point4, bool firstIsSegment, bool secondIsSegment, out Vector2 point)
+        public static bool LineIntersect(ref XNAVector2 point1, ref XNAVector2 point2, ref XNAVector2 point3, ref XNAVector2 point4, bool firstIsSegment, bool secondIsSegment, out XNAVector2 point)
         {
-            point = new Vector2();
+            point = new XNAVector2();
 
             // these are reused later.
             // each lettered sub-calculation is used twice, except
@@ -209,7 +209,7 @@ namespace tainicom.Aether.Physics2D.Common
         /// <param name="secondIsSegment">Set this to true to require that the
         /// intersection point be on the second line segment.</param>
         /// <returns>True if an intersection is detected, false otherwise.</returns>
-        public static bool LineIntersect(Vector2 point1, Vector2 point2, Vector2 point3, Vector2 point4, bool firstIsSegment, bool secondIsSegment, out Vector2 intersectionPoint)
+        public static bool LineIntersect(XNAVector2 point1, XNAVector2 point2, XNAVector2 point3, XNAVector2 point4, bool firstIsSegment, bool secondIsSegment, out XNAVector2 intersectionPoint)
         {
             return LineIntersect(ref point1, ref point2, ref point3, ref point4, firstIsSegment, secondIsSegment, out intersectionPoint);
         }
@@ -228,7 +228,7 @@ namespace tainicom.Aether.Physics2D.Common
         /// <param name="intersectionPoint">This is set to the intersection
         /// point if an intersection is detected.</param>
         /// <returns>True if an intersection is detected, false otherwise.</returns>
-        public static bool LineIntersect(ref Vector2 point1, ref Vector2 point2, ref Vector2 point3, ref Vector2 point4, out Vector2 intersectionPoint)
+        public static bool LineIntersect(ref XNAVector2 point1, ref XNAVector2 point2, ref XNAVector2 point3, ref XNAVector2 point4, out XNAVector2 intersectionPoint)
         {
             return LineIntersect(ref point1, ref point2, ref point3, ref point4, true, true, out intersectionPoint);
         }
@@ -247,7 +247,7 @@ namespace tainicom.Aether.Physics2D.Common
         /// <param name="intersectionPoint">This is set to the intersection
         /// point if an intersection is detected.</param>
         /// <returns>True if an intersection is detected, false otherwise.</returns>
-        public static bool LineIntersect(Vector2 point1, Vector2 point2, Vector2 point3, Vector2 point4, out Vector2 intersectionPoint)
+        public static bool LineIntersect(XNAVector2 point1, XNAVector2 point2, XNAVector2 point3, XNAVector2 point4, out XNAVector2 intersectionPoint)
         {
             return LineIntersect(ref point1, ref point2, ref point3, ref point4, true, true, out intersectionPoint);
         }
@@ -262,13 +262,13 @@ namespace tainicom.Aether.Physics2D.Common
         /// <param name="point1">The first point of the line segment to test</param>
         /// <param name="point2">The second point of the line segment to test.</param>
         /// <param name="vertices">The vertices, as described above</param>
-        public static Vertices LineSegmentVerticesIntersect(ref Vector2 point1, ref Vector2 point2, Vertices vertices)
+        public static Vertices LineSegmentVerticesIntersect(ref XNAVector2 point1, ref XNAVector2 point2, Vertices vertices)
         {
             Vertices intersectionPoints = new Vertices();
 
             for (int i = 0; i < vertices.Count; i++)
             {
-                Vector2 point;
+                XNAVector2 point;
                 if (LineIntersect(vertices[i], vertices[vertices.NextIndex(i)], point1, point2, true, true, out point))
                 {
                     intersectionPoints.Add(point);
@@ -284,7 +284,7 @@ namespace tainicom.Aether.Physics2D.Common
         /// <param name="point1">The first point of the line segment to test</param>
         /// <param name="point2">The second point of the line segment to test.</param>
         /// <param name="aabb">The AABB that is used for testing intersection.</param>
-        public static Vertices LineSegmentAABBIntersect(ref Vector2 point1, ref Vector2 point2, AABB aabb)
+        public static Vertices LineSegmentAABBIntersect(ref XNAVector2 point1, ref XNAVector2 point2, AABB aabb)
         {
             return LineSegmentVerticesIntersect(ref point1, ref point2, aabb.Vertices);
         }

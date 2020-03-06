@@ -55,7 +55,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
     /// This is an internal structure.
     public struct Position
     {
-        public Vector2 c;
+        public XNAVector2 c;
         public float a;
         internal int Lock;
     }
@@ -63,7 +63,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
     /// This is an internal structure.
     public struct Velocity
     {
-        public Vector2 v;
+        public XNAVector2 v;
         public float w;
         internal int Lock;
     }

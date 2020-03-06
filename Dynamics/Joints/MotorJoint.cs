@@ -40,9 +40,9 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
     public class MotorJoint : Joint
     {
         // Solver shared
-        private Vector2 _linearOffset;
+        private XNAVector2 _linearOffset;
         private float _angularOffset;
-        private Vector2 _linearImpulse;
+        private XNAVector2 _linearImpulse;
         private float _angularImpulse;
         private float _maxForce;
         private float _maxTorque;
@@ -50,11 +50,11 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         // Solver temp
         private int _indexA;
         private int _indexB;
-        private Vector2 _rA;
-        private Vector2 _rB;
-        private Vector2 _localCenterA;
-        private Vector2 _localCenterB;
-        private Vector2 _linearError;
+        private XNAVector2 _rA;
+        private XNAVector2 _rB;
+        private XNAVector2 _localCenterA;
+        private XNAVector2 _localCenterB;
+        private XNAVector2 _linearError;
         private float _angularError;
         private float _invMassA;
         private float _invMassB;
@@ -74,17 +74,13 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// <param name="bodyA">The first body</param>
         /// <param name="bodyB">The second body</param>
         /// <param name="useWorldCoordinates">Set to true if you are using world coordinates as anchors.</param>
-        public MotorJoint(Body bodyA, Body bodyB, bool useWorldCoordinates = false)
+        public MotorJoint(Body bodyA, Body bodyB)
             : base(bodyA, bodyB)
         {
             JointType = JointType.Motor;
 
-            Vector2 xB = BodyB.Position;
-
-            if (useWorldCoordinates)
-                _linearOffset = BodyA.GetLocalPoint(xB);
-            else
-                _linearOffset = xB;
+            XNAVector2 xB = BodyB.Position;
+            _linearOffset = BodyA.GetLocalPoint(xB);
 
             //Defaults
             _angularOffset = 0.0f;
@@ -95,13 +91,13 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             _angularOffset = BodyB.Rotation - BodyA.Rotation;
         }
 
-        public override Vector2 WorldAnchorA
+        public override XNAVector2 WorldAnchorA
         {
             get { return BodyA.Position; }
             set { Debug.Assert(false, "You can't set the world anchor on this joint type."); }
         }
 
-        public override Vector2 WorldAnchorB
+        public override XNAVector2 WorldAnchorB
         {
             get { return BodyB.Position; }
             set { Debug.Assert(false, "You can't set the world anchor on this joint type."); }
@@ -136,7 +132,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// <summary>
         /// The linear (translation) offset.
         /// </summary>
-        public Vector2 LinearOffset
+        public XNAVector2 LinearOffset
         {
             set
             {
@@ -166,9 +162,9 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         }
 
         //FPE note: Used for serialization.
-        internal float CorrectionFactor { get; set; }
+        public float CorrectionFactor { get; set; }
 
-        public override Vector2 GetReactionForce(float invDt)
+        public override XNAVector2 GetReactionForce(float invDt)
         {
             return invDt * _linearImpulse;
         }
@@ -189,20 +185,20 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             _invIA = BodyA._invI;
             _invIB = BodyB._invI;
 
-            Vector2 cA = data.positions[_indexA].c;
+            XNAVector2 cA = data.positions[_indexA].c;
             float aA = data.positions[_indexA].a;
-            Vector2 vA = data.velocities[_indexA].v;
+            XNAVector2 vA = data.velocities[_indexA].v;
             float wA = data.velocities[_indexA].w;
 
-            Vector2 cB = data.positions[_indexB].c;
+            XNAVector2 cB = data.positions[_indexB].c;
             float aB = data.positions[_indexB].a;
-            Vector2 vB = data.velocities[_indexB].v;
+            XNAVector2 vB = data.velocities[_indexB].v;
             float wB = data.velocities[_indexB].w;
 
             Complex qA = Complex.FromAngle(aA);
             Complex qB = Complex.FromAngle(aB);
 
-            // Compute the effective mass matrix.
+            // Compute the effective mass XNAMatrix.
             _rA = -Complex.Multiply(ref _localCenterA, ref qA);
             _rB = -Complex.Multiply(ref _localCenterB, ref qB);
 
@@ -241,7 +237,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 _linearImpulse *= data.step.dtRatio;
                 _angularImpulse *= data.step.dtRatio;
 
-                Vector2 P = new Vector2(_linearImpulse.X, _linearImpulse.Y);
+                XNAVector2 P = new XNAVector2(_linearImpulse.X, _linearImpulse.Y);
 
                 vA -= mA * P;
                 wA -= iA * (MathUtils.Cross(ref _rA, ref P) + _angularImpulse);
@@ -250,7 +246,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             }
             else
             {
-                _linearImpulse = Vector2.Zero;
+                _linearImpulse = XNAVector2.Zero;
                 _angularImpulse = 0.0f;
             }
 
@@ -262,9 +258,9 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
         internal override void SolveVelocityConstraints(ref SolverData data)
         {
-            Vector2 vA = data.velocities[_indexA].v;
+            XNAVector2 vA = data.velocities[_indexA].v;
             float wA = data.velocities[_indexA].w;
-            Vector2 vB = data.velocities[_indexB].v;
+            XNAVector2 vB = data.velocities[_indexB].v;
             float wB = data.velocities[_indexB].w;
 
             float mA = _invMassA, mB = _invMassB;
@@ -289,10 +285,10 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
             // Solve linear friction
             {
-                Vector2 Cdot = vB + MathUtils.Cross(wB, ref _rB) - vA - MathUtils.Cross(wA, ref _rA) + inv_h * CorrectionFactor * _linearError;
+                XNAVector2 Cdot = vB + MathUtils.Cross(wB, ref _rB) - vA - MathUtils.Cross(wA, ref _rA) + inv_h * CorrectionFactor * _linearError;
 
-                Vector2 impulse = -MathUtils.Mul(ref _linearMass, ref Cdot);
-                Vector2 oldImpulse = _linearImpulse;
+                XNAVector2 impulse = -MathUtils.Mul(ref _linearMass, ref Cdot);
+                XNAVector2 oldImpulse = _linearImpulse;
                 _linearImpulse += impulse;
 
                 float maxImpulse = h * _maxForce;

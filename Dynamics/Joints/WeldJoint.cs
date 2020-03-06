@@ -57,17 +57,17 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
     public class WeldJoint : Joint
     {
         // Solver shared
-        private Vector3 _impulse;
+        private XNAVector3 _impulse;
         private float _gamma;
         private float _bias;
 
         // Solver temp
         private int _indexA;
         private int _indexB;
-        private Vector2 _rA;
-        private Vector2 _rB;
-        private Vector2 _localCenterA;
-        private Vector2 _localCenterB;
+        private XNAVector2 _rA;
+        private XNAVector2 _rB;
+        private XNAVector2 _localCenterA;
+        private XNAVector2 _localCenterB;
         private float _invMassA;
         private float _invMassB;
         private float _invIA;
@@ -88,7 +88,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// <param name="anchorA">The first body anchor.</param>
         /// <param name="anchorB">The second body anchor.</param>
         /// <param name="useWorldCoordinates">Set to true if you are using world coordinates as anchors.</param>
-        public WeldJoint(Body bodyA, Body bodyB, Vector2 anchorA, Vector2 anchorB, bool useWorldCoordinates = false)
+        public WeldJoint(Body bodyA, Body bodyB, XNAVector2 anchorA, XNAVector2 anchorB, bool useWorldCoordinates = false)
             : base(bodyA, bodyB)
         {
             JointType = JointType.Weld;
@@ -110,20 +110,20 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// <summary>
         /// The local anchor point on BodyA
         /// </summary>
-        public Vector2 LocalAnchorA { get; set; }
+        public XNAVector2 LocalAnchorA { get; set; }
 
         /// <summary>
         /// The local anchor point on BodyB
         /// </summary>
-        public Vector2 LocalAnchorB { get; set; }
+        public XNAVector2 LocalAnchorB { get; set; }
 
-        public override Vector2 WorldAnchorA
+        public override XNAVector2 WorldAnchorA
         {
             get { return BodyA.GetWorldPoint(LocalAnchorA); }
             set { LocalAnchorA = BodyA.GetLocalPoint(value); }
         }
 
-        public override Vector2 WorldAnchorB
+        public override XNAVector2 WorldAnchorB
         {
             get { return BodyB.GetWorldPoint(LocalAnchorB); }
             set { LocalAnchorB = BodyB.GetLocalPoint(value); }
@@ -139,7 +139,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// a too high value can cause the joint to oscillate.
         /// Default is 0, which means the joint does no spring calculations.
         /// </summary>
-        public float FrequencyHz { get; set; }
+        public float Frequency { get; set; }
 
         /// <summary>
         /// The damping on the joint. The damping is only used when
@@ -147,9 +147,9 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// </summary>
         public float DampingRatio { get; set; }
 
-        public override Vector2 GetReactionForce(float invDt)
+        public override XNAVector2 GetReactionForce(float invDt)
         {
-            return invDt * new Vector2(_impulse.X, _impulse.Y);
+            return invDt * new XNAVector2(_impulse.X, _impulse.Y);
         }
 
         public override float GetReactionTorque(float invDt)
@@ -169,11 +169,11 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             _invIB = BodyB._invI;
 
             float aA = data.positions[_indexA].a;
-            Vector2 vA = data.velocities[_indexA].v;
+            XNAVector2 vA = data.velocities[_indexA].v;
             float wA = data.velocities[_indexA].w;
 
             float aB = data.positions[_indexB].a;
-            Vector2 vB = data.velocities[_indexB].v;
+            XNAVector2 vB = data.velocities[_indexB].v;
             float wB = data.velocities[_indexB].w;
 
             Complex qA = Complex.FromAngle(aA);
@@ -205,7 +205,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             K.ey.Z = K.ez.Y;
             K.ez.Z = iA + iB;
 
-            if (FrequencyHz > 0.0f)
+            if (Frequency > 0.0f)
             {
                 K.GetInverse22(ref _mass);
 
@@ -215,7 +215,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 float C = aB - aA - ReferenceAngle;
 
                 // Frequency
-                float omega = 2.0f * MathHelper.Pi * FrequencyHz;
+                float omega = 2.0f * MathHelper.Pi * Frequency;
 
                 // Damping coefficient
                 float d = 2.0f * m * DampingRatio * omega;
@@ -250,7 +250,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 // Scale impulses to support a variable time step.
                 _impulse *= data.step.dtRatio;
 
-                Vector2 P = new Vector2(_impulse.X, _impulse.Y);
+                XNAVector2 P = new XNAVector2(_impulse.X, _impulse.Y);
 
                 vA -= mA * P;
                 wA -= iA * (MathUtils.Cross(ref _rA, ref P) + _impulse.Z);
@@ -260,7 +260,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             }
             else
             {
-                _impulse = Vector3.Zero;
+                _impulse = XNAVector3.Zero;
             }
 
             data.velocities[_indexA].v = vA;
@@ -271,15 +271,15 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
         internal override void SolveVelocityConstraints(ref SolverData data)
         {
-            Vector2 vA = data.velocities[_indexA].v;
+            XNAVector2 vA = data.velocities[_indexA].v;
             float wA = data.velocities[_indexA].w;
-            Vector2 vB = data.velocities[_indexB].v;
+            XNAVector2 vB = data.velocities[_indexB].v;
             float wB = data.velocities[_indexB].w;
 
             float mA = _invMassA, mB = _invMassB;
             float iA = _invIA, iB = _invIB;
 
-            if (FrequencyHz > 0.0f)
+            if (Frequency > 0.0f)
             {
                 float Cdot2 = wB - wA;
 
@@ -289,13 +289,13 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 wA -= iA * impulse2;
                 wB += iB * impulse2;
 
-                Vector2 Cdot1 = vB + MathUtils.Cross(wB, ref _rB) - vA - MathUtils.Cross(wA, ref _rA);
+                XNAVector2 Cdot1 = vB + MathUtils.Cross(wB, ref _rB) - vA - MathUtils.Cross(wA, ref _rA);
 
-                Vector2 impulse1 = -MathUtils.Mul22(_mass, Cdot1);
+                XNAVector2 impulse1 = -MathUtils.Mul22(_mass, Cdot1);
                 _impulse.X += impulse1.X;
                 _impulse.Y += impulse1.Y;
 
-                Vector2 P = impulse1;
+                XNAVector2 P = impulse1;
 
                 vA -= mA * P;
                 wA -= iA * MathUtils.Cross(ref _rA, ref P);
@@ -305,14 +305,14 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             }
             else
             {
-                Vector2 Cdot1 = vB + MathUtils.Cross(wB, ref _rB) - vA - MathUtils.Cross(wA, ref _rA);
+                XNAVector2 Cdot1 = vB + MathUtils.Cross(wB, ref _rB) - vA - MathUtils.Cross(wA, ref _rA);
                 float Cdot2 = wB - wA;
-                Vector3 Cdot = new Vector3(Cdot1.X, Cdot1.Y, Cdot2);
+                XNAVector3 Cdot = new XNAVector3(Cdot1.X, Cdot1.Y, Cdot2);
 
-                Vector3 impulse = -MathUtils.Mul(_mass, Cdot);
+                XNAVector3 impulse = -MathUtils.Mul(_mass, Cdot);
                 _impulse += impulse;
 
-                Vector2 P = new Vector2(impulse.X, impulse.Y);
+                XNAVector2 P = new XNAVector2(impulse.X, impulse.Y);
 
                 vA -= mA * P;
                 wA -= iA * (MathUtils.Cross(ref _rA, ref P) + impulse.Z);
@@ -329,9 +329,9 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
         internal override bool SolvePositionConstraints(ref SolverData data)
         {
-            Vector2 cA = data.positions[_indexA].c;
+            XNAVector2 cA = data.positions[_indexA].c;
             float aA = data.positions[_indexA].a;
-            Vector2 cB = data.positions[_indexB].c;
+            XNAVector2 cB = data.positions[_indexB].c;
             float aB = data.positions[_indexB].a;
 
             Complex qA = Complex.FromAngle(aA);
@@ -340,8 +340,8 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             float mA = _invMassA, mB = _invMassB;
             float iA = _invIA, iB = _invIB;
 
-            Vector2 rA = Complex.Multiply(LocalAnchorA - _localCenterA, ref qA);
-            Vector2 rB = Complex.Multiply(LocalAnchorB - _localCenterB, ref qB);
+            XNAVector2 rA = Complex.Multiply(LocalAnchorA - _localCenterA, ref qA);
+            XNAVector2 rB = Complex.Multiply(LocalAnchorB - _localCenterB, ref qB);
 
             float positionError, angularError;
 
@@ -356,14 +356,14 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             K.ey.Z = K.ez.Y;
             K.ez.Z = iA + iB;
 
-            if (FrequencyHz > 0.0f)
+            if (Frequency > 0.0f)
             {
-                Vector2 C1 = cB + rB - cA - rA;
+                XNAVector2 C1 = cB + rB - cA - rA;
 
                 positionError = C1.Length();
                 angularError = 0.0f;
 
-                Vector2 P = -K.Solve22(C1);
+                XNAVector2 P = -K.Solve22(C1);
 
                 cA -= mA * P;
                 aA -= iA * MathUtils.Cross(ref rA, ref P);
@@ -373,25 +373,25 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             }
             else
             {
-                Vector2 C1 = cB + rB - cA - rA;
+                XNAVector2 C1 = cB + rB - cA - rA;
                 float C2 = aB - aA - ReferenceAngle;
 
                 positionError = C1.Length();
                 angularError = Math.Abs(C2);
 
-                Vector3 C = new Vector3(C1.X, C1.Y, C2);
+                XNAVector3 C = new XNAVector3(C1.X, C1.Y, C2);
 
-                Vector3 impulse;
+                XNAVector3 impulse;
                 if (K.ez.Z <= 0.0f)
                 {
-                    Vector2 impulse2 = -K.Solve22(C1);
-                    impulse = new Vector3(impulse2.X, impulse2.Y, 0.0f);
+                    XNAVector2 impulse2 = -K.Solve22(C1);
+                    impulse = new XNAVector3(impulse2.X, impulse2.Y, 0.0f);
                 }
                 else 
                 {
                     impulse = -K.Solve33(C);
                 }
-                Vector2 P = new Vector2(impulse.X, impulse.Y);
+                XNAVector2 P = new XNAVector2(impulse.X, impulse.Y);
 
                 cA -= mA * P;
                 aA -= iA * (MathUtils.Cross(ref rA, ref P) + impulse.Z);

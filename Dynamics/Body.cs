@@ -56,8 +56,8 @@ namespace tainicom.Aether.Physics2D.Dynamics
 
         internal bool _enabled;
         internal float _angularVelocity;
-        internal Vector2 _linearVelocity;
-        internal Vector2 _force;
+        internal XNAVector2 _linearVelocity;
+        internal XNAVector2 _force;
         internal float _invI;
         internal float _invMass;
         internal float _sleepTime;
@@ -86,6 +86,12 @@ namespace tainicom.Aether.Physics2D.Dynamics
         public World World { get {return _world; } }
         
         public int IslandIndex { get; set; }
+
+        /// <summary>
+        /// Scale the gravity applied to this body.
+        /// Defaults to 1. A value of 2 means double the gravity is applied to this body.
+        /// </summary>
+        public float GravityScale { get; set; }
 
         /// <summary>
         /// Set the user data. Use this to store your application specific data.
@@ -125,7 +131,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
 
                 if (_bodyType == BodyType.Static)
                 {
-                    _linearVelocity = Vector2.Zero;
+                    _linearVelocity = XNAVector2.Zero;
                     _angularVelocity = 0.0f;
                     _sweep.A0 = _sweep.A;
                     _sweep.C0 = _sweep.C;
@@ -134,7 +140,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
 
                 Awake = true;
 
-                _force = Vector2.Zero;
+                _force = XNAVector2.Zero;
                 _torque = 0.0f;
 
                 // Delete the attached contacts.
@@ -161,7 +167,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// Get or sets the linear velocity of the center of mass.
         /// </summary>
         /// <value>The linear velocity.</value>
-        public Vector2 LinearVelocity
+        public XNAVector2 LinearVelocity
         {
             set
             {
@@ -170,7 +176,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
                 if (_bodyType == BodyType.Static)
                     return;
 
-                if (Vector2.Dot(value, value) > 0.0f)
+                if (XNAVector2.Dot(value, value) > 0.0f)
                     Awake = true;
 
                 _linearVelocity = value;
@@ -427,7 +433,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// Get the world body origin position.
         /// </summary>
         /// <returns>Return the world position of the body's origin.</returns>
-        public Vector2 Position
+        public XNAVector2 Position
         {
             get { return _xf.p; }
             set
@@ -491,7 +497,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// Get the world position of the center of mass.
         /// </summary>
         /// <value>The world position.</value>
-        public Vector2 WorldCenter
+        public XNAVector2 WorldCenter
         {
             get { return _sweep.C; }
         }
@@ -502,7 +508,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// </summary>
         /// <value>The local position.</value>
         /// <exception cref="System.InvalidOperationException">Thrown when the world is Locked/Stepping.</exception>
-        public Vector2 LocalCenter
+        public XNAVector2 CenterOfMass
         {
             get { return _sweep.LocalCenter; }
             set
@@ -514,13 +520,13 @@ namespace tainicom.Aether.Physics2D.Dynamics
                     return;
 
                 // Move center of mass.
-                Vector2 oldCenter = _sweep.C;
+                XNAVector2 oldCenter = _sweep.C;
                 _sweep.LocalCenter = value;
                 _sweep.C0 = _sweep.C = Transform.Multiply(ref _sweep.LocalCenter, ref _xf);
 
                 // Update center of mass velocity.
-                Vector2 a = _sweep.C - oldCenter;
-                _linearVelocity += new Vector2(-_angularVelocity * a.Y, _angularVelocity * a.X);
+                XNAVector2 a = _sweep.C - oldCenter;
+                _linearVelocity += new XNAVector2(-_angularVelocity * a.Y, _angularVelocity * a.X);
             }
         }
 
@@ -560,7 +566,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// <exception cref="System.InvalidOperationException">Thrown when the world is Locked/Stepping.</exception>
         public float Inertia
         {
-            get { return _inertia + Mass * Vector2.Dot(_sweep.LocalCenter, _sweep.LocalCenter); }
+            get { return _inertia + Mass * XNAVector2.Dot(_sweep.LocalCenter, _sweep.LocalCenter); }
             set
             {
                 if (World != null && World.IsLocked)
@@ -573,7 +579,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
 
                 if (value > 0.0f && !_fixedRotation) //Make an assert
                 {
-                    _inertia = value - Mass * Vector2.Dot(LocalCenter, LocalCenter);
+                    _inertia = value - Mass * XNAVector2.Dot(CenterOfMass, CenterOfMass);
                     Debug.Assert(_inertia > 0.0f);
                     _invI = 1.0f / _inertia;
                 }
@@ -590,8 +596,8 @@ namespace tainicom.Aether.Physics2D.Dynamics
         {
             _torque = 0;
             _angularVelocity = 0;
-            _force = Vector2.Zero;
-            _linearVelocity = Vector2.Zero;
+            _force = XNAVector2.Zero;
+            _linearVelocity = XNAVector2.Zero;
         }
 
         ///<summary>
@@ -705,7 +711,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// <param name="position">The world position of the body's local origin.</param>
         /// <param name="rotation">The world rotation in radians.</param>
         /// <exception cref="System.InvalidOperationException">Thrown when the world is Locked/Stepping.</exception>
-        public void SetTransform(ref Vector2 position, float rotation)
+        public void SetTransform(ref XNAVector2 position, float rotation)
         {
             SetTransformIgnoreContacts(ref position, rotation);
 
@@ -721,7 +727,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// <param name="position">The world position of the body's local origin.</param>
         /// <param name="rotation">The world rotation in radians.</param>
         /// <exception cref="System.InvalidOperationException">Thrown when the world is Locked/Stepping.</exception>
-        public void SetTransform(Vector2 position, float rotation)
+        public void SetTransform(XNAVector2 position, float rotation)
         {
             SetTransform(ref position, rotation);
         }
@@ -733,7 +739,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// <param name="position">The position.</param>
         /// <param name="angle">The angle.</param>
         /// <exception cref="System.InvalidOperationException">Thrown when the world is Locked/Stepping.</exception>
-        public void SetTransformIgnoreContacts(ref Vector2 position, float angle)
+        public void SetTransformIgnoreContacts(ref XNAVector2 position, float angle)
         {
             Debug.Assert(World != null);
             if (World.IsLocked)
@@ -776,9 +782,9 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// applied at the center of mass, it will generate a torque and
         /// affect the angular velocity. This wakes up the body.
         /// </summary>
-        /// <param name="force">The world force vector, usually in Newtons (N).</param>
+        /// <param name="force">The world force XNAVector, usually in Newtons (N).</param>
         /// <param name="point">The world position of the point of application.</param>
-        public void ApplyForce(Vector2 force, Vector2 point)
+        public void ApplyForce(XNAVector2 force, XNAVector2 point)
         {
             ApplyForce(ref force, ref point);
         }
@@ -787,7 +793,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// Applies a force at the center of mass.
         /// </summary>
         /// <param name="force">The force.</param>
-        public void ApplyForce(ref Vector2 force)
+        public void ApplyForce(ref XNAVector2 force)
         {
             ApplyForce(ref force, ref _xf.p);
         }
@@ -796,7 +802,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// Applies a force at the center of mass.
         /// </summary>
         /// <param name="force">The force.</param>
-        public void ApplyForce(Vector2 force)
+        public void ApplyForce(XNAVector2 force)
         {
             ApplyForce(ref force, ref _xf.p);
         }
@@ -806,9 +812,9 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// applied at the center of mass, it will generate a torque and
         /// affect the angular velocity. This wakes up the body.
         /// </summary>
-        /// <param name="force">The world force vector, usually in Newtons (N).</param>
+        /// <param name="force">The world force XNAVector, usually in Newtons (N).</param>
         /// <param name="point">The world position of the point of application.</param>
-        public void ApplyForce(ref Vector2 force, ref Vector2 point)
+        public void ApplyForce(ref XNAVector2 force, ref XNAVector2 point)
         {
             Debug.Assert(!float.IsNaN(force.X));
             Debug.Assert(!float.IsNaN(force.Y));
@@ -848,8 +854,8 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// Apply an impulse at a point. This immediately modifies the velocity.
         /// This wakes up the body.
         /// </summary>
-        /// <param name="impulse">The world impulse vector, usually in N-seconds or kg-m/s.</param>
-        public void ApplyLinearImpulse(Vector2 impulse)
+        /// <param name="impulse">The world impulse XNAVector, usually in N-seconds or kg-m/s.</param>
+        public void ApplyLinearImpulse(XNAVector2 impulse)
         {
             ApplyLinearImpulse(ref impulse);
         }
@@ -860,9 +866,9 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// is not at the center of mass.
         /// This wakes up the body.
         /// </summary>
-        /// <param name="impulse">The world impulse vector, usually in N-seconds or kg-m/s.</param>
+        /// <param name="impulse">The world impulse XNAVector, usually in N-seconds or kg-m/s.</param>
         /// <param name="point">The world position of the point of application.</param>
-        public void ApplyLinearImpulse(Vector2 impulse, Vector2 point)
+        public void ApplyLinearImpulse(XNAVector2 impulse, XNAVector2 point)
         {
             ApplyLinearImpulse(ref impulse, ref point);
         }
@@ -871,8 +877,8 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// Apply an impulse at a point. This immediately modifies the velocity.
         /// This wakes up the body.
         /// </summary>
-        /// <param name="impulse">The world impulse vector, usually in N-seconds or kg-m/s.</param>
-        public void ApplyLinearImpulse(ref Vector2 impulse)
+        /// <param name="impulse">The world impulse XNAVector, usually in N-seconds or kg-m/s.</param>
+        public void ApplyLinearImpulse(ref XNAVector2 impulse)
         {
             if (_bodyType != BodyType.Dynamic)
             {
@@ -891,9 +897,9 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// is not at the center of mass.
         /// This wakes up the body.
         /// </summary>
-        /// <param name="impulse">The world impulse vector, usually in N-seconds or kg-m/s.</param>
+        /// <param name="impulse">The world impulse XNAVector, usually in N-seconds or kg-m/s.</param>
         /// <param name="point">The world position of the point of application.</param>
-        public void ApplyLinearImpulse(ref Vector2 impulse, ref Vector2 point)
+        public void ApplyLinearImpulse(ref XNAVector2 impulse, ref XNAVector2 point)
         {
             if (_bodyType != BodyType.Dynamic)
                 return;
@@ -936,7 +942,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             _invMass = 0.0f;
             _inertia = 0.0f;
             _invI = 0.0f;
-            _sweep.LocalCenter = Vector2.Zero;
+            _sweep.LocalCenter = XNAVector2.Zero;
 
             // Kinematic bodies have zero mass.
             if (BodyType == BodyType.Kinematic)
@@ -950,7 +956,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             Debug.Assert(BodyType == BodyType.Dynamic || BodyType == BodyType.Static);
 
             // Accumulate mass over all fixtures.
-            Vector2 localCenter = Vector2.Zero;
+            XNAVector2 localCenter = XNAVector2.Zero;
             foreach (Fixture f in FixtureList)
             {
                 if (f.Shape._density == 0)
@@ -987,7 +993,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             if (_inertia > 0.0f && !_fixedRotation)
             {
                 // Center the inertia about the center of mass.
-                _inertia -= _mass * Vector2.Dot(localCenter, localCenter);
+                _inertia -= _mass * XNAVector2.Dot(localCenter, localCenter);
 
                 Debug.Assert(_inertia > 0.0f);
                 _invI = 1.0f / _inertia;
@@ -999,13 +1005,25 @@ namespace tainicom.Aether.Physics2D.Dynamics
             }
 
             // Move center of mass.
-            Vector2 oldCenter = _sweep.C;
+            XNAVector2 oldCenter = _sweep.C;
             _sweep.LocalCenter = localCenter;
             _sweep.C0 = _sweep.C = Transform.Multiply(ref _sweep.LocalCenter, ref _xf);
 
             // Update center of mass velocity.
-            Vector2 a = _sweep.C - oldCenter;
-            _linearVelocity += new Vector2(-_angularVelocity * a.Y, _angularVelocity * a.X);
+            XNAVector2 a = _sweep.C - oldCenter;
+            _linearVelocity += new XNAVector2(-_angularVelocity * a.Y, _angularVelocity * a.X);
+        }
+
+        /// <summary>
+        /// Set the mass of the center of mass. Also update inertia.
+        /// </summary>
+        /// <param name="newMass"></param>
+        public void SetCenterMass(float newMass) {
+            if (newMass < 0f) { newMass = 1f; }
+            ResetMassData();
+            float massRatio = (newMass / Mass);
+            Mass = newMass;
+            Inertia *= massRatio;// Inertia is proportional to Mass.
         }
 
         /// <summary>
@@ -1013,7 +1031,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// </summary>
         /// <param name="localPoint">A point on the body measured relative the the body's origin.</param>
         /// <returns>The same point expressed in world coordinates.</returns>
-        public Vector2 GetWorldPoint(ref Vector2 localPoint)
+        public XNAVector2 GetWorldPoint(ref XNAVector2 localPoint)
         {
             return Transform.Multiply(ref localPoint, ref _xf);
         }
@@ -1023,39 +1041,39 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// </summary>
         /// <param name="localPoint">A point on the body measured relative the the body's origin.</param>
         /// <returns>The same point expressed in world coordinates.</returns>
-        public Vector2 GetWorldPoint(Vector2 localPoint)
+        public XNAVector2 GetWorldPoint(XNAVector2 localPoint)
         {
             return GetWorldPoint(ref localPoint);
         }
 
         /// <summary>
-        /// Get the world coordinates of a vector given the local coordinates.
-        /// Note that the vector only takes the rotation into account, not the position.
+        /// Get the world coordinates of a XNAVector given the local coordinates.
+        /// Note that the XNAVector only takes the rotation into account, not the position.
         /// </summary>
-        /// <param name="localVector">A vector fixed in the body.</param>
-        /// <returns>The same vector expressed in world coordinates.</returns>
-        public Vector2 GetWorldVector(ref Vector2 localVector)
+        /// <param name="localXNAVector">A XNAVector fixed in the body.</param>
+        /// <returns>The same XNAVector expressed in world coordinates.</returns>
+        public XNAVector2 GetWorldXNAVector(ref XNAVector2 localXNAVector)
         {
-            return Complex.Multiply(ref localVector, ref _xf.q);
+            return Complex.Multiply(ref localXNAVector, ref _xf.q);
         }
 
         /// <summary>
-        /// Get the world coordinates of a vector given the local coordinates.
+        /// Get the world coordinates of a XNAVector given the local coordinates.
         /// </summary>
-        /// <param name="localVector">A vector fixed in the body.</param>
-        /// <returns>The same vector expressed in world coordinates.</returns>
-        public Vector2 GetWorldVector(Vector2 localVector)
+        /// <param name="localXNAVector">A XNAVector fixed in the body.</param>
+        /// <returns>The same XNAVector expressed in world coordinates.</returns>
+        public XNAVector2 GetWorldXNAVector(XNAVector2 localXNAVector)
         {
-            return GetWorldVector(ref localVector);
+            return GetWorldXNAVector(ref localXNAVector);
         }
 
         /// <summary>
         /// Gets a local point relative to the body's origin given a world point.
-        /// Note that the vector only takes the rotation into account, not the position.
+        /// Note that the XNAVector only takes the rotation into account, not the position.
         /// </summary>
         /// <param name="worldPoint">A point in world coordinates.</param>
         /// <returns>The corresponding local point relative to the body's origin.</returns>
-        public Vector2 GetLocalPoint(ref Vector2 worldPoint)
+        public XNAVector2 GetLocalPoint(ref XNAVector2 worldPoint)
         {
             return Transform.Divide(ref worldPoint, ref _xf);
         }
@@ -1065,31 +1083,31 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// </summary>
         /// <param name="worldPoint">A point in world coordinates.</param>
         /// <returns>The corresponding local point relative to the body's origin.</returns>
-        public Vector2 GetLocalPoint(Vector2 worldPoint)
+        public XNAVector2 GetLocalPoint(XNAVector2 worldPoint)
         {
             return GetLocalPoint(ref worldPoint);
         }
 
         /// <summary>
-        /// Gets a local vector given a world vector.
-        /// Note that the vector only takes the rotation into account, not the position.
+        /// Gets a local XNAVector given a world XNAVector.
+        /// Note that the XNAVector only takes the rotation into account, not the position.
         /// </summary>
-        /// <param name="worldVector">A vector in world coordinates.</param>
-        /// <returns>The corresponding local vector.</returns>
-        public Vector2 GetLocalVector(ref Vector2 worldVector)
+        /// <param name="worldXNAVector">A XNAVector in world coordinates.</param>
+        /// <returns>The corresponding local XNAVector.</returns>
+        public XNAVector2 GetLocalXNAVector(ref XNAVector2 worldXNAVector)
         {
-            return Complex.Divide(ref worldVector, ref _xf.q);
+            return Complex.Divide(ref worldXNAVector, ref _xf.q);
         }
 
         /// <summary>
-        /// Gets a local vector given a world vector.
-        /// Note that the vector only takes the rotation into account, not the position.
+        /// Gets a local XNAVector given a world XNAVector.
+        /// Note that the XNAVector only takes the rotation into account, not the position.
         /// </summary>
-        /// <param name="worldVector">A vector in world coordinates.</param>
-        /// <returns>The corresponding local vector.</returns>
-        public Vector2 GetLocalVector(Vector2 worldVector)
+        /// <param name="worldXNAVector">A XNAVector in world coordinates.</param>
+        /// <returns>The corresponding local XNAVector.</returns>
+        public XNAVector2 GetLocalXNAVector(XNAVector2 worldXNAVector)
         {
-            return GetLocalVector(ref worldVector);
+            return GetLocalXNAVector(ref worldXNAVector);
         }
 
         /// <summary>
@@ -1097,7 +1115,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// </summary>
         /// <param name="worldPoint">A point in world coordinates.</param>
         /// <returns>The world velocity of a point.</returns>
-        public Vector2 GetLinearVelocityFromWorldPoint(Vector2 worldPoint)
+        public XNAVector2 GetLinearVelocityFromWorldPoint(XNAVector2 worldPoint)
         {
             return GetLinearVelocityFromWorldPoint(ref worldPoint);
         }
@@ -1107,10 +1125,10 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// </summary>
         /// <param name="worldPoint">A point in world coordinates.</param>
         /// <returns>The world velocity of a point.</returns>
-        public Vector2 GetLinearVelocityFromWorldPoint(ref Vector2 worldPoint)
+        public XNAVector2 GetLinearVelocityFromWorldPoint(ref XNAVector2 worldPoint)
         {
             return _linearVelocity +
-                   new Vector2(-_angularVelocity * (worldPoint.Y - _sweep.C.Y),
+                   new XNAVector2(-_angularVelocity * (worldPoint.Y - _sweep.C.Y),
                                _angularVelocity * (worldPoint.X - _sweep.C.X));
         }
 
@@ -1119,7 +1137,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// </summary>
         /// <param name="localPoint">A point in local coordinates.</param>
         /// <returns>The world velocity of a point.</returns>
-        public Vector2 GetLinearVelocityFromLocalPoint(Vector2 localPoint)
+        public XNAVector2 GetLinearVelocityFromLocalPoint(XNAVector2 localPoint)
         {
             return GetLinearVelocityFromLocalPoint(ref localPoint);
         }
@@ -1129,14 +1147,14 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// </summary>
         /// <param name="localPoint">A point in local coordinates.</param>
         /// <returns>The world velocity of a point.</returns>
-        public Vector2 GetLinearVelocityFromLocalPoint(ref Vector2 localPoint)
+        public XNAVector2 GetLinearVelocityFromLocalPoint(ref XNAVector2 localPoint)
         {
             return GetLinearVelocityFromWorldPoint(GetWorldPoint(ref localPoint));
         }
 
         internal void SynchronizeFixtures()
         {
-            Transform xf1 = new Transform(Vector2.Zero, _sweep.A0);
+            Transform xf1 = new Transform(XNAVector2.Zero, _sweep.A0);
             xf1.p = _sweep.C0 - Complex.Multiply(ref _sweep.LocalCenter, ref xf1.q);
 
             IBroadPhase broadPhase = World.ContactManager.BroadPhase;
@@ -1286,6 +1304,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             body._awake = _awake;
             body.IsBullet = IsBullet;
             body.IgnoreCCD = IgnoreCCD;
+            body.GravityScale = GravityScale;
             body.IgnoreGravity = IgnoreGravity;
             body._torque = _torque;
 

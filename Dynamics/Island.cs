@@ -100,7 +100,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             JointCount = 0;
         }
 
-        public void Solve(ref TimeStep step, ref Vector2 gravity)
+        public void Solve(ref TimeStep step, ref XNAVector2 gravity)
         {
             float h = step.dt;
 
@@ -109,9 +109,9 @@ namespace tainicom.Aether.Physics2D.Dynamics
             {
                 Body b = Bodies[i];
 
-                Vector2 c = b._sweep.C;
+                XNAVector2 c = b._sweep.C;
                 float a = b._sweep.A;
-                Vector2 v = b._linearVelocity;
+                XNAVector2 v = b._linearVelocity;
                 float w = b._angularVelocity;
 
                 // Store positions for continuous collision.
@@ -126,7 +126,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
                     if (b.IgnoreGravity)
                         v += h * (b._invMass * b._force);
                     else
-                        v += h * (gravity + b._invMass * b._force);
+                        v += h * (b.GravityScale * gravity + b._invMass * b._force);
 
                     w += h * b._invI * b._torque;
 
@@ -203,14 +203,14 @@ namespace tainicom.Aether.Physics2D.Dynamics
             // Integrate positions
             for (int i = 0; i < BodyCount; ++i)
             {
-                Vector2 c = _positions[i].c;
+                XNAVector2 c = _positions[i].c;
                 float a = _positions[i].a;
-                Vector2 v = _velocities[i].v;
+                XNAVector2 v = _velocities[i].v;
                 float w = _velocities[i].w;
 
                 // Check for large velocities
-                Vector2 translation = h * v;
-                if (Vector2.Dot(translation, translation) > Settings.MaxTranslationSquared)
+                XNAVector2 translation = h * v;
+                if (XNAVector2.Dot(translation, translation) > Settings.MaxTranslationSquared)
                 {
                     float ratio = Settings.MaxTranslation / translation.Length();
                     v *= ratio;
@@ -297,7 +297,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
                     if (b.BodyType == BodyType.Static)
                         continue;
 
-                    if (!b.SleepingAllowed || b._angularVelocity * b._angularVelocity > AngTolSqr || Vector2.Dot(b._linearVelocity, b._linearVelocity) > LinTolSqr)
+                    if (!b.SleepingAllowed || b._angularVelocity * b._angularVelocity > AngTolSqr || XNAVector2.Dot(b._linearVelocity, b._linearVelocity) > LinTolSqr)
                     {
                         b._sleepTime = 0.0f;
                         minSleepTime = 0.0f;
@@ -372,14 +372,14 @@ namespace tainicom.Aether.Physics2D.Dynamics
             // Integrate positions.
             for (int i = 0; i < BodyCount; ++i)
             {
-                Vector2 c = _positions[i].c;
+                XNAVector2 c = _positions[i].c;
                 float a = _positions[i].a;
-                Vector2 v = _velocities[i].v;
+                XNAVector2 v = _velocities[i].v;
                 float w = _velocities[i].w;
 
                 // Check for large velocities
-                Vector2 translation = h * v;
-                if (Vector2.Dot(translation, translation) > Settings.MaxTranslationSquared)
+                XNAVector2 translation = h * v;
+                if (XNAVector2.Dot(translation, translation) > Settings.MaxTranslationSquared)
                 {
                     float ratio = Settings.MaxTranslation / translation.Length();
                     v *= ratio;

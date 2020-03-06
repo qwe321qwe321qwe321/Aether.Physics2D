@@ -39,8 +39,8 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
         private static List<Vertices> TriangulatePolygon(Vertices vertices)
         {
             List<Vertices> list = new List<Vertices>();
-            Vector2 lowerInt = new Vector2();
-            Vector2 upperInt = new Vector2(); // intersection points
+            XNAVector2 lowerInt = new XNAVector2();
+            XNAVector2 upperInt = new XNAVector2(); // intersection points
             int lowerIndex = 0, upperIndex = 0;
             Vertices lowerPoly, upperPoly;
 
@@ -54,7 +54,7 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
                     {
                         // if line intersects with an edge
                         float d;
-                        Vector2 p;
+                        XNAVector2 p;
                         if (Left(At(i - 1, vertices), At(i, vertices), At(j, vertices)) && RightOn(At(i - 1, vertices), At(i, vertices), At(j - 1, vertices)))
                         {
                             // find the point of intersection
@@ -94,7 +94,7 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
                     // if there are no vertices to connect to, choose a point in the middle
                     if (lowerIndex == (upperIndex + 1) % vertices.Count)
                     {
-                        Vector2 p = ((lowerInt + upperInt) / 2);
+                        XNAVector2 p = ((lowerInt + upperInt) / 2);
 
                         lowerPoly = Copy(i, upperIndex, vertices);
                         lowerPoly.Add(p);
@@ -153,7 +153,7 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
             return list;
         }
 
-        private static Vector2 At(int i, Vertices vertices)
+        private static XNAVector2 At(int i, Vertices vertices)
         {
             int s = vertices.Count;
             return vertices[i < 0 ? s - 1 - ((-i - 1) % s) : i % s];
@@ -200,7 +200,7 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
                 if ((k + 1) % vertices.Count == i || k == i || (k + 1) % vertices.Count == j || k == j)
                     continue; // ignore incident edges
 
-                Vector2 intersectionPoint;
+                XNAVector2 intersectionPoint;
 
                 if (LineTools.LineIntersect(At(i, vertices), At(j, vertices), At(k, vertices), At(k + 1, vertices), out intersectionPoint))
                     return false;
@@ -218,27 +218,27 @@ namespace tainicom.Aether.Physics2D.Common.Decomposition
             return Right(At(i - 1, vertices), At(i, vertices), At(i + 1, vertices));
         }
 
-        private static bool Left(Vector2 a, Vector2 b, Vector2 c)
+        private static bool Left(XNAVector2 a, XNAVector2 b, XNAVector2 c)
         {
             return MathUtils.Area(ref a, ref b, ref c) > 0;
         }
 
-        private static bool LeftOn(Vector2 a, Vector2 b, Vector2 c)
+        private static bool LeftOn(XNAVector2 a, XNAVector2 b, XNAVector2 c)
         {
             return MathUtils.Area(ref a, ref b, ref c) >= 0;
         }
 
-        private static bool Right(Vector2 a, Vector2 b, Vector2 c)
+        private static bool Right(XNAVector2 a, XNAVector2 b, XNAVector2 c)
         {
             return MathUtils.Area(ref a, ref b, ref c) < 0;
         }
 
-        private static bool RightOn(Vector2 a, Vector2 b, Vector2 c)
+        private static bool RightOn(XNAVector2 a, XNAVector2 b, XNAVector2 c)
         {
             return MathUtils.Area(ref a, ref b, ref c) <= 0;
         }
 
-        private static float SquareDist(Vector2 a, Vector2 b)
+        private static float SquareDist(XNAVector2 a, XNAVector2 b)
         {
             float dx = b.X - a.X;
             float dy = b.Y - a.Y;

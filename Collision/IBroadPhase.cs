@@ -20,7 +20,7 @@ namespace tainicom.Aether.Physics2D.Collision
 
         void RemoveProxy(int proxyId);
 
-        void MoveProxy(int proxyId, ref AABB aabb, Vector2 displacement);
+        void MoveProxy(int proxyId, ref AABB aabb, XNAVector2 displacement);
 
         void SetProxy(int proxyId, ref FixtureProxy proxy);
 
@@ -34,6 +34,6 @@ namespace tainicom.Aether.Physics2D.Collision
 
         void RayCast(Func<RayCastInput, int, float> callback, ref RayCastInput input);
 
-        void ShiftOrigin(Vector2 newOrigin);
+        void ShiftOrigin(XNAVector2 newOrigin);
     }
 }

@@ -39,15 +39,15 @@ namespace tainicom.Aether.Physics2D.Fluids
         private bool _plasticityEnabled;
 
         private float _deltaTime2;
-        private Vector2 _dx = new Vector2(0.0f, 0.0f);
+        private XNAVector2 _dx = new XNAVector2(0.0f, 0.0f);
         private const int Wpadding = 20;
         private const int Hpadding = 20;
 
         public SpatialTable Particles;
 
         // Temp variables
-        private Vector2 _rij = new Vector2(0.0f, 0.0f);
-        private Vector2 _tempVect = new Vector2(0.0f, 0.0f);
+        private XNAVector2 _rij = new XNAVector2(0.0f, 0.0f);
+        private XNAVector2 _tempVect = new XNAVector2(0.0f, 0.0f);
 
         private Dictionary<int, List<int>> _springPresenceTable;
         private List<Spring2> _springs;
@@ -58,7 +58,7 @@ namespace tainicom.Aether.Physics2D.Fluids
         
         public int ParticlesCount { get { return Particles.Count; } }
 
-        public FluidSystem2(Vector2 gravity, int maxParticleLimit, int worldWidth, int worldHeight)
+        public FluidSystem2(XNAVector2 gravity, int maxParticleLimit, int worldWidth, int worldHeight)
         {
             _worldHeight = worldHeight;
             _worldWidth = worldWidth;
@@ -67,7 +67,7 @@ namespace tainicom.Aether.Physics2D.Fluids
             Gravity = gravity;
         }
 
-        public Vector2 Gravity { get; set; }
+        public XNAVector2 Gravity { get; set; }
         public int MaxParticleLimit { get; private set; }
 
         public bool ElasticityEnabled
@@ -100,7 +100,7 @@ namespace tainicom.Aether.Physics2D.Fluids
             {
                 Particle particle = Particles[i];
                 particle.PreviousPosition = particle.Position;
-                particle.Position = new Vector2(particle.Position.X + (deltaTime * particle.Velocity.X), particle.Position.Y + (deltaTime * particle.Velocity.Y));
+                particle.Position = new XNAVector2(particle.Position.X + (deltaTime * particle.Velocity.X), particle.Position.Y + (deltaTime * particle.Velocity.Y));
             }
         }
 
@@ -123,7 +123,7 @@ namespace tainicom.Aether.Physics2D.Fluids
             pi.Velocity.Y += y;
         }
 
-        private void CapVelocity(Vector2 v)
+        private void CapVelocity(XNAVector2 v)
         {
             if (v.X > VelocityCap)
                 v.X = VelocityCap;
@@ -149,8 +149,8 @@ namespace tainicom.Aether.Physics2D.Fluids
                     if (pa.GetHashCode() == pb.GetHashCode())
                         continue;
 
-                    Vector2.Distance(ref pa.Position, ref pb.Position, out q);
-                    Vector2.Subtract(ref pb.Position, ref pa.Position, out _rij);
+                    XNAVector2.Distance(ref pa.Position, ref pb.Position, out q);
+                    XNAVector2.Subtract(ref pb.Position, ref pa.Position, out _rij);
                     _rij /= q;
 
                     if (q < RestLength)
@@ -158,7 +158,7 @@ namespace tainicom.Aether.Physics2D.Fluids
                         _springs.Add(new Spring2(pa, pb, q));
                     }
                 }
-                pa.Velocity = Vector2.Zero;
+                pa.Velocity = XNAVector2.Zero;
             }
         }
 
@@ -171,12 +171,12 @@ namespace tainicom.Aether.Physics2D.Fluids
                 if (spring.CurrentDistance == 0)
                     continue;
 
-                Vector2.Subtract(ref  spring.PB.Position, ref spring.PA.Position, out _rij);
+                XNAVector2.Subtract(ref  spring.PB.Position, ref spring.PA.Position, out _rij);
                 _rij /= spring.CurrentDistance;
                 float D = deltaTime * KSpring * (spring.RestLength - spring.CurrentDistance);
                 _rij *= (D * 0.5f);
-                spring.PA.Position = new Vector2(spring.PA.Position.X - _rij.X, spring.PA.Position.Y - _rij.Y);
-                spring.PB.Position = new Vector2(spring.PB.Position.X + _rij.X, spring.PB.Position.Y + _rij.Y);
+                spring.PA.Position = new XNAVector2(spring.PA.Position.X - _rij.X, spring.PA.Position.Y - _rij.Y);
+                spring.PB.Position = new XNAVector2(spring.PB.Position.X + _rij.X, spring.PB.Position.Y + _rij.Y);
             }
         }
 
@@ -187,7 +187,7 @@ namespace tainicom.Aether.Physics2D.Fluids
             foreach (Particle particle in Particles)
             {
                 _springPresenceTable.Add(particle.GetHashCode(), new List<int>(MaxParticleLimit));
-                particle.Velocity = Vector2.Zero;
+                particle.Velocity = XNAVector2.Zero;
             }
         }
 
@@ -210,7 +210,7 @@ namespace tainicom.Aether.Physics2D.Fluids
                 for (int j = 0; j < len2; j++)
                 {
                     Particle pb = Particles[j];
-                    Vector2.DistanceSquared(ref pa.Position, ref pb.Position, out sqDist);
+                    XNAVector2.DistanceSquared(ref pa.Position, ref pb.Position, out sqDist);
                     if (sqDist > RestLengthSquared)
                         continue;
                     if (pa.GetHashCode() == pb.GetHashCode())
@@ -249,19 +249,19 @@ namespace tainicom.Aether.Physics2D.Fluids
                     if (spring.CurrentDistance == 0)
                         continue;
 
-                    Vector2.Subtract(ref spring.PB.Position, ref spring.PA.Position, out _rij);
+                    XNAVector2.Subtract(ref spring.PB.Position, ref spring.PA.Position, out _rij);
                     _rij /= spring.CurrentDistance;
                     float D = deltaTime * KSpring * (spring.RestLength - spring.CurrentDistance);
                     _rij *= (D * 0.5f);
-                    spring.PA.Position = new Vector2(spring.PA.Position.X - _rij.X, spring.PA.Position.Y - _rij.Y);
-                    spring.PB.Position = new Vector2(spring.PB.Position.X + _rij.X, spring.PB.Position.Y + _rij.Y);
+                    spring.PA.Position = new XNAVector2(spring.PA.Position.X - _rij.X, spring.PA.Position.Y - _rij.Y);
+                    spring.PB.Position = new XNAVector2(spring.PB.Position.X + _rij.X, spring.PB.Position.Y + _rij.Y);
                 }
             }
         }
 
         private void ApplyGravity(Particle particle)
         {
-            particle.Velocity = new Vector2(particle.Velocity.X + Gravity.X, particle.Velocity.Y + Gravity.Y);
+            particle.Velocity = new XNAVector2(particle.Velocity.X + Gravity.X, particle.Velocity.Y + Gravity.Y);
         }
 
         private void ApplyViscosity(float deltaTime)
@@ -281,23 +281,23 @@ namespace tainicom.Aether.Physics2D.Fluids
                 {
                     Particle tempParticle = _tempParticles[j];
 
-                    Vector2.DistanceSquared(ref particle.Position, ref tempParticle.Position, out q);
+                    XNAVector2.DistanceSquared(ref particle.Position, ref tempParticle.Position, out q);
                     if ((q < InfluenceRadiusSquared) && (q != 0))
                     {
                         q = (float)Math.Sqrt(q);
-                        Vector2.Subtract(ref tempParticle.Position, ref particle.Position, out _rij);
-                        Vector2.Divide(ref _rij, q, out _rij);
+                        XNAVector2.Subtract(ref tempParticle.Position, ref particle.Position, out _rij);
+                        XNAVector2.Divide(ref _rij, q, out _rij);
 
-                        Vector2.Subtract(ref particle.Velocity, ref tempParticle.Velocity, out _tempVect);
-                        Vector2.Dot(ref _tempVect, ref _rij, out u);
+                        XNAVector2.Subtract(ref particle.Velocity, ref tempParticle.Velocity, out _tempVect);
+                        XNAVector2.Dot(ref _tempVect, ref _rij, out u);
                         if (u <= 0.0f)
                             continue;
 
                         q /= InfluenceRadius;
 
                         float I = (deltaTime * (1 - q) * (ViscositySigma * u + ViscosityBeta * u * u));
-                        Vector2.Multiply(ref _rij, (I * 0.5f), out _rij);
-                        Vector2.Subtract(ref particle.Velocity, ref _rij, out _tempVect);
+                        XNAVector2.Multiply(ref _rij, (I * 0.5f), out _rij);
+                        XNAVector2.Subtract(ref particle.Velocity, ref _rij, out _tempVect);
                         particle.Velocity = _tempVect;
                         _tempVect = tempParticle.Velocity;
                         _tempVect += _rij;
@@ -326,7 +326,7 @@ namespace tainicom.Aether.Physics2D.Fluids
                 {
                     Particle tempParticle = _tempParticles[j];
 
-                    Vector2.DistanceSquared(ref particle.Position, ref tempParticle.Position, out q);
+                    XNAVector2.DistanceSquared(ref particle.Position, ref tempParticle.Position, out q);
                     if (q < InfluenceRadiusSquared && q != 0)
                     {
                         q = (float)Math.Sqrt(q);
@@ -339,24 +339,24 @@ namespace tainicom.Aether.Physics2D.Fluids
 
                 particle.Pressure = (Stiffness * (particle.Density - DensityRest));
                 particle.NearPressure = (StiffnessNear * particle.NearDensity);
-                _dx = Vector2.Zero;
+                _dx = XNAVector2.Zero;
 
                 for (int j = 0; j < len2; j++)
                 {
                     Particle tempParticle = _tempParticles[j];
 
-                    Vector2.DistanceSquared(ref particle.Position, ref tempParticle.Position, out q);
+                    XNAVector2.DistanceSquared(ref particle.Position, ref tempParticle.Position, out q);
                     if ((q < InfluenceRadiusSquared) && (q != 0))
                     {
                         q = (float)Math.Sqrt(q);
-                        Vector2.Subtract(ref tempParticle.Position, ref particle.Position, out _rij);
-                        Vector2.Divide(ref _rij, q, out _rij);
+                        XNAVector2.Subtract(ref tempParticle.Position, ref particle.Position, out _rij);
+                        XNAVector2.Divide(ref _rij, q, out _rij);
                         q /= InfluenceRadius;
 
                         float D = (_deltaTime2 * (particle.Pressure * (1 - q) + particle.NearPressure * (1 - q) * (1 - q)));
-                        Vector2.Multiply(ref _rij, (D * 0.5f), out _rij);
-                        tempParticle.Position = new Vector2(tempParticle.Position.X + _rij.X, tempParticle.Position.Y + _rij.Y);
-                        Vector2.Subtract(ref _dx, ref _rij, out _dx);
+                        XNAVector2.Multiply(ref _rij, (D * 0.5f), out _rij);
+                        tempParticle.Position = new XNAVector2(tempParticle.Position.X + _rij.X, tempParticle.Position.Y + _rij.Y);
+                        XNAVector2.Subtract(ref _dx, ref _rij, out _dx);
                     }
                 }
                 particle.Position = particle.Position + _dx;
@@ -388,14 +388,14 @@ namespace tainicom.Aether.Physics2D.Fluids
             for(int i = 0; i < Particles.Count; i++)
             {
                 Particle particle = Particles[i];
-                particle.Velocity = new Vector2((particle.Position.X - particle.PreviousPosition.X) / deltaTime, (particle.Position.Y - particle.PreviousPosition.Y) / deltaTime);
+                particle.Velocity = new XNAVector2((particle.Position.X - particle.PreviousPosition.X) / deltaTime, (particle.Position.Y - particle.PreviousPosition.Y) / deltaTime);
                 ApplyGravity(particle);
                 WallCollision(particle);
                 CapVelocity(particle.Velocity);
             }
         }
 
-        public void AddParticle(Vector2 position)
+        public void AddParticle(XNAVector2 position)
         {
             Particles.Add(new Particle(position.X, position.Y));
         }
@@ -407,14 +407,14 @@ namespace tainicom.Aether.Physics2D.Fluids
         public float Density;
         public float NearDensity;
         public float NearPressure;
-        public Vector2 Position = new Vector2(0, 0);
+        public XNAVector2 Position = new XNAVector2(0, 0);
         public float Pressure;
-        public Vector2 PreviousPosition = new Vector2(0, 0);
-        public Vector2 Velocity = new Vector2(0, 0);
+        public XNAVector2 PreviousPosition = new XNAVector2(0, 0);
+        public XNAVector2 Velocity = new XNAVector2(0, 0);
 
         public Particle(float posX, float posY)
         {
-            Position = new Vector2(posX, posY);
+            Position = new XNAVector2(posX, posY);
         }
     }
 
@@ -434,7 +434,7 @@ namespace tainicom.Aether.Physics2D.Fluids
 
         public void Update()
         {
-            Vector2.Distance(ref PA.Position, ref PB.Position, out CurrentDistance);
+            XNAVector2.Distance(ref PA.Position, ref PB.Position, out CurrentDistance);
         }
 
         public bool Contains(Particle p)

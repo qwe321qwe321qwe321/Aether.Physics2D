@@ -73,13 +73,13 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         private Body _bodyD;
 
         // Solver shared
-        private Vector2 _localAnchorA;
-        private Vector2 _localAnchorB;
-        private Vector2 _localAnchorC;
-        private Vector2 _localAnchorD;
+        private XNAVector2 _localAnchorA;
+        private XNAVector2 _localAnchorB;
+        private XNAVector2 _localAnchorC;
+        private XNAVector2 _localAnchorD;
 
-        private Vector2 _localAxisC;
-        private Vector2 _localAxisD;
+        private XNAVector2 _localAxisC;
+        private XNAVector2 _localAxisD;
 
         private float _referenceAngleA;
         private float _referenceAngleB;
@@ -91,10 +91,10 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
         // Solver temp
         private int _indexA, _indexB, _indexC, _indexD;
-        private Vector2 _lcA, _lcB, _lcC, _lcD;
+        private XNAVector2 _lcA, _lcB, _lcC, _lcD;
         private float _mA, _mB, _mC, _mD;
         private float _iA, _iB, _iC, _iD;
-        private Vector2 _JvAC, _JvBD;
+        private XNAVector2 _JvAC, _JvBD;
         private float _JwA, _JwB, _JwC, _JwD;
         private float _mass;
 
@@ -141,7 +141,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 _localAnchorC = revolute.LocalAnchorA;
                 _localAnchorA = revolute.LocalAnchorB;
                 _referenceAngleA = revolute.ReferenceAngle;
-                _localAxisC = Vector2.Zero;
+                _localAxisC = XNAVector2.Zero;
 
                 coordinateA = aA - aC - _referenceAngleA;
             }
@@ -153,9 +153,9 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 _referenceAngleA = prismatic.ReferenceAngle;
                 _localAxisC = prismatic.LocalXAxis;
 
-                Vector2 pC = _localAnchorC;
-                Vector2 pA = Complex.Divide(Complex.Multiply(ref _localAnchorA, ref xfA.q) + (xfA.p - xfC.p), ref xfC.q);
-                coordinateA = Vector2.Dot(pA - pC, _localAxisC);
+                XNAVector2 pC = _localAnchorC;
+                XNAVector2 pA = Complex.Divide(Complex.Multiply(ref _localAnchorA, ref xfA.q) + (xfA.p - xfC.p), ref xfC.q);
+                coordinateA = XNAVector2.Dot(pA - pC, _localAxisC);
             }
 
             _bodyD = JointB.BodyA;
@@ -173,7 +173,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 _localAnchorD = revolute.LocalAnchorA;
                 _localAnchorB = revolute.LocalAnchorB;
                 _referenceAngleB = revolute.ReferenceAngle;
-                _localAxisD = Vector2.Zero;
+                _localAxisD = XNAVector2.Zero;
 
                 coordinateB = aB - aD - _referenceAngleB;
             }
@@ -185,9 +185,9 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 _referenceAngleB = prismatic.ReferenceAngle;
                 _localAxisD = prismatic.LocalXAxis;
 
-                Vector2 pD = _localAnchorD;
-                Vector2 pB = Complex.Divide(Complex.Multiply(ref _localAnchorB, ref xfB.q) + (xfB.p - xfD.p), ref xfD.q);
-                coordinateB = Vector2.Dot(pB - pD, _localAxisD);
+                XNAVector2 pD = _localAnchorD;
+                XNAVector2 pB = Complex.Divide(Complex.Multiply(ref _localAnchorB, ref xfB.q) + (xfB.p - xfD.p), ref xfD.q);
+                coordinateB = XNAVector2.Dot(pB - pD, _localAxisD);
             }
 
             _ratio = ratio;
@@ -195,13 +195,13 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             _impulse = 0.0f;
         }
 
-        public override Vector2 WorldAnchorA
+        public override XNAVector2 WorldAnchorA
         {
             get { return _bodyA.GetWorldPoint(_localAnchorA); }
             set { Debug.Assert(false, "You can't set the world anchor on this joint type."); }
         }
 
-        public override Vector2 WorldAnchorB
+        public override XNAVector2 WorldAnchorB
         {
             get { return _bodyB.GetWorldPoint(_localAnchorB); }
             set { Debug.Assert(false, "You can't set the world anchor on this joint type."); }
@@ -230,9 +230,9 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// </summary>
         public Joint JointB { get; private set; }
 
-        public override Vector2 GetReactionForce(float invDt)
+        public override XNAVector2 GetReactionForce(float invDt)
         {
-            Vector2 P = _impulse * _JvAC;
+            XNAVector2 P = _impulse * _JvAC;
             return invDt * P;
         }
 
@@ -262,19 +262,19 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             _iD = _bodyD._invI;
 
             float aA = data.positions[_indexA].a;
-            Vector2 vA = data.velocities[_indexA].v;
+            XNAVector2 vA = data.velocities[_indexA].v;
             float wA = data.velocities[_indexA].w;
 
             float aB = data.positions[_indexB].a;
-            Vector2 vB = data.velocities[_indexB].v;
+            XNAVector2 vB = data.velocities[_indexB].v;
             float wB = data.velocities[_indexB].w;
 
             float aC = data.positions[_indexC].a;
-            Vector2 vC = data.velocities[_indexC].v;
+            XNAVector2 vC = data.velocities[_indexC].v;
             float wC = data.velocities[_indexC].w;
 
             float aD = data.positions[_indexD].a;
-            Vector2 vD = data.velocities[_indexD].v;
+            XNAVector2 vD = data.velocities[_indexD].v;
             float wD = data.velocities[_indexD].w;
 
             Complex qA = Complex.FromAngle(aA);
@@ -286,16 +286,16 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
             if (_typeA == JointType.Revolute)
             {
-                _JvAC = Vector2.Zero;
+                _JvAC = XNAVector2.Zero;
                 _JwA = 1.0f;
                 _JwC = 1.0f;
                 _mass += _iA + _iC;
             }
             else
             {
-                Vector2 u = Complex.Multiply(ref _localAxisC, ref qC);
-                Vector2 rC = Complex.Multiply(_localAnchorC - _lcC, ref qC);
-                Vector2 rA = Complex.Multiply(_localAnchorA - _lcA, ref qA);
+                XNAVector2 u = Complex.Multiply(ref _localAxisC, ref qC);
+                XNAVector2 rC = Complex.Multiply(_localAnchorC - _lcC, ref qC);
+                XNAVector2 rA = Complex.Multiply(_localAnchorA - _lcA, ref qA);
                 _JvAC = u;
                 _JwC = MathUtils.Cross(ref rC, ref u);
                 _JwA = MathUtils.Cross(ref rA, ref u);
@@ -304,16 +304,16 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
             if (_typeB == JointType.Revolute)
             {
-                _JvBD = Vector2.Zero;
+                _JvBD = XNAVector2.Zero;
                 _JwB = _ratio;
                 _JwD = _ratio;
                 _mass += _ratio * _ratio * (_iB + _iD);
             }
             else
             {
-                Vector2 u = Complex.Multiply(ref _localAxisD, ref qD);
-                Vector2 rD = Complex.Multiply(_localAnchorD - _lcD, ref qD);
-                Vector2 rB = Complex.Multiply(_localAnchorB - _lcB, ref qB);
+                XNAVector2 u = Complex.Multiply(ref _localAxisD, ref qD);
+                XNAVector2 rD = Complex.Multiply(_localAnchorD - _lcD, ref qD);
+                XNAVector2 rB = Complex.Multiply(_localAnchorB - _lcB, ref qB);
                 _JvBD = _ratio * u;
                 _JwD = _ratio * MathUtils.Cross(ref rD, ref u);
                 _JwB = _ratio * MathUtils.Cross(ref rB, ref u);
@@ -351,16 +351,16 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
         internal override void SolveVelocityConstraints(ref SolverData data)
         {
-            Vector2 vA = data.velocities[_indexA].v;
+            XNAVector2 vA = data.velocities[_indexA].v;
             float wA = data.velocities[_indexA].w;
-            Vector2 vB = data.velocities[_indexB].v;
+            XNAVector2 vB = data.velocities[_indexB].v;
             float wB = data.velocities[_indexB].w;
-            Vector2 vC = data.velocities[_indexC].v;
+            XNAVector2 vC = data.velocities[_indexC].v;
             float wC = data.velocities[_indexC].w;
-            Vector2 vD = data.velocities[_indexD].v;
+            XNAVector2 vD = data.velocities[_indexD].v;
             float wD = data.velocities[_indexD].w;
 
-            float Cdot = Vector2.Dot(_JvAC, vA - vC) + Vector2.Dot(_JvBD, vB - vD);
+            float Cdot = XNAVector2.Dot(_JvAC, vA - vC) + XNAVector2.Dot(_JvBD, vB - vD);
             Cdot += (_JwA * wA - _JwC * wC) + (_JwB * wB - _JwD * wD);
 
             float impulse = -_mass * Cdot;
@@ -387,13 +387,13 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
         internal override bool SolvePositionConstraints(ref SolverData data)
         {
-            Vector2 cA = data.positions[_indexA].c;
+            XNAVector2 cA = data.positions[_indexA].c;
             float aA = data.positions[_indexA].a;
-            Vector2 cB = data.positions[_indexB].c;
+            XNAVector2 cB = data.positions[_indexB].c;
             float aB = data.positions[_indexB].a;
-            Vector2 cC = data.positions[_indexC].c;
+            XNAVector2 cC = data.positions[_indexC].c;
             float aC = data.positions[_indexC].a;
-            Vector2 cD = data.positions[_indexD].c;
+            XNAVector2 cD = data.positions[_indexD].c;
             float aD = data.positions[_indexD].a;
 
             Complex qA = Complex.FromAngle(aA);
@@ -405,13 +405,13 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
 
             float coordinateA, coordinateB;
 
-            Vector2 JvAC, JvBD;
+            XNAVector2 JvAC, JvBD;
             float JwA, JwB, JwC, JwD;
             float mass = 0.0f;
 
             if (_typeA == JointType.Revolute)
             {
-                JvAC = Vector2.Zero;
+                JvAC = XNAVector2.Zero;
                 JwA = 1.0f;
                 JwC = 1.0f;
                 mass += _iA + _iC;
@@ -420,22 +420,22 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             }
             else
             {
-                Vector2 u = Complex.Multiply(ref _localAxisC, ref qC);
-                Vector2 rC = Complex.Multiply(_localAnchorC - _lcC, ref qC);
-                Vector2 rA = Complex.Multiply(_localAnchorA - _lcA, ref qA);
+                XNAVector2 u = Complex.Multiply(ref _localAxisC, ref qC);
+                XNAVector2 rC = Complex.Multiply(_localAnchorC - _lcC, ref qC);
+                XNAVector2 rA = Complex.Multiply(_localAnchorA - _lcA, ref qA);
                 JvAC = u;
                 JwC = MathUtils.Cross(ref rC, ref u);
                 JwA = MathUtils.Cross(ref rA, ref u);
                 mass += _mC + _mA + _iC * JwC * JwC + _iA * JwA * JwA;
 
-                Vector2 pC = _localAnchorC - _lcC;
-                Vector2 pA = Complex.Divide(rA + (cA - cC), ref qC);
-                coordinateA = Vector2.Dot(pA - pC, _localAxisC);
+                XNAVector2 pC = _localAnchorC - _lcC;
+                XNAVector2 pA = Complex.Divide(rA + (cA - cC), ref qC);
+                coordinateA = XNAVector2.Dot(pA - pC, _localAxisC);
             }
 
             if (_typeB == JointType.Revolute)
             {
-                JvBD = Vector2.Zero;
+                JvBD = XNAVector2.Zero;
                 JwB = _ratio;
                 JwD = _ratio;
                 mass += _ratio * _ratio * (_iB + _iD);
@@ -444,17 +444,17 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             }
             else
             {
-                Vector2 u = Complex.Multiply(ref _localAxisD, ref qD);
-                Vector2 rD = Complex.Multiply(_localAnchorD - _lcD, ref qD);
-                Vector2 rB = Complex.Multiply(_localAnchorB - _lcB, ref qB);
+                XNAVector2 u = Complex.Multiply(ref _localAxisD, ref qD);
+                XNAVector2 rD = Complex.Multiply(_localAnchorD - _lcD, ref qD);
+                XNAVector2 rB = Complex.Multiply(_localAnchorB - _lcB, ref qB);
                 JvBD = _ratio * u;
                 JwD = _ratio * MathUtils.Cross(ref rD, ref u);
                 JwB = _ratio * MathUtils.Cross(ref rB, ref u);
                 mass += _ratio * _ratio * (_mD + _mB) + _iD * JwD * JwD + _iB * JwB * JwB;
 
-                Vector2 pD = _localAnchorD - _lcD;
-                Vector2 pB = Complex.Divide(rB + (cB - cD), ref qD);
-                coordinateB = Vector2.Dot(pB - pD, _localAxisD);
+                XNAVector2 pD = _localAnchorD - _lcD;
+                XNAVector2 pB = Complex.Divide(rB + (cB - cD), ref qD);
+                coordinateB = XNAVector2.Dot(pB - pD, _localAxisD);
             }
 
             float C = (coordinateA + _ratio * coordinateB) - _constant;
