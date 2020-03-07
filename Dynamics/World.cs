@@ -281,8 +281,8 @@ namespace tainicom.Aether.Physics2D.Dynamics
                 _stack[stackCount++] = seed;
 
 #if USE_ISLAND_SET
-            if (!IslandSet.Contains(body))
-                IslandSet.Add(body);
+            if (!IslandSet.Contains(seed))
+                IslandSet.Add(seed);
 #endif
                 seed._island = true;
 
@@ -344,8 +344,8 @@ namespace tainicom.Aether.Physics2D.Dynamics
                         _stack[stackCount++] = other;
 
 #if USE_ISLAND_SET
-                        if (!IslandSet.Contains(body))
-                            IslandSet.Add(body);
+                        if (!IslandSet.Contains(other))
+                            IslandSet.Add(other);
 #endif
                         other._island = true;
                     }
@@ -381,8 +381,8 @@ namespace tainicom.Aether.Physics2D.Dynamics
                             Debug.Assert(stackCount < stackSize);
                             _stack[stackCount++] = other;
 #if USE_ISLAND_SET
-                            if (!IslandSet.Contains(body))
-                                IslandSet.Add(body);
+                            if (!IslandSet.Contains(other))
+                                IslandSet.Add(other);
 #endif
                             other._island = true;
                         }
@@ -463,8 +463,8 @@ namespace tainicom.Aether.Physics2D.Dynamics
 #if OPTIMIZE_TOI
                 foreach (var b in TOISet)
                 {
-                    b.Flags &= ~BodyFlags.Island;
-                    b.Sweep.Alpha0 = 0.0f;
+                    b._island = false;
+                    b._sweep.Alpha0 = 0.0f;
                 }
 #else
                 for (int i = 0; i < BodyList.Count; i++)
@@ -563,14 +563,14 @@ namespace tainicom.Aether.Physics2D.Dynamics
                             if (!TOISet.Contains(bA))
                             {
                                 TOISet.Add(bA);
-                                bA.Flags &= ~BodyFlags.Island;
-                                bA.Sweep.Alpha0 = 0.0f;
+                                bA._island = false;
+                                bA._sweep.Alpha0 = 0.0f;
                             }
                             if (!TOISet.Contains(bB))
                             {
                                 TOISet.Add(bB);
-                                bB.Flags &= ~BodyFlags.Island;
-                                bB.Sweep.Alpha0 = 0.0f;
+                                bA._island = false;
+                                bA._sweep.Alpha0 = 0.0f;
                             }
                         }
 #endif
@@ -763,7 +763,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
                                 if (!TOISet.Contains(other))
                                 {
                                     TOISet.Add(other);
-                                    other.Sweep.Alpha0 = 0.0f;
+                                    other._sweep.Alpha0 = 0.0f;
                                 }
                             }
 #endif

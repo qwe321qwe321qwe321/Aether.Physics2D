@@ -37,6 +37,29 @@ namespace tainicom.Aether.Physics2D
         public const float Epsilon = 1.192092896e-07f;
 
         // Common
+        /// <summary>
+        /// A threshold for activating multiple cores to solve VelocityConstraints.
+        /// An Island with a contact count above this threshold will use multiple threads to solve VelocityConstraints.
+        /// A value of 0 will always use multithreading. A value of (int.MaxValue) will never use multithreading.
+        /// Typical values are {128 or 256}.
+        /// </summary>
+        public const int VelocityConstraintsMultithreadThreshold = int.MaxValue;
+
+        /// <summary>
+        /// A threshold for activating multiple cores to solve PositionConstraints.
+        /// An Island with a contact count above this threshold will use multiple threads to solve PositionConstraints.
+        /// A value of 0 will always use multithreading. A value of (int.MaxValue) will never use multithreading.
+        /// Typical values are {128 or 256}.
+        /// </summary>
+        public const int PositionConstraintsMultithreadThreshold = int.MaxValue;
+
+        /// <summary>
+        /// A threshold for activating multiple cores to solve Collide.
+        /// An World with a contact count above this threshold will use multiple threads to solve Collide.
+        /// A value of 0 will always use multithreading. A value of (int.MaxValue) will never use multithreading.
+        /// Typical values are {128 or 256}.
+        /// </summary>
+        public const int CollideMultithreadThreshold = int.MaxValue;
 
         /// <summary>
         /// Enabling diagnistics causes the engine to gather timing information.

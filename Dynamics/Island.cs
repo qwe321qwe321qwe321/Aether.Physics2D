@@ -154,7 +154,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             solverData.velocities = _velocities;
 
             _contactSolver.Reset(ref step, ContactCount, _contacts, _positions, _velocities,
-                _contactManager.VelocityConstraintsMultithreadThreshold, _contactManager.PositionConstraintsMultithreadThreshold);
+                Settings.VelocityConstraintsMultithreadThreshold, Settings.PositionConstraintsMultithreadThreshold);
             _contactSolver.InitializeVelocityConstraints();
 
             if (step.warmStarting)
@@ -336,7 +336,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             }
 
             _contactSolver.Reset(ref subStep, ContactCount, _contacts, _positions, _velocities,
-                _contactManager.VelocityConstraintsMultithreadThreshold, _contactManager.PositionConstraintsMultithreadThreshold);
+                Settings.VelocityConstraintsMultithreadThreshold, Settings.PositionConstraintsMultithreadThreshold);
 
             // Solve position constraints.
             for (int i = 0; i < subStep.positionIterations; ++i)
