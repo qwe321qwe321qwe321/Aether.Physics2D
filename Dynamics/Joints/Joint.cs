@@ -215,6 +215,21 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// </summary>
         public event OnBrokenHandler OnBrokenEvent;
 
+        public delegate void OnDestroyHandler(Joint joint);
+        /// <summary>
+        /// Fires when the joint is broken by World.Remove().
+        /// the property Enabled will be False when it fired.
+        /// </summary>
+        public event OnDestroyHandler OnDestroyEvent;
+
+        /// <summary>
+        /// Destroy joint by World.Remove().
+        /// </summary>
+        internal void OnDestroy() {
+            Enabled = false;
+            OnDestroyEvent?.Invoke(this);
+        }
+
         /// <summary>
         /// Get the reaction force on body at the joint anchor in Newtons.
         /// </summary>

@@ -1196,8 +1196,11 @@ namespace tainicom.Aether.Physics2D.Dynamics
                 }
             }
 
-            if (JointRemoved != null)
-                JointRemoved(this, joint);
+            // The callback of the joint itself.
+            joint.OnDestroy();
+
+            // The callback of the world.
+            JointRemoved?.Invoke(this, joint);
         }
 
 
@@ -1449,6 +1452,9 @@ namespace tainicom.Aether.Physics2D.Dynamics
 
                 if (Settings.AutoClearForces)
                     ClearForces();
+            }
+            catch (Exception ex) {
+                Debug.WriteLine("World: Step() goes wrong, See: " + ex.Message);
             }
             finally
             {

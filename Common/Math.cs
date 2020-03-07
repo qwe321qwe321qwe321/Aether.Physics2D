@@ -87,7 +87,15 @@ namespace tainicom.Aether.Physics2D.Common
         {
             return new XNAVector2(A.ex.X * v.X + A.ey.X * v.Y, A.ex.Y * v.X + A.ey.Y * v.Y);
         }
-        
+
+        public static XNAVector2 Mul(ref Complex q, XNAVector2 v) {
+            return Complex.Multiply(ref v, ref q);
+        }
+
+        public static XNAVector2 Mul(ref Transform xf, XNAVector2 v) {
+            return Transform.Multiply(ref xf, v);
+        }
+
         public static XNAVector2 MulT(ref Mat22 A, XNAVector2 v)
         {
             return MulT(ref A, ref v);
@@ -126,7 +134,7 @@ namespace tainicom.Aether.Physics2D.Common
         {
             return new XNAVector2(A.ex.X * v.X + A.ey.X * v.Y, A.ex.Y * v.X + A.ey.Y * v.Y);
         }
-        
+
         /// Get the skew XNAVector such that dot(skew_vec, other) == cross(vec, other)
         public static XNAVector2 Skew(XNAVector2 input)
         {

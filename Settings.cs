@@ -165,6 +165,12 @@ namespace tainicom.Aether.Physics2D
         /// to overshoot.
         /// </summary>
         public const float Baumgarte = 0.2f;
+        /// <summary>
+        /// This scale factor controls how fast overlap is resolved. Ideally this would be 1 so
+        /// that overlap is removed in one time step. However using values close to 1 often lead
+        /// to overshoot.
+        /// </summary>
+        public const float BaumgarteTOI = 0.75f;
 
         // Sleep
         /// <summary>

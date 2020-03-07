@@ -69,7 +69,13 @@ namespace tainicom.Aether.Physics2D.Collision
 
     public static class SeparationFunction
     {
-        [ThreadStatic]
+        ////////////////////////////////////////////////////////////
+        /// WARNING: Those funcking variable makes Unity crash when it reloads assemblies for enter playmode.
+        /// Therefore, DON'T USE THAT.
+        /// See https://docs.unity3d.com/Manual/Attributes.html.
+        /// *Note: Do not use the ThreadStatic attribute defined in the .NET library; it causes a crash if you add it to a Unity script.*
+        ////////////////////////////////////////////////////////////
+        /*[ThreadStatic]
         private static XNAVector2 _axis;
         [ThreadStatic]
         private static XNAVector2 _localPoint;
@@ -80,142 +86,126 @@ namespace tainicom.Aether.Physics2D.Collision
         [ThreadStatic]
         private static Sweep _sweepA, _sweepB;
         [ThreadStatic]
-        private static SeparationFunctionType _type;
+        private static SeparationFunctionType _type;*/
 
-        public static void Set(ref SimplexCache cache, ref DistanceProxy proxyA, ref Sweep sweepA, ref DistanceProxy proxyB, ref Sweep sweepB, float t1)
-        {
-            _localPoint = XNAVector2.Zero;
-            _proxyA = proxyA;
-            _proxyB = proxyB;
+        public static void Initialize(ref SimplexCache cache, DistanceProxy proxyA, ref Sweep sweepA, DistanceProxy proxyB, ref Sweep sweepB, float t1, out XNAVector2 axis, out XNAVector2 localPoint, out SeparationFunctionType type) {
             int count = cache.Count;
             Debug.Assert(0 < count && count < 3);
 
-            _sweepA = sweepA;
-            _sweepB = sweepB;
-
             Transform xfA, xfB;
-            _sweepA.GetTransform(out xfA, t1);
-            _sweepB.GetTransform(out xfB, t1);
+            sweepA.GetTransform(out xfA, t1);
+            sweepB.GetTransform(out xfB, t1);
 
-            if (count == 1)
-            {
-                _type = SeparationFunctionType.Points;
-                XNAVector2 localPointA = _proxyA.Vertices[cache.IndexA[0]];
-                XNAVector2 localPointB = _proxyB.Vertices[cache.IndexB[0]];
-                XNAVector2 pointA = Transform.Multiply(ref localPointA, ref xfA);
-                XNAVector2 pointB = Transform.Multiply(ref localPointB, ref xfB);
-                _axis = pointB - pointA;
-                _axis.Normalize();
-            }
-            else if (cache.IndexA[0] == cache.IndexA[1])
-            {
+            if (count == 1) {
+                localPoint = XNAVector2.Zero;
+                type = SeparationFunctionType.Points;
+                XNAVector2 localPointA = proxyA.Vertices[cache.IndexA[0]];
+                XNAVector2 localPointB = proxyB.Vertices[cache.IndexB[0]];
+                XNAVector2 pointA = MathUtils.Mul(ref xfA, localPointA);
+                XNAVector2 pointB = MathUtils.Mul(ref xfB, localPointB);
+                axis = pointB - pointA;
+                axis.Normalize();
+            } else if (cache.IndexA[0] == cache.IndexA[1]) {
                 // Two points on B and one on A.
-                _type = SeparationFunctionType.FaceB;
+                type = SeparationFunctionType.FaceB;
                 XNAVector2 localPointB1 = proxyB.Vertices[cache.IndexB[0]];
                 XNAVector2 localPointB2 = proxyB.Vertices[cache.IndexB[1]];
 
                 XNAVector2 a = localPointB2 - localPointB1;
-                _axis = new XNAVector2(a.Y, -a.X);
-                _axis.Normalize();
-                XNAVector2 normal = Complex.Multiply(ref _axis, ref xfB.q);
+                axis = new XNAVector2(a.Y, -a.X);
+                axis.Normalize();
+                XNAVector2 normal = MathUtils.Mul(ref xfB.q, axis);
 
-                _localPoint = 0.5f * (localPointB1 + localPointB2);
-                XNAVector2 pointB = Transform.Multiply(ref _localPoint, ref xfB);
+                localPoint = 0.5f * (localPointB1 + localPointB2);
+                XNAVector2 pointB = MathUtils.Mul(ref xfB, localPoint);
 
                 XNAVector2 localPointA = proxyA.Vertices[cache.IndexA[0]];
-                XNAVector2 pointA = Transform.Multiply(ref localPointA, ref xfA);
+                XNAVector2 pointA = MathUtils.Mul(ref xfA, localPointA);
 
                 float s = XNAVector2.Dot(pointA - pointB, normal);
-                if (s < 0.0f)
-                {
-                    _axis = -_axis;
+                if (s < 0.0f) {
+                    axis = -axis;
                 }
-            }
-            else
-            {
+            } else {
                 // Two points on A and one or two points on B.
-                _type = SeparationFunctionType.FaceA;
-                XNAVector2 localPointA1 = _proxyA.Vertices[cache.IndexA[0]];
-                XNAVector2 localPointA2 = _proxyA.Vertices[cache.IndexA[1]];
+                type = SeparationFunctionType.FaceA;
+                XNAVector2 localPointA1 = proxyA.Vertices[cache.IndexA[0]];
+                XNAVector2 localPointA2 = proxyA.Vertices[cache.IndexA[1]];
 
                 XNAVector2 a = localPointA2 - localPointA1;
-                _axis = new XNAVector2(a.Y, -a.X);
-                _axis.Normalize();
-                XNAVector2 normal = Complex.Multiply(ref _axis, ref xfA.q);
+                axis = new XNAVector2(a.Y, -a.X);
+                axis.Normalize();
+                XNAVector2 normal = MathUtils.Mul(ref xfA.q, axis);
 
-                _localPoint = 0.5f * (localPointA1 + localPointA2);
-                XNAVector2 pointA = Transform.Multiply(ref _localPoint, ref xfA);
+                localPoint = 0.5f * (localPointA1 + localPointA2);
+                XNAVector2 pointA = MathUtils.Mul(ref xfA, localPoint);
 
-                XNAVector2 localPointB = _proxyB.Vertices[cache.IndexB[0]];
-                XNAVector2 pointB = Transform.Multiply(ref localPointB, ref xfB);
+                XNAVector2 localPointB = proxyB.Vertices[cache.IndexB[0]];
+                XNAVector2 pointB = MathUtils.Mul(ref xfB, localPointB);
 
                 float s = XNAVector2.Dot(pointB - pointA, normal);
-                if (s < 0.0f)
-                {
-                    _axis = -_axis;
+                if (s < 0.0f) {
+                    axis = -axis;
                 }
             }
+
+            //Velcro note: the returned value that used to be here has been removed, as it was not used.
         }
 
-        public static float FindMinSeparation(out int indexA, out int indexB, float t)
-        {
+        public static float FindMinSeparation(out int indexA, out int indexB, float t, DistanceProxy proxyA, ref Sweep sweepA, DistanceProxy proxyB, ref Sweep sweepB, ref XNAVector2 axis, ref XNAVector2 localPoint, SeparationFunctionType type) {
             Transform xfA, xfB;
-            _sweepA.GetTransform(out xfA, t);
-            _sweepB.GetTransform(out xfB, t);
+            sweepA.GetTransform(out xfA, t);
+            sweepB.GetTransform(out xfB, t);
 
-            switch (_type)
-            {
-                case SeparationFunctionType.Points:
-                    {
-                        XNAVector2 axisA =  Complex.Divide(ref _axis, ref xfA.q);
-                        XNAVector2 axisB = -Complex.Divide(ref _axis, ref xfB.q);
+            switch (type) {
+                case SeparationFunctionType.Points: {
+                    XNAVector2 axisA = MathUtils.Mul(ref xfA.q, axis);
+                    XNAVector2 axisB = MathUtils.Mul(ref xfB.q, -axis);
 
-                        indexA = _proxyA.GetSupport(axisA);
-                        indexB = _proxyB.GetSupport(axisB);
+                    indexA = proxyA.GetSupport(axisA);
+                    indexB = proxyB.GetSupport(axisB);
 
-                        XNAVector2 localPointA = _proxyA.Vertices[indexA];
-                        XNAVector2 localPointB = _proxyB.Vertices[indexB];
+                    XNAVector2 localPointA = proxyA.Vertices[indexA];
+                    XNAVector2 localPointB = proxyB.Vertices[indexB];
 
-                        XNAVector2 pointA = Transform.Multiply(ref localPointA, ref xfA);
-                        XNAVector2 pointB = Transform.Multiply(ref localPointB, ref xfB);
+                    XNAVector2 pointA = MathUtils.Mul(ref xfA, localPointA);
+                    XNAVector2 pointB = MathUtils.Mul(ref xfB, localPointB);
 
-                        float separation = XNAVector2.Dot(pointB - pointA, _axis);
-                        return separation;
-                    }
+                    float separation = XNAVector2.Dot(pointB - pointA, axis);
+                    return separation;
+                }
 
-                case SeparationFunctionType.FaceA:
-                    {
-                        XNAVector2 normal = Complex.Multiply(ref _axis, ref xfA.q);
-                        XNAVector2 pointA = Transform.Multiply(ref _localPoint, ref xfA);
+                case SeparationFunctionType.FaceA: {
+                    XNAVector2 normal = MathUtils.Mul(ref xfA.q, axis);
+                    XNAVector2 pointA = MathUtils.Mul(ref xfA, localPoint);
 
-                        XNAVector2 axisB = -Complex.Divide(ref normal, ref xfB.q);
+                    XNAVector2 axisB = MathUtils.Mul(ref xfB.q, -normal);
 
-                        indexA = -1;
-                        indexB = _proxyB.GetSupport(axisB);
+                    indexA = -1;
+                    indexB = proxyB.GetSupport(axisB);
 
-                        XNAVector2 localPointB = _proxyB.Vertices[indexB];
-                        XNAVector2 pointB = Transform.Multiply(ref localPointB, ref xfB);
+                    XNAVector2 localPointB = proxyB.Vertices[indexB];
+                    XNAVector2 pointB = MathUtils.Mul(ref xfB, localPointB);
 
-                        float separation = XNAVector2.Dot(pointB - pointA, normal);
-                        return separation;
-                    }
+                    float separation = XNAVector2.Dot(pointB - pointA, normal);
+                    return separation;
+                }
 
-                case SeparationFunctionType.FaceB:
-                    {
-                        XNAVector2 normal = Complex.Multiply(ref _axis, ref xfB.q);
-                        XNAVector2 pointB = Transform.Multiply(ref _localPoint, ref xfB);
+                case SeparationFunctionType.FaceB: {
+                    XNAVector2 normal = MathUtils.Mul(ref xfB.q, axis);
+                    XNAVector2 pointB = MathUtils.Mul(ref xfB, localPoint);
 
-                        XNAVector2 axisA = -Complex.Divide(ref normal, ref xfA.q);
+                    XNAVector2 axisA = MathUtils.Mul(ref xfA.q, -normal);
 
-                        indexB = -1;
-                        indexA = _proxyA.GetSupport(axisA);
+                    indexB = -1;
+                    indexA = proxyA.GetSupport(axisA);
 
-                        XNAVector2 localPointA = _proxyA.Vertices[indexA];
-                        XNAVector2 pointA = Transform.Multiply(ref localPointA, ref xfA);
+                    XNAVector2 localPointA = proxyA.Vertices[indexA];
+                    XNAVector2 pointA = MathUtils.Mul(ref xfA, localPointA);
 
-                        float separation = XNAVector2.Dot(pointA - pointB, normal);
-                        return separation;
-                    }
+                    float separation = XNAVector2.Dot(pointA - pointB, normal);
+                    return separation;
+                }
 
                 default:
                     Debug.Assert(false);
@@ -225,56 +215,49 @@ namespace tainicom.Aether.Physics2D.Collision
             }
         }
 
-        public static float Evaluate(int indexA, int indexB, float t)
-        {
+        public static float Evaluate(int indexA, int indexB, float t, DistanceProxy proxyA, ref Sweep sweepA, DistanceProxy proxyB, ref Sweep sweepB, ref XNAVector2 axis, ref XNAVector2 localPoint, SeparationFunctionType type) {
             Transform xfA, xfB;
-            _sweepA.GetTransform(out xfA, t);
-            _sweepB.GetTransform(out xfB, t);
+            sweepA.GetTransform(out xfA, t);
+            sweepB.GetTransform(out xfB, t);
 
-            switch (_type)
-            {
-                case SeparationFunctionType.Points:
-                    {
-                        XNAVector2 localPointA = _proxyA.Vertices[indexA];
-                        XNAVector2 localPointB = _proxyB.Vertices[indexB];
+            switch (type) {
+                case SeparationFunctionType.Points: {
+                    XNAVector2 localPointA = proxyA.Vertices[indexA];
+                    XNAVector2 localPointB = proxyB.Vertices[indexB];
 
-                        XNAVector2 pointA = Transform.Multiply(ref localPointA, ref xfA);
-                        XNAVector2 pointB = Transform.Multiply(ref localPointB, ref xfB);
-                        float separation = XNAVector2.Dot(pointB - pointA, _axis);
+                    XNAVector2 pointA = MathUtils.Mul(ref xfA, localPointA);
+                    XNAVector2 pointB = MathUtils.Mul(ref xfB, localPointB);
+                    float separation = XNAVector2.Dot(pointB - pointA, axis);
 
-                        return separation;
-                    }
-                case SeparationFunctionType.FaceA:
-                    {
-                        XNAVector2 normal = Complex.Multiply(ref _axis, ref xfA.q);
-                        XNAVector2 pointA = Transform.Multiply(ref _localPoint, ref xfA);
+                    return separation;
+                }
+                case SeparationFunctionType.FaceA: {
+                    XNAVector2 normal = MathUtils.Mul(ref xfA.q, axis);
+                    XNAVector2 pointA = MathUtils.Mul(ref xfA, localPoint);
 
-                        XNAVector2 localPointB = _proxyB.Vertices[indexB];
-                        XNAVector2 pointB = Transform.Multiply(ref localPointB, ref xfB);
+                    XNAVector2 localPointB = proxyB.Vertices[indexB];
+                    XNAVector2 pointB = MathUtils.Mul(ref xfB, localPointB);
 
-                        float separation = XNAVector2.Dot(pointB - pointA, normal);
-                        return separation;
-                    }
-                case SeparationFunctionType.FaceB:
-                    {
-                        XNAVector2 normal = Complex.Multiply(ref _axis, ref xfB.q);
-                        XNAVector2 pointB = Transform.Multiply(ref _localPoint, ref xfB);
+                    float separation = XNAVector2.Dot(pointB - pointA, normal);
+                    return separation;
+                }
+                case SeparationFunctionType.FaceB: {
+                    XNAVector2 normal = MathUtils.Mul(ref xfB.q, axis);
+                    XNAVector2 pointB = MathUtils.Mul(ref xfB, localPoint);
 
-                        XNAVector2 localPointA = _proxyA.Vertices[indexA];
-                        XNAVector2 pointA = Transform.Multiply(ref localPointA, ref xfA);
+                    XNAVector2 localPointA = proxyA.Vertices[indexA];
+                    XNAVector2 pointA = MathUtils.Mul(ref xfA, localPointA);
 
-                        float separation = XNAVector2.Dot(pointA - pointB, normal);
-                        return separation;
-                    }
+                    float separation = XNAVector2.Dot(pointA - pointB, normal);
+                    return separation;
+                }
                 default:
                     Debug.Assert(false);
                     return 0.0f;
             }
         }
     }
-
-    public static class TimeOfImpact
-    {
+    public static class TimeOfImpact {
         // CCD via the local separating axis method. This seeks progression
         // by computing the largest time at which separation is maintained.
 
@@ -292,8 +275,7 @@ namespace tainicom.Aether.Physics2D.Collision
         /// </summary>
         /// <param name="output">The output.</param>
         /// <param name="input">The input.</param>
-        public static void CalculateTimeOfImpact(out TOIOutput output, ref TOIInput input)
-        {
+        public static void CalculateTimeOfImpact(out TOIOutput output, ref TOIInput input) {
             if (Settings.EnableDiagnostics) //FPE: We only gather diagnostics when enabled
                 ++TOICalls;
 
@@ -343,23 +325,22 @@ namespace tainicom.Aether.Physics2D.Collision
                 Distance.ComputeDistance(out distanceOutput, out cache, distanceInput);
 
                 // If the shapes are overlapped, we give up on continuous collision.
-                if (distanceOutput.Distance <= 0.0f)
-                {
+                if (distanceOutput.Distance <= 0.0f) {
                     // Failure!
                     output.State = TOIOutputState.Overlapped;
                     output.T = 0.0f;
                     break;
                 }
 
-                if (distanceOutput.Distance < target + tolerance)
-                {
+                if (distanceOutput.Distance < target + tolerance) {
                     // Victory!
                     output.State = TOIOutputState.Touching;
                     output.T = t1;
                     break;
                 }
 
-                SeparationFunction.Set(ref cache, ref input.ProxyA, ref sweepA, ref input.ProxyB, ref sweepB, t1);
+                SeparationFunction.Initialize(ref cache, input.ProxyA, ref sweepA, input.ProxyB, ref sweepB, t1, out XNAVector2 axis, out XNAVector2 localPoint, out SeparationFunctionType type);
+                //SeparationFunction.Set(ref cache, ref input.ProxyA, ref sweepA, ref input.ProxyB, ref sweepB, t1);
 
                 // Compute the TOI on the separating axis. We do this by successively
                 // resolving the deepest point. This loop is bounded by the number of vertices.
@@ -370,11 +351,11 @@ namespace tainicom.Aether.Physics2D.Collision
                 {
                     // Find the deepest point at t2. Store the witness point indices.
                     int indexA, indexB;
-                    float s2 = SeparationFunction.FindMinSeparation(out indexA, out indexB, t2);
+                    //float s2 = SeparationFunction.FindMinSeparation(out indexA, out indexB, t2);
+                    float s2 = SeparationFunction.FindMinSeparation(out indexA, out indexB, t2, input.ProxyA, ref sweepA, input.ProxyB, ref sweepB, ref axis, ref localPoint, type);
 
                     // Is the final configuration separated?
-                    if (s2 > target + tolerance)
-                    {
+                    if (s2 > target + tolerance) {
                         // Victory!
                         output.State = TOIOutputState.Seperated;
                         output.T = tMax;
@@ -383,20 +364,19 @@ namespace tainicom.Aether.Physics2D.Collision
                     }
 
                     // Has the separation reached tolerance?
-                    if (s2 > target - tolerance)
-                    {
+                    if (s2 > target - tolerance) {
                         // Advance the sweeps
                         t1 = t2;
                         break;
                     }
 
                     // Compute the initial separation of the witness points.
-                    float s1 = SeparationFunction.Evaluate(indexA, indexB, t1);
+                    //float s1 = SeparationFunction.Evaluate(indexA, indexB, t1);
+                    float s1 = SeparationFunction.Evaluate(indexA, indexB, t1, input.ProxyA, ref sweepA, input.ProxyB, ref sweepB, ref axis, ref localPoint, type);
 
                     // Check for initial overlap. This might happen if the root finder
                     // runs out of iterations.
-                    if (s1 < target - tolerance)
-                    {
+                    if (s1 < target - tolerance) {
                         output.State = TOIOutputState.Failed;
                         output.T = t1;
                         done = true;
@@ -404,8 +384,7 @@ namespace tainicom.Aether.Physics2D.Collision
                     }
 
                     // Check for touching
-                    if (s1 <= target + tolerance)
-                    {
+                    if (s1 <= target + tolerance) {
                         // Victory! t1 should hold the TOI (could be 0.0).
                         output.State = TOIOutputState.Touching;
                         output.T = t1;
@@ -420,13 +399,10 @@ namespace tainicom.Aether.Physics2D.Collision
                     {
                         // Use a mix of the secant rule and bisection.
                         float t;
-                        if ((rootIterCount & 1) != 0)
-                        {
+                        if ((rootIterCount & 1) != 0) {
                             // Secant rule to improve convergence.
                             t = a1 + (target - s1) * (a2 - a1) / (s2 - s1);
-                        }
-                        else
-                        {
+                        } else {
                             // Bisection to guarantee progress.
                             t = 0.5f * (a1 + a2);
                         }
@@ -436,29 +412,25 @@ namespace tainicom.Aether.Physics2D.Collision
                         if (Settings.EnableDiagnostics) //FPE: We only gather diagnostics when enabled
                             ++TOIRootIters;
 
-                        float s = SeparationFunction.Evaluate(indexA, indexB, t);
+                        float s = SeparationFunction.Evaluate(indexA, indexB, t, input.ProxyA, ref sweepA, input.ProxyB, ref sweepB, ref axis, ref localPoint, type);
+                        //float s = SeparationFunction.Evaluate(indexA, indexB, t);
 
-                        if (Math.Abs(s - target) < tolerance)
-                        {
+                        if (Math.Abs(s - target) < tolerance) {
                             // t2 holds a tentative value for t1
                             t2 = t;
                             break;
                         }
 
                         // Ensure we continue to bracket the root.
-                        if (s > target)
-                        {
+                        if (s > target) {
                             a1 = t;
                             s1 = s;
-                        }
-                        else
-                        {
+                        } else {
                             a2 = t;
                             s2 = s;
                         }
 
-                        if (rootIterCount == 50)
-                        {
+                        if (rootIterCount == 50) {
                             break;
                         }
                     }
@@ -468,8 +440,7 @@ namespace tainicom.Aether.Physics2D.Collision
 
                     ++pushBackIter;
 
-                    if (pushBackIter == Settings.MaxPolygonVertices)
-                    {
+                    if (pushBackIter == Settings.MaxPolygonVertices) {
                         break;
                     }
                 }
@@ -479,13 +450,11 @@ namespace tainicom.Aether.Physics2D.Collision
                 if (Settings.EnableDiagnostics) //FPE: We only gather diagnostics when enabled
                     ++TOIIters;
 
-                if (done)
-                {
+                if (done) {
                     break;
                 }
 
-                if (iter == k_maxIterations)
-                {
+                if (iter == k_maxIterations) {
                     // Root finder got stuck. Semi-victory.
                     output.State = TOIOutputState.Failed;
                     output.T = t1;

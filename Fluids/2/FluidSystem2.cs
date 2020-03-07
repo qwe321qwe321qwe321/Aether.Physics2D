@@ -65,6 +65,8 @@ namespace tainicom.Aether.Physics2D.Fluids
             Particles = new SpatialTable(worldWidth, worldHeight, CellSize);
             MaxParticleLimit = maxParticleLimit;
             Gravity = gravity;
+            _springPresenceTable = new Dictionary<int, List<int>>();
+            _springs = new List<Spring2>();
         }
 
         public XNAVector2 Gravity { get; set; }
