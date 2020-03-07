@@ -47,8 +47,8 @@ namespace tainicom.Aether.Physics2D.Dynamics
         private Contact[] _contacts;
         private Joint[] _joints;
 
-        private const float LinTolSqr = Settings.LinearSleepTolerance * Settings.LinearSleepTolerance;
-        private const float AngTolSqr = Settings.AngularSleepTolerance * Settings.AngularSleepTolerance;
+        private static float LinTolSqr = Settings.LinearSleepTolerance * Settings.LinearSleepTolerance;
+        private static float AngTolSqr = Settings.AngularSleepTolerance * Settings.AngularSleepTolerance;
         private Stopwatch _watch = new Stopwatch();
 
         public Body[] Bodies;

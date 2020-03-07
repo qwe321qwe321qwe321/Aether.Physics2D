@@ -808,8 +808,10 @@ namespace tainicom.Aether.Physics2D.Dynamics
 
                 if (_subStepping)
                 {
+#pragma warning disable CS0162 // 偵測到執行不到的程式碼
                     _stepComplete = false;
                     break;
+#pragma warning restore CS0162 // 偵測到執行不到的程式碼
                 }
             }
 

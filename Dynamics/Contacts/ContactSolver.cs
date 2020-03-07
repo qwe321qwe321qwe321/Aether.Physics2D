@@ -597,8 +597,10 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                     // Compute b'
                     b -= MathUtils.Mul(ref vc.K, ref a);
 
+#if B2_DEBUG_SOLVER
                     const float k_errorTol = 1e-3f;
                     //B2_NOT_USED(k_errorTol);
+#endif
 
                     for (; ; )
                     {
@@ -631,7 +633,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                             cp1.normalImpulse = x.X;
                             cp2.normalImpulse = x.Y;
 
-#if B2_DEBUG_SOLVER 
+#if B2_DEBUG_SOLVER
 					// Postconditions
 					dv1 = vB + MathUtils.Cross(wB, cp1.rB) - vA - MathUtils.Cross(wA, cp1.rA);
 					dv2 = vB + MathUtils.Cross(wB, cp2.rB) - vA - MathUtils.Cross(wA, cp2.rA);
@@ -817,7 +819,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Contacts
                         contactsOkay = contactsOkay || res;
                     }
                 });
-#else            
+#else
                 contactsOkay = SolvePositionConstraints(0, _count);
 #endif
             }
