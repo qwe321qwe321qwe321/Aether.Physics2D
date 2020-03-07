@@ -703,6 +703,18 @@ namespace tainicom.Aether.Physics2D.Dynamics
         }
 
         /// <summary>
+        /// Remove all fixtures in the body.
+        /// </summary>
+        public virtual void ClearFixtures() {
+            if (FixtureList == null || FixtureList.Count <= 0) {
+                return;
+            }
+            for (int i = 0; i < FixtureList.Count; /*don't i++*/) {
+                Remove(FixtureList[i]);
+            }
+        }
+
+        /// <summary>
         /// Set the position of the body's origin and rotation.
         /// This breaks any contacts and wakes the other bodies.
         /// Manipulating a body's transform may cause non-physical behavior.
@@ -714,7 +726,18 @@ namespace tainicom.Aether.Physics2D.Dynamics
         public void SetTransform(ref XNAVector2 position, float rotation)
         {
             SetTransformIgnoreContacts(ref position, rotation);
-
+            // Wake up if sleeping.
+            if (!Awake && SleepingAllowed) {
+                Awake = true;
+            }
+            // Call joints if they asleep.
+            if (BodyType == BodyType.Static) {
+                for (JointEdge jn = JointList; jn != null; jn = jn.Next) {
+                    if (jn.Other != null && jn.Other.Enabled) {
+                        jn.Other.Awake = true;
+                    }
+                }
+            }
             World.ContactManager.FindNewContacts();
         }
 
