@@ -87,26 +87,26 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         /// <param name="bodyB">The second body.</param>
         /// <param name="anchorA">The anchor on the first body.</param>
         /// <param name="anchorB">The anchor on the second body.</param>
-        /// <param name="worldAnchorA">The world anchor for the first body.</param>
-        /// <param name="worldAnchorB">The world anchor for the second body.</param>
+        /// <param name="pulleyPulleyWorldAnchorA">The world anchor for the first body.</param>
+        /// <param name="pulleyPulleyWorldAnchorB">The world anchor for the second body.</param>
         /// <param name="ratio">The ratio.</param>
         /// <param name="useWorldCoordinates">Set to true if you are using world coordinates as anchors.</param>
-        public PulleyJoint(Body bodyA, Body bodyB, XNAVector2 anchorA, XNAVector2 anchorB, XNAVector2 worldAnchorA, XNAVector2 worldAnchorB, float ratio, bool useWorldCoordinates = false)
+        public PulleyJoint(Body bodyA, Body bodyB, XNAVector2 anchorA, XNAVector2 anchorB, XNAVector2 pulleyPulleyWorldAnchorA, XNAVector2 pulleyPulleyWorldAnchorB, float ratio, bool useWorldCoordinates = false)
             : base(bodyA, bodyB)
         {
             JointType = JointType.Pulley;
 
-            WorldAnchorA = worldAnchorA;
-            WorldAnchorB = worldAnchorB;
+            PulleyWorldAnchorA = pulleyPulleyWorldAnchorA;
+            PulleyWorldAnchorB = pulleyPulleyWorldAnchorB;
 
             if (useWorldCoordinates)
             {
                 LocalAnchorA = BodyA.GetLocalPoint(anchorA);
                 LocalAnchorB = BodyB.GetLocalPoint(anchorB);
 
-                XNAVector2 dA = anchorA - worldAnchorA;
+                XNAVector2 dA = anchorA - pulleyPulleyWorldAnchorA;
                 LengthA = dA.Length();
-                XNAVector2 dB = anchorB - worldAnchorB;
+                XNAVector2 dB = anchorB - pulleyPulleyWorldAnchorB;
                 LengthB = dB.Length();
             }
             else
@@ -114,9 +114,9 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 LocalAnchorA = anchorA;
                 LocalAnchorB = anchorB;
 
-                XNAVector2 dA = anchorA - BodyA.GetLocalPoint(worldAnchorA);
+                XNAVector2 dA = anchorA - BodyA.GetLocalPoint(pulleyPulleyWorldAnchorA);
                 LengthA = dA.Length();
-                XNAVector2 dB = anchorB - BodyB.GetLocalPoint(worldAnchorB);
+                XNAVector2 dB = anchorB - BodyB.GetLocalPoint(pulleyPulleyWorldAnchorB);
                 LengthB = dB.Length();
             }
 
@@ -139,16 +139,34 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         public XNAVector2 LocalAnchorB { get; set; }
 
         /// <summary>
-        /// Get the first world anchor.
+        /// Get the world anchor point on BodyA.
         /// </summary>
         /// <value></value>
-        public override sealed XNAVector2 WorldAnchorA { get; set; }
+        public override sealed XNAVector2 WorldAnchorA { 
+            get { return BodyA.GetWorldPoint(LocalAnchorA); }
+            set { LocalAnchorA = BodyA.GetLocalPoint(value); }
+        }
 
         /// <summary>
-        /// Get the second world anchor.
+        /// Get the world anchor point on BodyB.
         /// </summary>
         /// <value></value>
-        public override sealed XNAVector2 WorldAnchorB { get; set; }
+        public override sealed XNAVector2 WorldAnchorB {
+            get { return BodyB.GetWorldPoint(LocalAnchorB); }
+            set { LocalAnchorB = BodyB.GetLocalPoint(value); }
+        }
+
+        /// <summary>
+        /// Get the fipulley world anchor point which links the anchor on bodyA.
+        /// </summary>
+        /// <value></value>
+        public XNAVector2 PulleyWorldAnchorA { get; set; }
+
+        /// <summary>
+        /// Get the second pulley world anchor point which links the anchor on bodyB.
+        /// </summary>
+        /// <value></value>
+        public XNAVector2 PulleyWorldAnchorB { get; set; }
 
         /// <summary>
         /// Get the current length of the segment attached to body1.
@@ -163,28 +181,28 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
         public float LengthB { get; set; }
 
         /// <summary>
-        /// The current length between the anchor point on BodyA and WorldAnchorA
+        /// The current length between the anchor point on BodyA and PulleyWorldAnchorA
         /// </summary>
         public float CurrentLengthA
         {
             get
             {
                 XNAVector2 p = BodyA.GetWorldPoint(LocalAnchorA);
-                XNAVector2 s = WorldAnchorA;
+                XNAVector2 s = PulleyWorldAnchorA;
                 XNAVector2 d = p - s;
                 return d.Length();
             }
         }
 
         /// <summary>
-        /// The current length between the anchor point on BodyB and WorldAnchorB
+        /// The current length between the anchor point on BodyB and PulleyWorldAnchorB
         /// </summary>
         public float CurrentLengthB
         {
             get
             {
                 XNAVector2 p = BodyB.GetWorldPoint(LocalAnchorB);
-                XNAVector2 s = WorldAnchorB;
+                XNAVector2 s = PulleyWorldAnchorB;
                 XNAVector2 d = p - s;
                 return d.Length();
             }
@@ -238,8 +256,8 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             _rB = Complex.Multiply(LocalAnchorB - _localCenterB, ref qB);
 
             // Get the pulley axes.
-            _uA = cA + _rA - WorldAnchorA;
-            _uB = cB + _rB - WorldAnchorB;
+            _uA = cA + _rA - PulleyWorldAnchorA;
+            _uB = cB + _rB - PulleyWorldAnchorB;
 
             float lengthA = _uA.Length();
             float lengthB = _uB.Length();
@@ -342,8 +360,8 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
             XNAVector2 rB = Complex.Multiply(LocalAnchorB - _localCenterB, ref qB);
 
             // Get the pulley axes.
-            XNAVector2 uA = cA + rA - WorldAnchorA;
-            XNAVector2 uB = cB + rB - WorldAnchorB;
+            XNAVector2 uA = cA + rA - PulleyWorldAnchorA;
+            XNAVector2 uB = cB + rB - PulleyWorldAnchorB;
 
             float lengthA = uA.Length();
             float lengthB = uB.Length();
