@@ -231,8 +231,8 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 Transform xf1 = BodyA.GetTransform();
                 Transform xf2 = BodyB.GetTransform();
 
-                XNAVector2 r1 = Complex.Multiply(LocalAnchorA - BodyA.CenterOfMass, ref xf1.q);
-                XNAVector2 r2 = Complex.Multiply(LocalAnchorB - BodyB.CenterOfMass, ref xf2.q);
+                XNAVector2 r1 = Complex.Multiply(LocalAnchorA - BodyA.LocalCenter, ref xf1.q);
+                XNAVector2 r2 = Complex.Multiply(LocalAnchorB - BodyB.LocalCenter, ref xf2.q);
                 XNAVector2 p1 = BodyA._sweep.C + r1;
                 XNAVector2 p2 = BodyB._sweep.C + r2;
                 XNAVector2 d = p2 - p1;

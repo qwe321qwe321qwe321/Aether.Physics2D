@@ -508,7 +508,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// </summary>
         /// <value>The local position.</value>
         /// <exception cref="System.InvalidOperationException">Thrown when the world is Locked/Stepping.</exception>
-        public XNAVector2 CenterOfMass
+        public XNAVector2 LocalCenter
         {
             get { return _sweep.LocalCenter; }
             set
@@ -533,13 +533,14 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// <summary>
         /// Gets or sets the mass. Usually in kilograms (kg).
         /// Warning: This property is readonly during callbacks.
+        /// Please use SetCenterMass(float) for safe.
         /// </summary>
         /// <value>The mass.</value>
         /// <exception cref="System.InvalidOperationException">Thrown when the world is Locked/Stepping.</exception>
         public float Mass
         {
             get { return _mass; }
-            set
+            private set // For safety reason.
             {
                 if (World != null && World.IsLocked)
                     throw new InvalidOperationException("The World is locked.");
@@ -567,7 +568,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         public float Inertia
         {
             get { return _inertia + Mass * XNAVector2.Dot(_sweep.LocalCenter, _sweep.LocalCenter); }
-            set
+            private set // For safety reason.
             {
                 if (World != null && World.IsLocked)
                     throw new InvalidOperationException("The World is locked.");
@@ -579,7 +580,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
 
                 if (value > 0.0f && !_fixedRotation) //Make an assert
                 {
-                    _inertia = value - Mass * XNAVector2.Dot(CenterOfMass, CenterOfMass);
+                    _inertia = value - Mass * XNAVector2.Dot(LocalCenter, LocalCenter);
                     Debug.Assert(_inertia > 0.0f);
                     _invI = 1.0f / _inertia;
                 }
