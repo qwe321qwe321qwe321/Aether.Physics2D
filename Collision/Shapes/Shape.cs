@@ -167,6 +167,8 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             set
             {
                 Debug.Assert(value >= 0);
+                // Not changed.
+                if (_density == value) { return; }
 
                 _density = value;
                 ComputeProperties();
