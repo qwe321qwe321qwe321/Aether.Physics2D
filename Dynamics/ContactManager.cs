@@ -554,7 +554,8 @@ namespace tainicom.Aether.Physics2D.Dynamics
             }
 
             bool collide = ((fixtureA.CollidesWith & fixtureB.CollisionCategories) != 0) &&
-                            ((fixtureB.CollidesWith & fixtureA.CollisionCategories) != 0);
+                            ((fixtureB.CollidesWith & fixtureA.CollisionCategories) != 0) &&
+                            !fixtureA.IsIgnoreWith(fixtureB);
 
             return collide;
         }

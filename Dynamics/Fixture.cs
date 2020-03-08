@@ -54,6 +54,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
         internal Category _collidesWith;
         internal Category _collisionCategories;
         internal short _collisionGroup;
+        internal HashSet<Fixture> _ignoreFixtures;
 
         public FixtureProxy[] Proxies { get; private set; }
         public int ProxyCount { get; private set; }
@@ -161,11 +162,96 @@ namespace tainicom.Aether.Physics2D.Dynamics
             }
         }
 
+		#region Ignored Fixtures Set.
+		/// <summary>
+		/// Add a fixture to this fixture's ignored set, vice versa.
+		/// </summary>
+		/// <param name="fixture"></param>
+		public void IgnoreFixture(Fixture fixture) {
+            if (fixture == null) {
+                throw new NullReferenceException("The ignored fixture is NULL.");
+            }
+            if (_ignoreFixtures == null) {
+                _ignoreFixtures = new HashSet<Fixture>();
+            }
+            if (_ignoreFixtures.Contains(fixture)) {
+                return;
+            }
+            _ignoreFixtures.Add(fixture);
+            fixture.IgnoreFixtureInternal(this);
+            Refilter();
+        }
+
         /// <summary>
-        /// Get the child Shape.
+        /// Add fixture to ignored set without safety checking and touching other.
         /// </summary>
-        /// <value>The shape.</value>
-        public Shape Shape { get; private set; }
+        /// <param name="fixture"></param>
+        internal void IgnoreFixtureInternal(Fixture fixture) {
+            if (_ignoreFixtures == null) {
+                _ignoreFixtures = new HashSet<Fixture>();
+            }
+            _ignoreFixtures.Add(fixture);
+        }
+
+        /// <summary>
+        /// Cancel the fixture which is ignored this fixture, vice versa.
+        /// </summary>
+        /// <param name="fixture"></param>
+        public void CancelIgnoredFixture(Fixture fixture) {
+            if (fixture == null) {
+                throw new NullReferenceException("The ignored fixture is NULL.");
+            }
+            if (_ignoreFixtures == null) {
+                return;
+            }
+            if (!_ignoreFixtures.Contains(fixture)) {
+                return;
+            }
+            _ignoreFixtures.Remove(fixture);
+            fixture.CancelIgnoredFixtureInternal(this);
+        }
+
+        /// <summary>
+        /// Cancel the fixture which is ignored this fixture without safety checking and touching other. 
+        /// </summary>
+        /// <param name="fixture"></param>
+        internal void CancelIgnoredFixtureInternal(Fixture fixture) {
+            _ignoreFixtures.Remove(fixture);
+        }
+
+        /// <summary>
+        /// Clear all ignored fixtures.
+        /// </summary>
+        public void CancelAllIgnoredFixtures() {
+            if (_ignoreFixtures == null) {
+                return;
+            }
+            // Iterate all fixtures to cancel this fixture's ignorement.
+            foreach (var fixture in _ignoreFixtures) {
+                fixture.CancelIgnoredFixtureInternal(this);
+            }
+            // Finally, clear itself.
+            _ignoreFixtures.Clear();
+        }
+
+        /// <summary>
+        /// Is the fixture ignore this one?
+        /// </summary>
+        /// <param name="fixture"></param>
+        /// <returns></returns>
+        public bool IsIgnoreWith(Fixture fixture) {
+            if (_ignoreFixtures == null) { 
+                return false;
+            }
+            return _ignoreFixtures.Contains(fixture);
+        }
+		#endregion
+
+		/// <summary>
+		/// Get the child Shape.
+		/// </summary>
+		/// <value>The shape.</value>
+		public Shape Shape { get; private set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this fixture is a sensor.
@@ -382,6 +468,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             fixture._collisionGroup = _collisionGroup;
             fixture._collisionCategories = _collisionCategories;
             fixture._collidesWith = _collidesWith;
+            fixture._ignoreFixtures = new HashSet<Fixture>(_ignoreFixtures);
             
             body.Add(fixture);
             return fixture;
