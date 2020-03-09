@@ -587,6 +587,23 @@ namespace tainicom.Aether.Physics2D.Dynamics
             }
         }
 
+        /// <summary>
+        /// The mass which is assigned by SetCenterMass().
+        /// </summary>
+        internal float AssignedCenterMass { get; set; }
+
+        private bool _autoAssignedCenterMass = false;
+        /// <summary>
+        /// Whether the mass is compute by the density or not.
+        /// </summary>
+        public bool AutoAssignedCenterMass {
+            get { return _autoAssignedCenterMass; }
+            set {
+                if (_autoAssignedCenterMass == value) { return; }
+                _autoAssignedCenterMass = value;
+                ResetMassData();
+            } }
+
         public bool IgnoreCCD { get; set; }
 
         /// <summary>
@@ -1036,6 +1053,16 @@ namespace tainicom.Aether.Physics2D.Dynamics
             // Update center of mass velocity.
             XNAVector2 a = _sweep.C - oldCenter;
             _linearVelocity += new XNAVector2(-_angularVelocity * a.Y, _angularVelocity * a.X);
+
+            // Set the assigned mass.
+            if (!AutoAssignedCenterMass) {
+                if (AssignedCenterMass == Mass) { return; }
+                if (Mass == 0) { return; }
+                // Calc the changing ratio.
+                float massRatio = (AssignedCenterMass / Mass);
+                Mass = AssignedCenterMass;
+                Inertia *= massRatio;// Inertia is proportional to Mass.
+            }
         }
 
         /// <summary>
@@ -1044,10 +1071,9 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// <param name="newMass"></param>
         public void SetCenterMass(float newMass) {
             if (newMass < 0f) { newMass = 1f; }
+            if (newMass == AssignedCenterMass) { return; }
+            AssignedCenterMass = newMass;
             ResetMassData();
-            float massRatio = (newMass / Mass);
-            Mass = newMass;
-            Inertia *= massRatio;// Inertia is proportional to Mass.
         }
 
         /// <summary>

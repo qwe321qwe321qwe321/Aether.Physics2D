@@ -17,12 +17,20 @@ namespace tainicom.Aether.Physics2D.Dynamics
 {
     public partial class World
     {
-        public virtual Body CreateBody(XNAVector2 position = new XNAVector2(), float rotation = 0, BodyType bodyType = BodyType.Static)
+        public virtual Body CreateBody(XNAVector2 position = new XNAVector2(), float rotation = 0, BodyType bodyType = BodyType.Static, bool autoMass = true, float assignedMass = 1f)
         {
             Body body = new Body();
             body.Position = position;
             body.Rotation = rotation;            
             body.BodyType = bodyType;
+            // Add assigned mass or get automatically.
+            if (autoMass) {
+                body.AutoAssignedCenterMass = true;
+                body.AssignedCenterMass = body.Mass;
+            } else {
+                body.AutoAssignedCenterMass = false;
+                body.AssignedCenterMass = assignedMass;
+            }
             
             AddAsync(body);
 
