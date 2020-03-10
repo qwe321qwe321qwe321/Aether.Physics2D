@@ -1357,6 +1357,8 @@ namespace tainicom.Aether.Physics2D.Dynamics
             body.GravityScale = GravityScale;
             body.IgnoreGravity = IgnoreGravity;
             body._torque = _torque;
+            body.AssignedCenterMass = AssignedCenterMass;
+            body._autoAssignedCenterMass = _autoAssignedCenterMass;
 
             return body;
         }

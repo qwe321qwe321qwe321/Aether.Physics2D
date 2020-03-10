@@ -309,6 +309,13 @@ namespace tainicom.Aether.Physics2D.Collision
         }
 
         /// <summary>
+        /// Get the size of the AABB (twice-extents)
+        /// </summary>
+        public XNAVector2 Size {
+            get { return (UpperBound - LowerBound); }
+        }
+
+        /// <summary>
         /// Get the perimeter length
         /// </summary>
         public float Perimeter

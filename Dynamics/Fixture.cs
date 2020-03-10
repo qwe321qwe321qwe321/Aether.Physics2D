@@ -389,6 +389,11 @@ namespace tainicom.Aether.Physics2D.Dynamics
             aabb = Proxies[childIndex].AABB;
         }
 
+        public void ComputeAABB(out AABB aabb, int childIndex, XNAVector2 bodyPos, float bodyAngle) {
+            Transform bodyTransform = new Transform(bodyPos, Common.Maths.Complex.FromAngle(bodyAngle));
+            Shape.ComputeAABB(out aabb, ref bodyTransform, childIndex);
+        }
+
         // These support body activation/deactivation.
         internal void CreateProxies(IBroadPhase broadPhase, ref Transform xf)
         {
