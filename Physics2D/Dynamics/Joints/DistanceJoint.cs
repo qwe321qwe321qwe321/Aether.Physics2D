@@ -28,9 +28,8 @@
 using System;
 using System.Diagnostics;
 using tainicom.Aether.Physics2D.Common;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-#endif
+using tainicom.Aether.Physics2D.Common.Maths;
+using Microsoft.Xna.Framework;
 
 namespace tainicom.Aether.Physics2D.Dynamics.Joints
 {
@@ -224,7 +223,7 @@ namespace tainicom.Aether.Physics2D.Dynamics.Joints
                 float C = length - Length;
 
                 // Frequency
-                float omega = Constant.Tau * Frequency;
+                float omega = 2.0f * MathHelper.Pi * Frequency;
 
                 // Damping coefficient
                 float d = 2.0f * _mass * DampingRatio * omega;

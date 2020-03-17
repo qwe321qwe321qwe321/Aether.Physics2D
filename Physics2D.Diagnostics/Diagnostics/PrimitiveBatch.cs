@@ -222,8 +222,7 @@ namespace tainicom.Aether.Physics2D.Diagnostics
                 _device.DepthStencilState = _depthStencilState;
                 _device.RasterizerState = _rasterizerState;
                 _device.DrawUserPrimitives(PrimitiveType.TriangleList, _triangleVertices, 0, primitiveCount);
-                // clear count
-                _triangleVertsCount = 0;
+                _triangleVertsCount -= primitiveCount * 3;
             }
         }
 
@@ -242,8 +241,7 @@ namespace tainicom.Aether.Physics2D.Diagnostics
                 _device.DepthStencilState   = _depthStencilState;
                 _device.RasterizerState     = _rasterizerState;
                 _device.DrawUserPrimitives(PrimitiveType.LineList, _lineVertices, 0, primitiveCount);
-                // clear count
-                _lineVertsCount = 0;
+                _lineVertsCount -= primitiveCount * 2;
             }
         }
     }

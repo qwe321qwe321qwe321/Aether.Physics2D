@@ -22,6 +22,8 @@ namespace tainicom.Aether.Physics2D.Samples.Demos
         private Vector2 _rectangleSize = new Vector2(4f, 4f);
         private Body _rectangles;
         private Vector2 _offset = new Vector2(2f, 0f);
+        private Body _edge1;
+        private Body _edge2;
 
         #region IDemoScreen Members
 
@@ -80,6 +82,13 @@ namespace tainicom.Aether.Physics2D.Samples.Demos
             _rectangles.BodyType = BodyType.Dynamic;
 
             SetUserAgent(_rectangles, 200f, 200f);
+
+            _edge1 = World.CreateEdge(new Vector2(-1, 0), new Vector2(-3, 0));
+            _edge2 = World.CreateEdge(new Vector2(-1, -1), new Vector2(-1, 5));
+            _edge1.BodyType = BodyType.Dynamic;
+            _edge2.BodyType = BodyType.Dynamic;
+            SetUserAgent(_edge1, 200f, 200f);
+            SetUserAgent(_edge2, 200f, 200f);
 
             // create sprite based on rectangle fixture
             _rectangleSprite = new Sprite(ScreenManager.Assets.TextureFromVertices(rect1, MaterialType.Squares,

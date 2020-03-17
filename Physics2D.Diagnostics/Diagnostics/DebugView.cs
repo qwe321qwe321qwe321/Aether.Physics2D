@@ -12,6 +12,7 @@ using System.Text;
 using tainicom.Aether.Physics2D.Collision;
 using tainicom.Aether.Physics2D.Collision.Shapes;
 using tainicom.Aether.Physics2D.Common;
+using tainicom.Aether.Physics2D.Common.Maths;
 using tainicom.Aether.Physics2D.Controllers;
 using tainicom.Aether.Physics2D.Dynamics;
 using tainicom.Aether.Physics2D.Dynamics.Contacts;
@@ -286,18 +287,7 @@ namespace tainicom.Aether.Physics2D.Diagnostics
 
                 if (AdaptiveLimits)
                 {
-                    var maxTicks = _max.Ticks;
-                    // Round up to the next highest power of 2
-                    {
-                        maxTicks--;
-                        maxTicks |= maxTicks >> 1;
-                        maxTicks |= maxTicks >> 2;
-                        maxTicks |= maxTicks >> 4;
-                        maxTicks |= maxTicks >> 8;
-                        maxTicks |= maxTicks >> 16;
-                        maxTicks++;
-                    }
-                    MaximumValue = TimeSpan.FromTicks(maxTicks);
+                    MaximumValue = _max;
                     MinimumValue = TimeSpan.Zero;
                 }
 
@@ -484,13 +474,21 @@ namespace tainicom.Aether.Physics2D.Diagnostics
                         PolygonShape poly = (PolygonShape)fixture.Shape;
                         int vertexCount = poly.Vertices.Count;
                         Debug.Assert(vertexCount <= Settings.MaxPolygonVertices);
-
                         for (int i = 0; i < vertexCount; ++i)
                         {
                             _tempVertices[i] = Transform.Multiply(poly.Vertices[i], ref xf);
                         }
-
                         DrawSolidPolygon(_tempVertices, vertexCount, color);
+                        if (poly.Radius > Settings.PolygonRadius) {
+                            // Draw extend radius.
+                            for (int i = 0; i < vertexCount; i++) {
+                                DrawCircle(_tempVertices[i], poly.Radius, color);
+                                Vector2 normal = Complex.Multiply(poly.Normals[i], ref xf.q);
+                                Vector2 extendEdgeV1 = _tempVertices[i] + normal * poly.Radius;
+                                Vector2 extendEdgeV2 = _tempVertices[(i + 1 >= vertexCount ? 0 : i + 1)] + normal * poly.Radius;
+                                DrawSegment(extendEdgeV1, extendEdgeV2, color);
+                            }
+                        }
                     }
                     break;
 
@@ -501,7 +499,22 @@ namespace tainicom.Aether.Physics2D.Diagnostics
                         Vector2 v1 = Transform.Multiply(edge.Vertex1, ref xf);
                         Vector2 v2 = Transform.Multiply(edge.Vertex2, ref xf);
                         DrawSegment(v1, v2, color);
-                    }
+                        // Draw extend radius.
+                        if (edge.Radius > Settings.PolygonRadius) {
+                            DrawCircle(v1, edge.Radius, color);
+                            DrawCircle(v2, edge.Radius, color);
+                            Vector2 normal = v2 - v1;
+                            normal = new Vector2(normal.Y, -normal.X);
+                            normal.Normalize();
+                            Vector2 extendEdgeV1 = v1 + normal * edge.Radius;
+                            Vector2 extendEdgeV2 = v2 + normal * edge.Radius;
+                            DrawSegment(extendEdgeV1, extendEdgeV2, color);
+                            // Another side.
+                            extendEdgeV1 = v1 - normal * edge.Radius;
+                            extendEdgeV2 = v2 - normal * edge.Radius;
+                            DrawSegment(extendEdgeV1, extendEdgeV2, color);
+                        }
+                }
                     break;
 
                 case ShapeType.Chain:
@@ -617,7 +630,7 @@ namespace tainicom.Aether.Physics2D.Diagnostics
                     _primitiveBatch.AddVertex(ref center_vS, colorFill, PrimitiveType.TriangleList);
                     _primitiveBatch.AddVertex(ref center_v1, colorFill, PrimitiveType.TriangleList);
                     _primitiveBatch.AddVertex(ref center_v2, colorFill, PrimitiveType.TriangleList);
-                }
+            }
             }
             // Close Circle
             _primitiveBatch.AddVertex(ref center_v2, color, PrimitiveType.LineList);

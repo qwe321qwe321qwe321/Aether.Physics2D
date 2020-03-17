@@ -5,12 +5,9 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using tainicom.Aether.Physics2D.Collision;
-using tainicom.Aether.Physics2D.Common;
 using tainicom.Aether.Physics2D.Dynamics;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-#endif
 
 namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
 {
@@ -74,7 +71,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
 
                     Vector2 forceVector = pos - overlappingBody.Position;
                     forceVector *= 1f / (float)Math.Sqrt(forceVector.X * forceVector.X + forceVector.Y * forceVector.Y);
-                    forceVector *= Math.Min(force * forcePercent, maxForce);
+                    forceVector *= MathHelper.Min(force * forcePercent, maxForce);
                     forceVector *= -1;
 
                     overlappingBody.ApplyLinearImpulse(forceVector);
@@ -93,7 +90,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
             if (float.IsNaN(percent))
                 return 0f;
 
-            return MathUtils.Clamp(percent, 0f, 1f);
+            return MathHelper.Clamp(percent, 0f, 1f);
         }
     }
 }

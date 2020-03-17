@@ -6,13 +6,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using tainicom.Aether.Physics2D.Collision;
 using tainicom.Aether.Physics2D.Collision.Shapes;
-using tainicom.Aether.Physics2D.Common;
 using tainicom.Aether.Physics2D.Dynamics;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-#endif
 
 namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
 {
@@ -71,7 +68,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
         /// <summary>
         /// Two degrees: maximum angle from edges to first ray tested
         /// </summary>
-        private const float MaxEdgeOffset = Constant.Pi / 90;
+        private const float MaxEdgeOffset = MathHelper.Pi / 90;
 
         /// <summary>
         /// Ratio of arc length to angle from edges to first ray tested.
@@ -89,7 +86,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
         /// Max angle between rays (used when segment is large).
         /// Defaults to 15 degrees
         /// </summary>
-        public float MaxAngle = Constant.Pi / 15;
+        public float MaxAngle = MathHelper.Pi / 15;
 
         /// <summary>
         /// Maximum number of shapes involved in the explosion.
@@ -200,15 +197,15 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
                         float newAngle = (float)Math.Atan2(toVertex.Y, toVertex.X);
                         float diff = (newAngle - angleToCentroid);
 
-                        diff = (diff - Constant.Pi) % (2 * Constant.Pi);
+                        diff = (diff - MathHelper.Pi) % (2 * MathHelper.Pi);
                         // the minus pi is important. It means cutoff for going other direction is at 180 deg where it needs to be
 
                         if (diff < 0.0f)
-                            diff += 2 * Constant.Pi; // correction for not handling negs
+                            diff += 2 * MathHelper.Pi; // correction for not handling negs
 
-                        diff -= Constant.Pi;
+                        diff -= MathHelper.Pi;
 
-                        if (Math.Abs(diff) > Constant.Pi)
+                        if (Math.Abs(diff) > MathHelper.Pi)
                             continue; // Something's wrong, point not in shape but exists angle diff > 180
 
                         if (diff > max)
@@ -246,7 +243,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
                 if (i == valIndex - 1)
                 {
                     // the single edgecase
-                    midpt = (vals[0] + Constant.Pi * 2 + vals[i]);
+                    midpt = (vals[0] + MathHelper.Pi * 2 + vals[i]);
                 }
                 else
                 {
@@ -303,7 +300,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
                         _data[0] = fi;
                         while (_data.First().Min >= _data.First().Max)
                         {
-                            fi.Min -= Constant.Pi * 2;
+                            fi.Min -= MathHelper.Pi * 2;
                             _data[0] = fi;
                         }
                     }
@@ -313,7 +310,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
                     while ((_data.Count > 0)
                            && (_data.Last().Min >= _data.Last().Max)) // just making sure min<max
                     {
-                        last.Min = _data.Last().Min - 2 * Constant.Pi;
+                        last.Min = _data.Last().Min - 2 * MathHelper.Pi;
                         _data[lastPos] = last;
                     }
                     rayMissed = false;
@@ -331,7 +328,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
 
                 float arclen = _data[i].Max - _data[i].Min;
 
-                float first = Math.Min(MaxEdgeOffset, EdgeRatio * arclen);
+                float first = MathHelper.Min(MaxEdgeOffset, EdgeRatio * arclen);
                 int insertedRays = (int)Math.Ceiling(((arclen - 2.0f * first) - (MinRays - 1) * MaxAngle) / MaxAngle);
 
                 if (insertedRays < 0)
@@ -371,7 +368,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
 
                         // the force that is to be applied for this particular ray.
                         // offset is angular coverage. lambda*length of segment is distance.
-                        float impulse = (arclen / (MinRays + insertedRays)) * maxForce * 180.0f / Constant.Pi * (1.0f - Math.Min(1.0f, minlambda));
+                        float impulse = (arclen / (MinRays + insertedRays)) * maxForce * 180.0f / MathHelper.Pi * (1.0f - Math.Min(1.0f, minlambda));
 
                         // We Apply the impulse!!!
                         Vector2 vectImp = Vector2.Dot(impulse * new Vector2((float)Math.Cos(j), (float)Math.Sin(j)), -ro.Normal) * new Vector2((float)Math.Cos(j), (float)Math.Sin(j));
@@ -397,7 +394,7 @@ namespace tainicom.Aether.Physics2D.Common.PhysicsLogic
                 if (!IsActiveOn(fix.Body))
                     continue;
 
-                float impulse = MinRays * maxForce * 180.0f / Constant.Pi;
+                float impulse = MinRays * maxForce * 180.0f / MathHelper.Pi;
                 Vector2 hitPoint;
 
                 CircleShape circShape = fix.Shape as CircleShape;

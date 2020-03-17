@@ -7,13 +7,11 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using tainicom.Aether.Physics2D.Collision.Shapes;
 using tainicom.Aether.Physics2D.Common;
 using tainicom.Aether.Physics2D.Common.Decomposition;
 using tainicom.Aether.Physics2D.Dynamics.Joints;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-#endif
 
 namespace tainicom.Aether.Physics2D.Dynamics
 {
@@ -26,11 +24,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             body.Rotation = rotation;            
             body.BodyType = bodyType;
             
-#if LEGACY_ASYNCADDREMOVE
             AddAsync(body);
-#else
-            Add(body);
-#endif
 
             return body;
         }
@@ -143,8 +137,8 @@ namespace tainicom.Aether.Physics2D.Dynamics
             list.Add(rectangle);
 
             Body body = CreateCompoundPolygon(list, density, position, rotation, bodyType);
-            body.CreateCircle(endRadius, density, new Vector2(0, height / 2));
-            body.CreateCircle(endRadius, density, new Vector2(0, -(height / 2)));
+            body.CreateCircle(endRadius, density / 2, new Vector2(0, height / 2));
+            body.CreateCircle(endRadius, density / 2, new Vector2(0, -(height / 2)));
 
             //Create the two circles
             //CircleShape topCircle = new CircleShape(endRadius, density);

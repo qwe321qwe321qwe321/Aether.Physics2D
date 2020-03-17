@@ -27,9 +27,7 @@
 
 using System.Diagnostics;
 using tainicom.Aether.Physics2D.Common;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-#endif
+using Microsoft.Xna.Framework;
 
 namespace tainicom.Aether.Physics2D.Collision.Shapes
 {
@@ -219,6 +217,10 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
 
             Vector2.Min(ref v1, ref v2, out aabb.LowerBound);
             Vector2.Max(ref v1, ref v2, out aabb.UpperBound);
+            aabb.LowerBound.X -= Radius;
+            aabb.LowerBound.Y -= Radius;
+            aabb.UpperBound.X += Radius;
+            aabb.UpperBound.Y += Radius;
         }
 
         protected override void ComputeProperties()

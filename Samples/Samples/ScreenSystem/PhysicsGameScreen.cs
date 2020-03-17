@@ -96,7 +96,7 @@ namespace tainicom.Aether.Physics2D.Samples.ScreenSystem
             if (!coveredByOtherScreen && !otherScreenHasFocus)
             {
                 // variable time step but never less then 30 Hz
-                World.Step(Math.Min((float)gameTime.ElapsedGameTime.TotalSeconds, (1f / 30f)));
+                World.Step(Math.Min((float)gameTime.ElapsedGameTime.TotalSeconds, (1f / 60f)));
             }
 
             Camera.Update(gameTime);

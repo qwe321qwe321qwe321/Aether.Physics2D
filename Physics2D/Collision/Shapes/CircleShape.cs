@@ -28,9 +28,8 @@
 using System;
 using System.Diagnostics;
 using tainicom.Aether.Physics2D.Common;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-#endif
+using tainicom.Aether.Physics2D.Common.Maths;
+using Microsoft.Xna.Framework;
 
 namespace tainicom.Aether.Physics2D.Collision.Shapes
 {
@@ -149,7 +148,7 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
 
         protected override sealed void ComputeProperties()
         {
-            float area = Constant.Pi * _2radius;
+            float area = MathHelper.Pi * _2radius;
             MassData.Area = area;
             MassData.Mass = Density * area;
             MassData.Centroid = Position;
@@ -173,12 +172,12 @@ namespace tainicom.Aether.Physics2D.Collision.Shapes
             {
                 //Completely wet
                 sc = p;
-                return Constant.Pi * _2radius;
+                return MathHelper.Pi * _2radius;
             }
 
             //Magic
             float l2 = l * l;
-            float area = _2radius * (float)((Math.Asin(l / Radius) + Constant.Pi / 2) + l * Math.Sqrt(_2radius - l2));
+            float area = _2radius * (float)((Math.Asin(l / Radius) + MathHelper.Pi / 2) + l * Math.Sqrt(_2radius - l2));
             float com = -2.0f / 3.0f * (float)Math.Pow(_2radius - l2, 1.5f) / area;
 
             sc.X = p.X + normal.X * com;

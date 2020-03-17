@@ -5,13 +5,10 @@
 
 using System.Collections.Generic;
 using tainicom.Aether.Physics2D.Collision;
-using tainicom.Aether.Physics2D.Common;
 using tainicom.Aether.Physics2D.Common.Decomposition;
 using tainicom.Aether.Physics2D.Common.PolygonManipulation;
 using tainicom.Aether.Physics2D.Dynamics;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-#endif
+using Microsoft.Xna.Framework;
 
 namespace tainicom.Aether.Physics2D.Common.TextureTools
 {

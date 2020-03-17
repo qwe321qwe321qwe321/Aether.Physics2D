@@ -22,17 +22,14 @@
 * 3. This notice may not be removed or altered from any source distribution. 
 */
 
-using tainicom.Aether.Physics2D.Common;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-#endif
+using Microsoft.Xna.Framework;
 
 namespace tainicom.Aether.Physics2D.Dynamics
 {
     /// <summary>
     /// This is an internal structure.
     /// </summary>
-    internal struct TimeStep
+    public struct TimeStep
     {
         /// <summary>
         /// Time step (Delta time)
@@ -56,25 +53,26 @@ namespace tainicom.Aether.Physics2D.Dynamics
     }
 
     /// This is an internal structure.
-    internal struct SolverPosition
+    public struct Position
     {
         public Vector2 c;
         public float a;
+        internal int Lock;
     }
 
     /// This is an internal structure.
-    internal struct SolverVelocity
+    public struct Velocity
     {
         public Vector2 v;
         public float w;
+        internal int Lock;
     }
 
     /// Solver Data
-    internal struct SolverData
+    public struct SolverData
     {
-        internal TimeStep step;
-        internal SolverPosition[] positions;
-        internal SolverVelocity[] velocities;
-        internal int[] locks;
+        public TimeStep step;
+        public Position[] positions;
+        public Velocity[] velocities;
     }
 }

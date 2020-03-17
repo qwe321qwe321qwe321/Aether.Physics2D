@@ -101,7 +101,8 @@ namespace tainicom.Aether.Physics2D.Samples.Testbed.Tests
             }
 
             timer.Stop();
-            _createTime = timer.ElapsedMilliseconds;
+            _createTime = timer.Elapsed
+                s;
         }
 
         public override void Update(GameSettings settings, GameTime gameTime)

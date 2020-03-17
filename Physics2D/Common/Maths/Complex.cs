@@ -1,11 +1,9 @@
 ﻿// Copyright (c) 2017 Kastellanos Nikolaos
 
 using System;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-#endif
+using Microsoft.Xna.Framework;
 
-namespace tainicom.Aether.Physics2D.Common
+namespace tainicom.Aether.Physics2D.Common.Maths
 {
     public struct Complex
     {

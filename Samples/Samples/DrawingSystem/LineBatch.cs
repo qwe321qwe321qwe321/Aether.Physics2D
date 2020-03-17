@@ -91,7 +91,8 @@ namespace tainicom.Aether.Physics2D.Samples.DrawingSystem
                 throw new InvalidOperationException("Begin must be called before DrawLineShape can be called.");
 
             if (shape.ShapeType != ShapeType.Edge && shape.ShapeType != ShapeType.Chain)
-                throw new NotSupportedException("The specified shapeType is not supported by LineBatch.");
+                return;
+                //throw new NotSupportedException("The specified shapeType is not supported by LineBatch.");
 
             if (shape.ShapeType == ShapeType.Edge)
             {

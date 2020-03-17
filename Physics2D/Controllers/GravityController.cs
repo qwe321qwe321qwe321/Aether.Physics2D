@@ -5,12 +5,9 @@
 
 using System;
 using System.Collections.Generic;
-using tainicom.Aether.Physics2D.Common;
+using Microsoft.Xna.Framework;
 using tainicom.Aether.Physics2D.Common.PhysicsLogic;
 using tainicom.Aether.Physics2D.Dynamics;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-#endif
 
 namespace tainicom.Aether.Physics2D.Controllers
 {

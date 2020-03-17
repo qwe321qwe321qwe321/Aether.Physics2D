@@ -10,6 +10,7 @@ using tainicom.Aether.Physics2D.Samples.DrawingSystem;
 using tainicom.Aether.Physics2D.Samples.ScreenSystem;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using tainicom.Aether.Physics2D.Common;
 
 namespace tainicom.Aether.Physics2D.Samples.Demos
 {
@@ -63,13 +64,19 @@ namespace tainicom.Aether.Physics2D.Samples.Demos
 
             _border = new Border(World, ScreenManager, Camera);
 
-            _rectangle = World.CreateRectangle(_rectangleSize.X, _rectangleSize.Y, 1f);
+            _rectangle = World.CreateCapsule(0.5f, 0.25f, 1f);
             _rectangle.BodyType = BodyType.Dynamic;
+            System.Console.WriteLine(_rectangle.Mass);
+            System.Console.WriteLine(_rectangle.Inertia);
+            //_rectangle.Mass = 2f;
+            //_rectangle.Rotation = 1.4f;
+            //_rectangle = World.CreateRectangle(_rectangleSize.X, _rectangleSize.Y, 1f);
+            //_rectangle.BodyType = BodyType.Dynamic;
 
             SetUserAgent(_rectangle, 100f, 100f);
 
             // create sprite based on body
-            _rectangleSprite = new Sprite(ScreenManager.Assets.TextureFromShape(_rectangle.FixtureList[0].Shape, MaterialType.Squares, Color.Orange, 1f));
+            _rectangleSprite = new Sprite(ScreenManager.Assets.TextureFromVertices(PolygonTools.CreateCapsule(1.9f, 0.45f, 16), MaterialType.Squares, Color.DimGray, 0.8f, 24f));
         }
 
         public override void Draw(GameTime gameTime)
@@ -78,6 +85,7 @@ namespace tainicom.Aether.Physics2D.Samples.Demos
             ScreenManager.BatchEffect.Projection = Camera.Projection;
             ScreenManager.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, RasterizerState.CullNone, ScreenManager.BatchEffect);
             ScreenManager.SpriteBatch.Draw(_rectangleSprite.Texture, _rectangle.Position, null, Color.White, _rectangle.Rotation, _rectangleSprite.Origin, _rectangleSize * _rectangleSprite.TexelSize, SpriteEffects.FlipVertically, 0f);
+            //Draw(_rectangleSprite, _lowerRightArm.Position, null, Color.White, _lowerRightArm.Rotation, _lowerArm.Origin, new Vector2(2f * 0.45f, 2f * 0.45f + 1f) * _lowerArm.TexelSize, SpriteEffects.FlipVertically, 0f);
             ScreenManager.SpriteBatch.End();
             _border.Draw();
             base.Draw(gameTime);

@@ -5,10 +5,7 @@
 
 using System;
 using System.Collections.Generic;
-using tainicom.Aether.Physics2D.Common;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-#endif
+using Microsoft.Xna.Framework;
 
 namespace tainicom.Aether.Physics2D.Collision
 {
@@ -239,7 +236,7 @@ namespace tainicom.Aether.Physics2D.Collision
                     maxFraction = value;
                     p2 = p1 + (input.Point2 - input.Point1) * maxFraction; //update segment endpoint
                 }
-                if (qt.IsPartitioned)
+                if (IsPartitioned)
                     foreach (QuadTree<T> st in qt.SubTrees)
                         stack.Push(st);
             }

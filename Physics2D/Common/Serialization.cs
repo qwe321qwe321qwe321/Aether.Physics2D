@@ -13,9 +13,7 @@ using System.Xml.Serialization;
 using tainicom.Aether.Physics2D.Collision.Shapes;
 using tainicom.Aether.Physics2D.Dynamics;
 using tainicom.Aether.Physics2D.Dynamics.Joints;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-#endif
+using Microsoft.Xna.Framework;
 
 namespace tainicom.Aether.Physics2D.Common
 {
@@ -52,7 +50,7 @@ namespace tainicom.Aether.Physics2D.Common
         {
             _writer.WriteStartElement("Shape");
             _writer.WriteAttributeString("Type", shape.ShapeType.ToString());
-            _writer.WriteAttributeString("Density", FloatToString(shape.Density));
+            _writer.WriteAttributeString("Density", shape.Density.ToString());
 
             switch (shape.ShapeType)
             {
@@ -60,7 +58,7 @@ namespace tainicom.Aether.Physics2D.Common
                     {
                         CircleShape circle = (CircleShape)shape;
 
-                        WriteElement("Radius", circle.Radius);
+                        _writer.WriteElementString("Radius", circle.Radius.ToString());
 
                         WriteElement("Position", circle.Position);
                     }
@@ -115,9 +113,9 @@ namespace tainicom.Aether.Physics2D.Common
             _writer.WriteElementString("GroupIndex", fixture.CollisionGroup.ToString());
             _writer.WriteEndElement();
 
-            WriteElement("Friction", fixture.Friction);
+            _writer.WriteElementString("Friction", fixture.Friction.ToString());
             _writer.WriteElementString("IsSensor", fixture.IsSensor.ToString());
-            WriteElement("Restitution", fixture.Restitution);
+            _writer.WriteElementString("Restitution", fixture.Restitution.ToString());
 
             if (fixture.Tag != null)
             {
@@ -135,13 +133,13 @@ namespace tainicom.Aether.Physics2D.Common
             _writer.WriteAttributeString("Type", body.BodyType.ToString());
             _writer.WriteElementString("Active", body.Enabled.ToString());
             _writer.WriteElementString("AllowSleep", body.SleepingAllowed.ToString());
-            WriteElement("Angle", body.Rotation);
-            WriteElement("AngularDamping", body.AngularDamping);
-            WriteElement("AngularVelocity", body.AngularVelocity);
+            _writer.WriteElementString("Angle", body.Rotation.ToString());
+            _writer.WriteElementString("AngularDamping", body.AngularDamping.ToString());
+            _writer.WriteElementString("AngularVelocity", body.AngularVelocity.ToString());
             _writer.WriteElementString("Awake", body.Awake.ToString());
             _writer.WriteElementString("Bullet", body.IsBullet.ToString());
             _writer.WriteElementString("FixedRotation", body.FixedRotation.ToString());
-            WriteElement("LinearDamping", body.LinearDamping);
+            _writer.WriteElementString("LinearDamping", body.LinearDamping.ToString());
             WriteElement("LinearVelocity", body.LinearVelocity);
             WriteElement("Position", body.Position);
 
@@ -319,7 +317,7 @@ namespace tainicom.Aether.Physics2D.Common
 
         private static void WriteElement(string name, Vector2 vec)
         {
-            _writer.WriteElementString(name, FloatToString(vec.X) + " " + FloatToString(vec.Y));
+            _writer.WriteElementString(name, vec.X + " " + vec.Y);
         }
 
         private static void WriteElement(string name, int val)
@@ -334,12 +332,7 @@ namespace tainicom.Aether.Physics2D.Common
 
         private static void WriteElement(string name, float val)
         {
-            _writer.WriteElementString(name, FloatToString(val));
-        }
-
-        private static string FloatToString(float value)
-        {
-            return value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            _writer.WriteElementString(name, val.ToString());
         }
 
         private static String Join(List<Fixture> fixtures, IEnumerable<Fixture> values)
@@ -482,7 +475,7 @@ namespace tainicom.Aether.Physics2D.Common
                             throw new Exception();
 
                         ShapeType type = (ShapeType)Enum.Parse(typeof(ShapeType), element.Attributes[0].Value, true);
-                        float density = ParseFloat(element.Attributes[1].Value);
+                        float density = float.Parse(element.Attributes[1].Value);
 
                         switch (type)
                         {
@@ -496,7 +489,7 @@ namespace tainicom.Aether.Physics2D.Common
                                         switch (sn.Name.ToLower())
                                         {
                                             case "radius":
-                                                shape.Radius = ParseFloat(sn.Value);
+                                                shape.Radius = float.Parse(sn.Value);
                                                 break;
                                             case "position":
                                                 shape.Position = ReadVector(sn);
@@ -646,13 +639,13 @@ namespace tainicom.Aether.Physics2D.Common
 
                                     break;
                                 case "friction":
-                                    fixture.Friction = ParseFloat(sn.Value);
+                                    fixture.Friction = float.Parse(sn.Value);
                                     break;
                                 case "issensor":
                                     fixture.IsSensor = bool.Parse(sn.Value);
                                     break;
                                 case "restitution":
-                                    fixture.Restitution = ParseFloat(sn.Value);
+                                    fixture.Restitution = float.Parse(sn.Value);
                                     break;
                                 case "tag":
                                     fixture.Tag = ReadSimpleType(sn, null, false);
@@ -693,14 +686,14 @@ namespace tainicom.Aether.Physics2D.Common
                                 case "angle":
                                     {
                                         Vector2 position = body.Position;
-                                        body.SetTransformIgnoreContacts(ref position, ParseFloat(sn.Value));
+                                        body.SetTransformIgnoreContacts(ref position, float.Parse(sn.Value));
                                     }
                                     break;
                                 case "angulardamping":
-                                    body.AngularDamping = ParseFloat(sn.Value);
+                                    body.AngularDamping = float.Parse(sn.Value);
                                     break;
                                 case "angularvelocity":
-                                    body.AngularVelocity = ParseFloat(sn.Value);
+                                    body.AngularVelocity = float.Parse(sn.Value);
                                     break;
                                 case "awake":
                                     body.Awake = bool.Parse(sn.Value);
@@ -712,7 +705,7 @@ namespace tainicom.Aether.Physics2D.Common
                                     body.FixedRotation = bool.Parse(sn.Value);
                                     break;
                                 case "lineardamping":
-                                    body.LinearDamping = ParseFloat(sn.Value);
+                                    body.LinearDamping = float.Parse(sn.Value);
                                     break;
                                 case "linearvelocity":
                                     body.LinearVelocity = ReadVector(sn);
@@ -856,13 +849,13 @@ namespace tainicom.Aether.Physics2D.Common
                                         switch (sn.Name.ToLower())
                                         {
                                             case "dampingratio":
-                                                ((DistanceJoint)joint).DampingRatio = ParseFloat(sn.Value);
+                                                ((DistanceJoint)joint).DampingRatio = float.Parse(sn.Value);
                                                 break;
                                             case "frequencyhz":
-                                                ((DistanceJoint)joint).Frequency = ParseFloat(sn.Value);
+                                                ((DistanceJoint)joint).Frequency = float.Parse(sn.Value);
                                                 break;
                                             case "length":
-                                                ((DistanceJoint)joint).Length = ParseFloat(sn.Value);
+                                                ((DistanceJoint)joint).Length = float.Parse(sn.Value);
                                                 break;
                                             case "localanchora":
                                                 ((DistanceJoint)joint).LocalAnchorA = ReadVector(sn);
@@ -884,10 +877,10 @@ namespace tainicom.Aether.Physics2D.Common
                                                 ((FrictionJoint)joint).LocalAnchorB = ReadVector(sn);
                                                 break;
                                             case "maxforce":
-                                                ((FrictionJoint)joint).MaxForce = ParseFloat(sn.Value);
+                                                ((FrictionJoint)joint).MaxForce = float.Parse(sn.Value);
                                                 break;
                                             case "maxtorque":
-                                                ((FrictionJoint)joint).MaxTorque = ParseFloat(sn.Value);
+                                                ((FrictionJoint)joint).MaxTorque = float.Parse(sn.Value);
                                                 break;
                                         }
                                     }
@@ -906,16 +899,16 @@ namespace tainicom.Aether.Physics2D.Common
                                                 ((WheelJoint)joint).LocalAnchorB = ReadVector(sn);
                                                 break;
                                             case "motorspeed":
-                                                ((WheelJoint)joint).MotorSpeed = ParseFloat(sn.Value);
+                                                ((WheelJoint)joint).MotorSpeed = float.Parse(sn.Value);
                                                 break;
                                             case "dampingratio":
-                                                ((WheelJoint)joint).DampingRatio = ParseFloat(sn.Value);
+                                                ((WheelJoint)joint).DampingRatio = float.Parse(sn.Value);
                                                 break;
                                             case "maxmotortorque":
-                                                ((WheelJoint)joint).MaxMotorTorque = ParseFloat(sn.Value);
+                                                ((WheelJoint)joint).MaxMotorTorque = float.Parse(sn.Value);
                                                 break;
                                             case "frequencyhz":
-                                                ((WheelJoint)joint).Frequency = ParseFloat(sn.Value);
+                                                ((WheelJoint)joint).Frequency = float.Parse(sn.Value);
                                                 break;
                                             case "axis":
                                                 ((WheelJoint)joint).Axis = ReadVector(sn);
@@ -943,19 +936,19 @@ namespace tainicom.Aether.Physics2D.Common
                                                 ((PrismaticJoint)joint).Axis = ReadVector(sn);
                                                 break;
                                             case "maxmotorforce":
-                                                ((PrismaticJoint)joint).MaxMotorForce = ParseFloat(sn.Value);
+                                                ((PrismaticJoint)joint).MaxMotorForce = float.Parse(sn.Value);
                                                 break;
                                             case "motorspeed":
-                                                ((PrismaticJoint)joint).MotorSpeed = ParseFloat(sn.Value);
+                                                ((PrismaticJoint)joint).MotorSpeed = float.Parse(sn.Value);
                                                 break;
                                             case "lowertranslation":
-                                                ((PrismaticJoint)joint).LowerLimit = ParseFloat(sn.Value);
+                                                ((PrismaticJoint)joint).LowerLimit = float.Parse(sn.Value);
                                                 break;
                                             case "uppertranslation":
-                                                ((PrismaticJoint)joint).UpperLimit = ParseFloat(sn.Value);
+                                                ((PrismaticJoint)joint).UpperLimit = float.Parse(sn.Value);
                                                 break;
                                             case "referenceangle":
-                                                ((PrismaticJoint)joint).ReferenceAngle = ParseFloat(sn.Value);
+                                                ((PrismaticJoint)joint).ReferenceAngle = float.Parse(sn.Value);
                                                 break;
                                         }
                                     }
@@ -971,10 +964,10 @@ namespace tainicom.Aether.Physics2D.Common
                                                 ((PulleyJoint)joint).WorldAnchorB = ReadVector(sn);
                                                 break;
                                             case "lengtha":
-                                                ((PulleyJoint)joint).LengthA = ParseFloat(sn.Value);
+                                                ((PulleyJoint)joint).LengthA = float.Parse(sn.Value);
                                                 break;
                                             case "lengthb":
-                                                ((PulleyJoint)joint).LengthB = ParseFloat(sn.Value);
+                                                ((PulleyJoint)joint).LengthB = float.Parse(sn.Value);
                                                 break;
                                             case "localanchora":
                                                 ((PulleyJoint)joint).LocalAnchorA = ReadVector(sn);
@@ -983,10 +976,10 @@ namespace tainicom.Aether.Physics2D.Common
                                                 ((PulleyJoint)joint).LocalAnchorB = ReadVector(sn);
                                                 break;
                                             case "ratio":
-                                                ((PulleyJoint)joint).Ratio = ParseFloat(sn.Value);
+                                                ((PulleyJoint)joint).Ratio = float.Parse(sn.Value);
                                                 break;
                                             case "constant":
-                                                ((PulleyJoint)joint).Constant = ParseFloat(sn.Value);
+                                                ((PulleyJoint)joint).Constant = float.Parse(sn.Value);
                                                 break;
                                         }
                                     }
@@ -1008,19 +1001,19 @@ namespace tainicom.Aether.Physics2D.Common
                                                 ((RevoluteJoint)joint).LocalAnchorB = ReadVector(sn);
                                                 break;
                                             case "maxmotortorque":
-                                                ((RevoluteJoint)joint).MaxMotorTorque = ParseFloat(sn.Value);
+                                                ((RevoluteJoint)joint).MaxMotorTorque = float.Parse(sn.Value);
                                                 break;
                                             case "motorspeed":
-                                                ((RevoluteJoint)joint).MotorSpeed = ParseFloat(sn.Value);
+                                                ((RevoluteJoint)joint).MotorSpeed = float.Parse(sn.Value);
                                                 break;
                                             case "lowerangle":
-                                                ((RevoluteJoint)joint).LowerLimit = ParseFloat(sn.Value);
+                                                ((RevoluteJoint)joint).LowerLimit = float.Parse(sn.Value);
                                                 break;
                                             case "upperangle":
-                                                ((RevoluteJoint)joint).UpperLimit = ParseFloat(sn.Value);
+                                                ((RevoluteJoint)joint).UpperLimit = float.Parse(sn.Value);
                                                 break;
                                             case "referenceangle":
-                                                ((RevoluteJoint)joint).ReferenceAngle = ParseFloat(sn.Value);
+                                                ((RevoluteJoint)joint).ReferenceAngle = float.Parse(sn.Value);
                                                 break;
                                         }
                                     }
@@ -1049,7 +1042,7 @@ namespace tainicom.Aether.Physics2D.Common
                                                 ((RopeJoint)joint).LocalAnchorB = ReadVector(sn);
                                                 break;
                                             case "maxlength":
-                                                ((RopeJoint)joint).MaxLength = ParseFloat(sn.Value);
+                                                ((RopeJoint)joint).MaxLength = float.Parse(sn.Value);
                                                 break;
                                         }
                                     }
@@ -1061,16 +1054,16 @@ namespace tainicom.Aether.Physics2D.Common
                                         switch (sn.Name.ToLower())
                                         {
                                             case "biasfactor":
-                                                ((AngleJoint)joint).BiasFactor = ParseFloat(sn.Value);
+                                                ((AngleJoint)joint).BiasFactor = float.Parse(sn.Value);
                                                 break;
                                             case "maximpulse":
-                                                ((AngleJoint)joint).MaxImpulse = ParseFloat(sn.Value);
+                                                ((AngleJoint)joint).MaxImpulse = float.Parse(sn.Value);
                                                 break;
                                             case "softness":
-                                                ((AngleJoint)joint).Softness = ParseFloat(sn.Value);
+                                                ((AngleJoint)joint).Softness = float.Parse(sn.Value);
                                                 break;
                                             case "targetangle":
-                                                ((AngleJoint)joint).TargetAngle = ParseFloat(sn.Value);
+                                                ((AngleJoint)joint).TargetAngle = float.Parse(sn.Value);
                                                 break;
                                         }
                                     }
@@ -1079,19 +1072,19 @@ namespace tainicom.Aether.Physics2D.Common
                                     switch (sn.Name.ToLower())
                                     {
                                         case "angularoffset":
-                                            ((MotorJoint)joint).AngularOffset = ParseFloat(sn.Value);
+                                            ((MotorJoint)joint).AngularOffset = float.Parse(sn.Value);
                                             break;
                                         case "linearoffset":
                                             ((MotorJoint)joint).LinearOffset = ReadVector(sn);
                                             break;
                                         case "maxforce":
-                                            ((MotorJoint)joint).MaxForce = ParseFloat(sn.Value);
+                                            ((MotorJoint)joint).MaxForce = float.Parse(sn.Value);
                                             break;
                                         case "maxtorque":
-                                            ((MotorJoint)joint).MaxTorque = ParseFloat(sn.Value);
+                                            ((MotorJoint)joint).MaxTorque = float.Parse(sn.Value);
                                             break;
                                         case "correctionfactor":
-                                            ((MotorJoint)joint).CorrectionFactor = ParseFloat(sn.Value);
+                                            ((MotorJoint)joint).CorrectionFactor = float.Parse(sn.Value);
                                             break;
                                     }
                                     break;
@@ -1101,15 +1094,13 @@ namespace tainicom.Aether.Physics2D.Common
                 }
             }
 
-#if LEGACY_ASYNCADDREMOVE
             world.ProcessChanges();
-#endif
         }
 
         private static Vector2 ReadVector(XMLFragmentElement node)
         {
             string[] values = node.Value.Split(' ');
-            return new Vector2(ParseFloat(values[0]), ParseFloat(values[1]));
+            return new Vector2(float.Parse(values[0]), float.Parse(values[1]));
         }
 
         private static object ReadSimpleType(XMLFragmentElement node, Type type, bool outer)
@@ -1133,12 +1124,6 @@ namespace tainicom.Aether.Physics2D.Common
                 return serializer.Deserialize(XmlReader.Create(stream, settings));
             }
         }
-
-        private static float ParseFloat(string value)
-        {
-            return float.Parse(value, System.Globalization.CultureInfo.InvariantCulture);
-        }
-
     }
 
     #region XMLFragment

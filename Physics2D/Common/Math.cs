@@ -28,10 +28,8 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
-#endif
+using Microsoft.Xna.Framework;
+using tainicom.Aether.Physics2D.Common.Maths;
 
 namespace tainicom.Aether.Physics2D.Common
 {
@@ -188,9 +186,7 @@ namespace tainicom.Aether.Physics2D.Common
 
         public static Vector2 Clamp(Vector2 a, Vector2 low, Vector2 high)
         {
-            a.X = Math.Max(low.X, Math.Min(a.X, high.X));
-            a.Y = Math.Max(low.Y, Math.Min(a.Y, high.Y));
-            return a;
+            return Vector2.Max(low, Vector2.Min(a, high));
         }
 
         public static void Cross(ref Vector2 a, ref Vector2 b, out float c)
@@ -713,7 +709,7 @@ namespace tainicom.Aether.Physics2D.Common
         /// </summary>
         public void Normalize()
         {
-            float d = Constant.Tau * (float)Math.Floor(A0 / Constant.Tau);
+            float d = MathHelper.TwoPi * (float)Math.Floor(A0 / MathHelper.TwoPi);
             A0 -= d;
             A -= d;
         }

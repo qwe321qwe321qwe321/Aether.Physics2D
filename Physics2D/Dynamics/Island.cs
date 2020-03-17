@@ -29,12 +29,11 @@
 
 using System;
 using System.Diagnostics;
+using Microsoft.Xna.Framework;
 using tainicom.Aether.Physics2D.Common;
+using tainicom.Aether.Physics2D.Diagnostics;
 using tainicom.Aether.Physics2D.Dynamics.Contacts;
 using tainicom.Aether.Physics2D.Dynamics.Joints;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-#endif
 
 namespace tainicom.Aether.Physics2D.Dynamics
 {
@@ -57,9 +56,8 @@ namespace tainicom.Aether.Physics2D.Dynamics
         public int ContactCount;
         public int JointCount;
 
-        internal SolverVelocity[] _velocities;
-        internal SolverPosition[] _positions;
-        internal int[] _locks;
+        public Velocity[] _velocities;
+        public Position[] _positions;
 
         public int BodyCapacity;
         public int ContactCapacity;
@@ -79,27 +77,19 @@ namespace tainicom.Aether.Physics2D.Dynamics
 
             if (Bodies == null || Bodies.Length < bodyCapacity)
             {
-                int newBodyBufferCapacity = Math.Max(bodyCapacity, 32);
-                newBodyBufferCapacity = (newBodyBufferCapacity + 31) & (~31); // grow in chunks of 32.
-                Bodies = new Body[newBodyBufferCapacity];
-                _velocities = new SolverVelocity[newBodyBufferCapacity];
-                _positions = new SolverPosition[newBodyBufferCapacity];
-                _locks = new int[newBodyBufferCapacity];
+                Bodies = new Body[bodyCapacity];
+                _velocities = new Velocity[bodyCapacity];
+                _positions = new Position[bodyCapacity];
             }
 
             if (_contacts == null || _contacts.Length < contactCapacity)
             {
-                int newContactBufferCapacity = Math.Max(contactCapacity, 32);
-                newContactBufferCapacity = newContactBufferCapacity + (newContactBufferCapacity*2 >> 4); // grow by x1.125f
-                newContactBufferCapacity = (newContactBufferCapacity + 31) & (~31); // grow in chunks of 32.
-                _contacts = new Contact[newContactBufferCapacity];
+                _contacts = new Contact[contactCapacity * 2];
             }
 
             if (_joints == null || _joints.Length < jointCapacity)
             {
-                int newJointBufferCapacity = Math.Max(jointCapacity, 32);
-                newJointBufferCapacity = (newJointBufferCapacity + 31) & (~31); // grow in chunks of 32.
-                _joints = new Joint[newJointBufferCapacity];
+                _joints = new Joint[jointCapacity * 2];
             }
         }
 
@@ -110,7 +100,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             JointCount = 0;
         }
 
-        internal void Solve(ref TimeStep step, ref Vector2 gravity)
+        public void Solve(ref TimeStep step, ref Vector2 gravity)
         {
             float h = step.dt;
 
@@ -162,10 +152,9 @@ namespace tainicom.Aether.Physics2D.Dynamics
             solverData.step = step;
             solverData.positions = _positions;
             solverData.velocities = _velocities;
-            solverData.locks = _locks;
 
             _contactSolver.Reset(ref step, ContactCount, _contacts, _positions, _velocities,
-                _locks, _contactManager.VelocityConstraintsMultithreadThreshold, _contactManager.PositionConstraintsMultithreadThreshold);
+                _contactManager.VelocityConstraintsMultithreadThreshold, _contactManager.PositionConstraintsMultithreadThreshold);
             _contactSolver.InitializeVelocityConstraints();
 
             if (step.warmStarting)
@@ -347,7 +336,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             }
 
             _contactSolver.Reset(ref subStep, ContactCount, _contacts, _positions, _velocities,
-                _locks, _contactManager.VelocityConstraintsMultithreadThreshold, _contactManager.PositionConstraintsMultithreadThreshold);
+                _contactManager.VelocityConstraintsMultithreadThreshold, _contactManager.PositionConstraintsMultithreadThreshold);
 
             // Solve position constraints.
             for (int i = 0; i < subStep.positionIterations; ++i)

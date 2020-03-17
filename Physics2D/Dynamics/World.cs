@@ -38,15 +38,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.Xna.Framework;
 using tainicom.Aether.Physics2D.Collision;
 using tainicom.Aether.Physics2D.Common;
 using tainicom.Aether.Physics2D.Controllers;
+using tainicom.Aether.Physics2D.Diagnostics;
 using tainicom.Aether.Physics2D.Dynamics.Contacts;
 using tainicom.Aether.Physics2D.Dynamics.Joints;
-
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-#endif
+using tainicom.Aether.Physics2D.Fluids;
 
 namespace tainicom.Aether.Physics2D.Dynamics
 {
@@ -63,38 +62,28 @@ namespace tainicom.Aether.Physics2D.Dynamics
         private const bool _subStepping = false;
         #endregion
 
-        Vector2 _gravity;
-
         private bool _stepComplete = true;
 
         private float _invDt0;
         private Body[] _stack = new Body[64];
-        private QueryReportFixtureDelegate _queryDelegateTmp;
-        private BroadPhaseQueryCallback _queryCallbackCache;
-        private TOIInput _input = new TOIInput();
-        private Vector2 _testPointPointTmp;
-        private Fixture _testPointFixtureTmp;
-        private QueryReportFixtureDelegate _testPointDelegateCache;
-        private Vector2 _testPointAllPointTmp;
-        private List<Fixture> _testPointAllFixturesTmp;
-        private QueryReportFixtureDelegate _testPointAllDelegateCache;
-        private Stopwatch _watch = new Stopwatch();
-        private RayCastReportFixtureDelegate _rayCastDelegateTmp;
-        private BroadPhaseRayCastCallback _rayCastCallbackCache;
-
-        internal bool _worldHasNewFixture;
-
-
-#if LEGACY_ASYNCADDREMOVE
         private HashSet<Body> _bodyAddList = new HashSet<Body>();
         private HashSet<Body> _bodyRemoveList = new HashSet<Body>();
         private HashSet<Joint> _jointAddList = new HashSet<Joint>();
         private HashSet<Joint> _jointRemoveList = new HashSet<Joint>();
-#endif
+        private Func<Fixture, bool> _queryAABBCallback;
+        private Func<int, bool> _queryAABBCallbackWrapper;
+        private TOIInput _input = new TOIInput();
+        private Fixture _myFixture;
+        private Vector2 _point1;
+        private Vector2 _point2;
+        private List<Fixture> _testPointAllFixtures;
+        private Stopwatch _watch = new Stopwatch();
+        private Func<Fixture, Vector2, Vector2, float, float> _rayCastCallback;
+        private Func<RayCastInput, int, float> _rayCastCallbackWrapper;
 
-#if LEGACY_FLUIDS
-        public tainicom.Aether.Physics2D.Fluids.FluidSystem2 Fluid { get; private set; }
-#endif
+        internal bool _worldHasNewFixture;
+
+        public FluidSystem2 Fluid { get; private set; }
 
         /// <summary>
         /// Set the user data. Use this to store your application specific data.
@@ -164,14 +153,10 @@ namespace tainicom.Aether.Physics2D.Dynamics
             TOISet = new HashSet<Body>();
 #endif
 
-            _queryCallbackCache = new BroadPhaseQueryCallback(QueryAABBCallback);
-            _rayCastCallbackCache = new BroadPhaseRayCastCallback(RayCastCallback);
-            _testPointDelegateCache = new QueryReportFixtureDelegate(this.TestPointCallback);
-            _testPointAllDelegateCache = new QueryReportFixtureDelegate(this.TestPointAllCallback);
+            _queryAABBCallbackWrapper = QueryAABBCallbackWrapper;
+            _rayCastCallbackWrapper = RayCastCallbackWrapper;
 
-#if LEGACY_FLUIDS
-            Fluid = new tainicom.Aether.Physics2D.Fluids.FluidSystem2(new Vector2(0, -1), 5000, 150, 150);
-#endif
+            Fluid = new FluidSystem2(new Vector2(0, -1), 5000, 150, 150);
 
             ContactManager = new ContactManager(new DynamicTreeBroadPhase());
             Gravity = new Vector2(0f, -9.80665f);
@@ -186,23 +171,36 @@ namespace tainicom.Aether.Physics2D.Dynamics
             Gravity = gravity;
         }
 
-#if XNAAPI
         /// <summary>
         /// Initializes a new instance of the <see cref="World"/> class.
         /// </summary>
-        /// <remarks>Deprecated in version 1.5</remarks>
-        [Obsolete("Use: new World(new QuadTreeBroadPhase(span));")]
-        public World(AABB span) : this(new QuadTreeBroadPhase(span))
-        {
+        public World(AABB span) : this()
+        {            
+            ContactManager = new ContactManager(new QuadTreeBroadPhase(span));
         }
-#endif
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="World"/> class.
-        /// </summary>
-        public World(IBroadPhase broadPhase) : this()
+        private bool QueryAABBCallbackWrapper(int proxyId)
         {
-            ContactManager = new ContactManager(broadPhase);
+            FixtureProxy proxy = ContactManager.BroadPhase.GetProxy(proxyId);
+            return _queryAABBCallback(proxy.Fixture);
+        }
+
+        private float RayCastCallbackWrapper(RayCastInput rayCastInput, int proxyId)
+        {
+            FixtureProxy proxy = ContactManager.BroadPhase.GetProxy(proxyId);
+            Fixture fixture = proxy.Fixture;
+            int index = proxy.ChildIndex;
+            RayCastOutput output;
+            bool hit = fixture.RayCast(out output, ref rayCastInput, index);
+
+            if (hit)
+            {
+                float fraction = output.Fraction;
+                Vector2 point = (1.0f - fraction) * rayCastInput.Point1 + fraction * rayCastInput.Point2;
+                return _rayCastCallback(fixture, point, output.Normal, fraction);
+            }
+
+            return rayCastInput.MaxFraction;
         }
 
         private void Solve(ref TimeStep step)
@@ -396,7 +394,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
                     }
                 }
 
-                Island.Solve(ref step, ref _gravity);
+                Island.Solve(ref step, ref Gravity);
 
                 // Post solve cleanup.
                 for (int i = 0; i < Island.BodyCount; ++i)
@@ -413,35 +411,27 @@ namespace tainicom.Aether.Physics2D.Dynamics
             // Synchronize fixtures, check for out of range bodies.
 #if USE_ISLAND_SET
             foreach (var b in IslandSet)
-            {
-                // If a body was not in an island then it did not move.
-                if (!b._island)
-                {
-                    continue;
-                }
-                Debug.Assert(b.BodyType != BodyType.Static);
-
-                // Update fixtures (for broad-phase).
-                b.SynchronizeFixtures();
-            }
 #else
             foreach (Body b in BodyList)
+#endif
             {
                 // If a body was not in an island then it did not move.
                 if (!b._island)
                 {
                     continue;
                 }
+#if USE_ISLAND_SET
+                Debug.Assert(b.BodyType != BodyType.Static);
+#else
                 if (b.BodyType == BodyType.Static)
                 {
                     continue;
                 }
+#endif
 
                 // Update fixtures (for broad-phase).
                 b.SynchronizeFixtures();
             }
-#endif
-
 #if OPTIMIZE_TOI
             foreach (var b in IslandSet)
             {
@@ -861,30 +851,19 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// Change the global gravity vector.
         /// </summary>
         /// <value>The gravity.</value>
-        public Vector2 Gravity
-        {
-            get { return _gravity; }
-            set 
-            {
-                if (IsLocked)
-                    throw new InvalidOperationException("The World is locked.");
-                _gravity = value;
-            }
-        }
+        public Vector2 Gravity;
         
         /// <summary>
         /// Is the world locked (in the middle of a time step).
         /// </summary>        
         public bool IsLocked { get; private set; }
 
-#if XNAAPI
         /// <summary>
         /// Is the world running (in the middle of a time step).
         /// </summary>        
         /// <remarks>Deprecated in version 1.3</remarks>
         [Obsolete("Use IsLocked")]
         public bool IsStepping { get { return IsLocked; } }
-#endif
 
         /// <summary>
         /// Get the contact manager for testing.
@@ -1222,8 +1201,6 @@ namespace tainicom.Aether.Physics2D.Dynamics
         }
 
 
-        #region LEGACY_ASYNCADDREMOVE
-#if LEGACY_ASYNCADDREMOVE
         /// <summary>
         /// Add a rigid body.
         /// </summary>
@@ -1356,8 +1333,6 @@ namespace tainicom.Aether.Physics2D.Dynamics
                 Debug.Assert(BodyList.Contains(b));
 #endif
         }
-#endif
-        #endregion // LEGACY_ASYNCADDREMOVE
 
         
         /// <summary>
@@ -1415,11 +1390,9 @@ namespace tainicom.Aether.Physics2D.Dynamics
             if (Settings.EnableDiagnostics)
                 _watch.Start();
 
-#if LEGACY_ASYNCADDREMOVE
             ProcessChanges();
             if (Settings.EnableDiagnostics)
                 AddRemoveTime = TimeSpan.FromTicks(_watch.ElapsedTicks);
-#endif
 
             // If new fixtures were added, we need to find the new contacts.
             if (_worldHasNewFixture)
@@ -1471,10 +1444,8 @@ namespace tainicom.Aether.Physics2D.Dynamics
                 if (Settings.EnableDiagnostics)
                     ContinuousPhysicsTime = TimeSpan.FromTicks(_watch.ElapsedTicks) - (AddRemoveTime + NewContactsTime + ControllersUpdateTime + ContactsUpdateTime + SolveUpdateTime);
 
-#if LEGACY_FLUIDS
                 if (step.dt > 0.0f)
                     Fluid.Update(dt);
-#endif
 
                 if (Settings.AutoClearForces)
                     ClearForces();
@@ -1519,42 +1490,19 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// </summary>
         /// <param name="callback">A user implemented callback class.</param>
         /// <param name="aabb">The aabb query box.</param>
-        public void QueryAABB(QueryReportFixtureDelegate callback, AABB aabb)
+        public void QueryAABB(Func<Fixture, bool> callback, ref AABB aabb)
         {
-            QueryAABB(callback, ref aabb);
+            _queryAABBCallback = callback;
+            ContactManager.BroadPhase.Query(_queryAABBCallbackWrapper, ref aabb);
+            _queryAABBCallback = null;
         }
 
-        /// <summary>
-        /// Query the world for all fixtures that potentially overlap the provided AABB.
-        /// 
-        /// Inside the callback:
-        /// Return true: Continues the query
-        /// Return false: Terminate the query
-        /// </summary>
-        /// <param name="callback">A user implemented callback class.</param>
-        /// <param name="aabb">The aabb query box.</param>
-        public void QueryAABB(QueryReportFixtureDelegate callback, ref AABB aabb)
-        {
-            _queryDelegateTmp = callback;
-            ContactManager.BroadPhase.Query(_queryCallbackCache, ref aabb);
-            _queryDelegateTmp = null;
-        }
-
-        private bool QueryAABBCallback(int proxyId)
-        {
-            FixtureProxy proxy = ContactManager.BroadPhase.GetProxy(proxyId);
-            return _queryDelegateTmp(proxy.Fixture);
-        }
-
-#if XNAAPI
         /// <summary>
         /// Query the world for all fixtures that potentially overlap the provided AABB.
         /// Use the overload with a callback for filtering and better performance.
         /// </summary>
         /// <param name="aabb">The aabb query box.</param>
         /// <returns>A list of fixtures that were in the affected area.</returns>
-        /// <remarks>Deprecated in version 1.5</remarks>
-        [Obsolete("Use QueryAABB(QueryCallback, ref AABB)")]
         public List<Fixture> QueryAABB(ref AABB aabb)
         {
             List<Fixture> affected = new List<Fixture>();
@@ -1567,7 +1515,6 @@ namespace tainicom.Aether.Physics2D.Dynamics
 
             return affected;
         }
-#endif
 
         /// <summary>
         /// Ray-cast the world for all fixtures in the path of the ray. Your callback
@@ -1583,45 +1530,18 @@ namespace tainicom.Aether.Physics2D.Dynamics
         /// <param name="callback">A user implemented callback class.</param>
         /// <param name="point1">The ray starting point.</param>
         /// <param name="point2">The ray ending point.</param>
-        public void RayCast(RayCastReportFixtureDelegate callback, Vector2 point1, Vector2 point2)
+        public void RayCast(Func<Fixture, Vector2, Vector2, float, float> callback, Vector2 point1, Vector2 point2)
         {
             RayCastInput input = new RayCastInput();
             input.MaxFraction = 1.0f;
             input.Point1 = point1;
             input.Point2 = point2;
 
-            _rayCastDelegateTmp = callback;
-            ContactManager.BroadPhase.RayCast(_rayCastCallbackCache, ref input);
-            _rayCastDelegateTmp = null;
+            _rayCastCallback = callback;
+            ContactManager.BroadPhase.RayCast(_rayCastCallbackWrapper, ref input);
+            _rayCastCallback = null;
         }
 
-        private float RayCastCallback(ref RayCastInput rayCastInput, int proxyId)
-        {
-            FixtureProxy proxy = ContactManager.BroadPhase.GetProxy(proxyId);
-            Fixture fixture = proxy.Fixture;
-            int index = proxy.ChildIndex;
-            RayCastOutput output;
-            bool hit = fixture.RayCast(out output, ref rayCastInput, index);
-
-            if (hit)
-            {
-                float fraction = output.Fraction;
-                Vector2 point = (1.0f - fraction) * rayCastInput.Point1 + fraction * rayCastInput.Point2;
-                return _rayCastDelegateTmp(fixture, point, output.Normal, fraction);
-            }
-
-            return rayCastInput.MaxFraction;
-        }
-
-#if XNAAPI
-        /// <summary>
-        /// Ray-cast the world for all fixtures in the path of the ray.
-        /// Use the overload with a callback for filtering and better performance.
-        /// </summary>
-        /// <param name="point1">The ray starting point.</param>
-        /// <param name="point2">The ray ending point.</param>
-        /// <remarks>Deprecated in version 1.5</remarks>
-        [Obsolete("Use RayCast(RayCastCallback, Vector2, Vector2)")]
         public List<Fixture> RayCast(Vector2 point1, Vector2 point2)
         {
             List<Fixture> affected = new List<Fixture>();
@@ -1634,7 +1554,6 @@ namespace tainicom.Aether.Physics2D.Dynamics
 
             return affected;
         }
-#endif
 
         /// <summary>
         /// Warning: This method is locked during callbacks.
@@ -1685,21 +1604,21 @@ namespace tainicom.Aether.Physics2D.Dynamics
             aabb.LowerBound = point - d;
             aabb.UpperBound = point + d;
 
-            _testPointPointTmp = point;
-            _testPointFixtureTmp = null;
+            _myFixture = null;
+            _point1 = point;
 
             // Query the world for overlapping shapes.
-            QueryAABB(_testPointDelegateCache, ref aabb);
+            QueryAABB(TestPointCallback, ref aabb);
 
-            return _testPointFixtureTmp;
+            return _myFixture;
         }
 
         private bool TestPointCallback(Fixture fixture)
         {
-            bool inside = fixture.TestPoint(ref _testPointPointTmp);
+            bool inside = fixture.TestPoint(ref _point1);
             if (inside)
             {
-                _testPointFixtureTmp = fixture;
+                _myFixture = fixture;
                 return false;
             }
 
@@ -1707,14 +1626,11 @@ namespace tainicom.Aether.Physics2D.Dynamics
             return true;
         }
 
-#if XNAAPI
         /// <summary>
         /// Returns a list of fixtures that are at the specified point.
         /// </summary>
         /// <param name="point">The point.</param>
         /// <returns></returns>
-        /// <remarks>Deprecated in version 1.5</remarks>
-        [Obsolete("Use QueryAABB(QueryCallback, ref AABB)")]
         public List<Fixture> TestPointAll(Vector2 point)
         {
             AABB aabb;
@@ -1722,25 +1638,24 @@ namespace tainicom.Aether.Physics2D.Dynamics
             aabb.LowerBound = point - d;
             aabb.UpperBound = point + d;
 
-            _testPointAllPointTmp = point;
-            _testPointAllFixturesTmp = new List<Fixture>();
+            _point2 = point;
+            _testPointAllFixtures = new List<Fixture>();
 
             // Query the world for overlapping shapes.
-            QueryAABB(_testPointAllDelegateCache, ref aabb);
+            QueryAABB(TestPointAllCallback, ref aabb);
 
-            return _testPointAllFixturesTmp;
+            return _testPointAllFixtures;
         }
 
         private bool TestPointAllCallback(Fixture fixture)
         {
-            bool inside = fixture.TestPoint(ref _testPointAllPointTmp);
+            bool inside = fixture.TestPoint(ref _point2);
             if (inside)
-                _testPointAllFixturesTmp.Add(fixture);
+                _testPointAllFixtures.Add(fixture);
 
             // Continue the query.
             return true;
         }
-#endif
 
         /// Shift the world origin. Useful for large worlds.
         /// The body shift formula is: position -= newOrigin
@@ -1772,9 +1687,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             if (IsLocked)
                 throw new InvalidOperationException("The World is locked.");
 
-#if LEGACY_ASYNCADDREMOVE
             ProcessChanges();
-#endif
 
             for (int i = BodyList.Count - 1; i >= 0; i--)
             {

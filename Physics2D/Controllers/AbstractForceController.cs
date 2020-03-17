@@ -4,13 +4,9 @@
  */
 
 using System;
+using Microsoft.Xna.Framework;
 using tainicom.Aether.Physics2D.Common.PhysicsLogic;
 using tainicom.Aether.Physics2D.Dynamics;
-#if XNAAPI
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-using Curve = Microsoft.Xna.Framework.Curve;
-using CurveKey = Microsoft.Xna.Framework.CurveKey;
-#endif
 
 namespace tainicom.Aether.Physics2D.Controllers
 {
