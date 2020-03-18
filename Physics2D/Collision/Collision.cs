@@ -1850,15 +1850,10 @@ namespace tainicom.Aether.Physics2D.Collision
             if (distanceSquared > radiusSquared) { // no collision.
                 return false;
             }
-            // Have a collision.
-            byte[] iEdges = new byte[2] {
-                (byte)edgeVertexIndexA0,
-                (byte)edgeVertexIndexA1,
-            };
             // Outputs.
             outEdgeVertex = vEdges[indexA];
 
-            vOut.ID.Features.IndexA = iEdges[indexA];
+            vOut.ID.Features.IndexA = (indexA == 0 ? (byte)edgeVertexIndexA0 : (byte)edgeVertexIndexA1);
             vOut.ID.Features.IndexB = vIn[indexB].ID.Features.IndexB;
             vOut.ID.Features.TypeA = (byte)ContactFeatureType.Vertex;
             vOut.ID.Features.TypeB = (byte)ContactFeatureType.Vertex;

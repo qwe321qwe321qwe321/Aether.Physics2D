@@ -207,6 +207,21 @@ namespace tainicom.Aether.Physics2D.Dynamics
             {
                 Debug.Assert(!float.IsNaN(value));
                 _friction = value;
+
+                if (Body != null) {
+                    // Flag associated contacts for reseting friction.
+                    ContactEdge edge = Body.ContactList;
+                    while (edge != null) {
+                        Contact contact = edge.Contact;
+                        Fixture fixtureA = contact.FixtureA;
+                        Fixture fixtureB = contact.FixtureB;
+                        if (fixtureA == this || fixtureB == this) {
+                            contact.ResetFriction();
+                        }
+
+                        edge = edge.Next;
+                    }
+                }
             }
         }
 

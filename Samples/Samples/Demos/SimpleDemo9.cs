@@ -68,7 +68,7 @@ namespace tainicom.Aether.Physics2D.Samples.Demos
             //_ramps.Add(World.CreateCircle(0.5f, 1f, new Vector2(10f, -11.5f), BodyType.Static));
 
             float[] friction = { 0.75f, 0.45f, 0.28f, 0.17f, 0.0f };
-            for (int i = 0; i < 5; ++i)
+            for (int i = 0; i < _rectangle.Length; ++i)
             {
                 _rectangle[i] = World.CreateRectangle(1.5f /*+ (i + 1) * 0.5f*/, 1.5f /*+ (i + 1) * 0.5f*/, 1f, radius: 0.5f);
                 _rectangle[i].BodyType = BodyType.Dynamic;
@@ -87,7 +87,7 @@ namespace tainicom.Aether.Physics2D.Samples.Demos
             ScreenManager.BatchEffect.View = Camera.View;
             ScreenManager.BatchEffect.Projection = Camera.Projection;
             ScreenManager.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, RasterizerState.CullNone, ScreenManager.BatchEffect);
-            for (int i = 0; i < 5; ++i)
+            for (int i = 0; i < _rectangle.Length; ++i)
             {
                 ScreenManager.SpriteBatch.Draw(_rectangleSprite.Texture, _rectangle[i].Position, null, Color.White, _rectangle[i].Rotation, _rectangleSprite.Origin, new Vector2(1.5f, 1.5f) * _rectangleSprite.TexelSize, SpriteEffects.FlipVertically, 0f);
             }
