@@ -29,31 +29,31 @@ namespace tainicom.Aether.Physics2D.Dynamics
             return body;
         }
 
-        public Body CreateEdge(Vector2 start, Vector2 end)
+        public Body CreateEdge(Vector2 start, Vector2 end, float radius = Settings.PolygonRadius)
         {
             Body body = CreateBody();
 
-            body.CreateEdge(start, end);
+            body.CreateEdge(start, end, radius);
             return body;
         }
 
-        public Body CreateChainShape(Vertices vertices, Vector2 position = new Vector2())
+        public Body CreateChainShape(Vertices vertices, Vector2 position = new Vector2(), float radius = Settings.PolygonRadius)
         {
             Body body = CreateBody(position);
 
-            body.CreateChainShape(vertices);
+            body.CreateChainShape(vertices, radius);
             return body;
         }
 
-        public Body CreateLoopShape(Vertices vertices, Vector2 position = new Vector2())
+        public Body CreateLoopShape(Vertices vertices, Vector2 position = new Vector2(), float radius = Settings.PolygonRadius)
         {
             Body body = CreateBody(position);
 
-            body.CreateLoopShape(vertices);
+            body.CreateLoopShape(vertices, radius);
             return body;
         }
 
-        public Body CreateRectangle(float width, float height, float density, Vector2 position = new Vector2(), float rotation = 0, BodyType bodyType = BodyType.Static)
+        public Body CreateRectangle(float width, float height, float density, Vector2 position = new Vector2(), float rotation = 0, BodyType bodyType = BodyType.Static, float radius = Settings.PolygonRadius)
         {
             if (width <= 0)
                 throw new ArgumentOutOfRangeException("width", "Width must be more than 0 meters");
@@ -64,7 +64,7 @@ namespace tainicom.Aether.Physics2D.Dynamics
             Body body = CreateBody(position, rotation, bodyType);
 
             Vertices rectangleVertices = PolygonTools.CreateRectangle(width / 2, height / 2);
-            body.CreatePolygon(rectangleVertices, density);
+            body.CreatePolygon(rectangleVertices, density, radius);
 
             return body;
         }
@@ -83,18 +83,18 @@ namespace tainicom.Aether.Physics2D.Dynamics
             return body;
         }
 
-        public Body CreatePolygon(Vertices vertices, float density, Vector2 position = new Vector2(), float rotation = 0, BodyType bodyType = BodyType.Static)
+        public Body CreatePolygon(Vertices vertices, float density, Vector2 position = new Vector2(), float rotation = 0, BodyType bodyType = BodyType.Static, float radius = Settings.PolygonRadius)
         {
             Body body = CreateBody(position, rotation, bodyType);
-            body.CreatePolygon(vertices, density);
+            body.CreatePolygon(vertices, density, radius);
             return body;
         }
 
-        public Body CreateCompoundPolygon(List<Vertices> list, float density, Vector2 position = new Vector2(), float rotation = 0, BodyType bodyType = BodyType.Static)
+        public Body CreateCompoundPolygon(List<Vertices> list, float density, Vector2 position = new Vector2(), float rotation = 0, BodyType bodyType = BodyType.Static, float radius = Settings.PolygonRadius)
         {
             //We create a single body
             Body body = CreateBody(position, rotation, bodyType);
-            body.CreateCompoundPolygon(list, density);
+            body.CreateCompoundPolygon(list, density, radius);
             return body;
         }
 

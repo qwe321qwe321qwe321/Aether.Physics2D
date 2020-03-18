@@ -59,18 +59,18 @@ namespace tainicom.Aether.Physics2D.Samples.Demos
             _border = new Border(World, ScreenManager, Camera);
 
             _ramps = new List<Body>();
-            _ramps.Add(World.CreateEdge(new Vector2(-20f, 11.2f), new Vector2(10f, 3.8f)));
-            _ramps.Add(World.CreateEdge(new Vector2(12f, 5.6f), new Vector2(12f, 3.2f)));
+            _ramps.Add(World.CreateEdge(new Vector2(-20f, 11.2f), new Vector2(10f, 3.8f), radius: 0.5f));
+            _ramps.Add(World.CreateEdge(new Vector2(12f, 5.6f), new Vector2(12f, 3.2f), radius: 0.5f));
             //_ramps.Add(World.CreateEdge(new Vector2(-10f, -4.4f), new Vector2(20f, 1.4f)));
-            _ramps.Add(World.CreateEdge(new Vector2(-12f, -2.6f), new Vector2(-12f, -5f)));
-            _ramps.Add(World.CreateEdge(new Vector2(-20f, -6.8f), new Vector2(10f, -11.5f)));
+            _ramps.Add(World.CreateEdge(new Vector2(-12f, -2.6f), new Vector2(-12f, -5f), radius: 0.5f));
+            _ramps.Add(World.CreateEdge(new Vector2(-20f, -6.8f), new Vector2(10f, -11.5f), radius: 0.5f));
             //_ramps.Add(World.CreateRectangle(30.36593486f + 1f, 1f, 1f, new Vector2(-5f, -9.15f), -0.157314733107f, BodyType.Static));
-            _ramps.Add(World.CreateCircle(0.5f, 1f, new Vector2(10f, -11.5f), BodyType.Static));
+            //_ramps.Add(World.CreateCircle(0.5f, 1f, new Vector2(10f, -11.5f), BodyType.Static));
 
             float[] friction = { 0.75f, 0.45f, 0.28f, 0.17f, 0.0f };
             for (int i = 0; i < 5; ++i)
             {
-                _rectangle[i] = World.CreateRectangle(1.5f /*+ (i + 1) * 0.5f*/, 1.5f /*+ (i + 1) * 0.5f*/, 1f);
+                _rectangle[i] = World.CreateRectangle(1.5f /*+ (i + 1) * 0.5f*/, 1.5f /*+ (i + 1) * 0.5f*/, 1f, radius: 0.5f);
                 _rectangle[i].BodyType = BodyType.Dynamic;
                 //_rectangle[i].IsBullet = true;
                 _rectangle[i].Position = new Vector2(-18f + 5.2f * i, 13.0f - 1.282f * i);

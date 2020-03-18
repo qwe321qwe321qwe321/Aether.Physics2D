@@ -913,65 +913,77 @@ namespace tainicom.Aether.Physics2D.Collision
             float sideOffset1 = -(tangent.X * v11.X + tangent.Y * v11.Y);
             float sideOffset2 = tangent.X * v12.X + tangent.Y * v12.Y;
 
-
+            // Check collision by two vertices distance and their radius.
+            ClipVertex collidedVertex;
+            Vector2 collideEdgeVertex;
+            float verticesDistanceSquared;
+            bool vertexVsVertex = VerticesCollideByRadius(out collidedVertex, out collideEdgeVertex, out verticesDistanceSquared, ref incidentEdge, v11, v12, iv1, iv2, totalRadius);
+          
             // Clip incident edge against extruded edge1 side edges.
             FixedArray2<ClipVertex> clipFacePoints;
-
-            FixedArray2<ClipVertex> clipVertexPoints;
-            float distVertices2;
-            Vector2 outEdgeVertex, outVerticesNormal;
-            // Clipping by two vertices distance and their radius.
-            int npVertexVsVertex = ClipEdgeVertexByRadius(out clipVertexPoints, out distVertices2, out outEdgeVertex, out outVerticesNormal, ref incidentEdge, v11, v12, iv1, iv2, totalRadius); // return 1 or 0.
             // Clipping by edge segement and two vertices.
             int npFaceVsVertex = ClipSegmentToLineTwoSides(out clipFacePoints, ref incidentEdge, -tangent, tangent, sideOffset1, sideOffset2, iv1, iv2); // return 0 or 2.
+            
             // No collision.
-            if (npFaceVsVertex < 2 && npVertexVsVertex < 1) {
+            if (npFaceVsVertex < 2 && !vertexVsVertex) {
                 return;
             }
             // Using face/edge vs vertex or vertex vs vertex.
             bool faceVsVertex = npFaceVsVertex == 2;
-            if (faceVsVertex && npVertexVsVertex == 1) { // If the both have a result.
+            if (faceVsVertex && vertexVsVertex) { // If the both have a result.
                 faceVsVertex = false;
                 // Compute the separation of the face/edge and compare with the distance of the two vertices.
                 for (int i = 0; i < npFaceVsVertex; i++) {
                     Vector2 value = clipFacePoints[i].V;
                     float separation = normalx * value.X + normaly * value.Y - frontOffset;
                     // If the min sparation is larger than the distance of the vertices 
-                    if (separation * separation <= distVertices2) {
+                    if (separation * separation <= verticesDistanceSquared) {
                         faceVsVertex = true; // then we choose the vertex vs vertex mode.
                         break;
                     }
                 }
             }
 
-            // Init clipping parameters.
-            int np = faceVsVertex ? npFaceVsVertex : npVertexVsVertex;
-            FixedArray2<ClipVertex> clipPoints = faceVsVertex ? clipFacePoints : clipVertexPoints;
-
-            // Now clipPoints2 contains the clipped points.
-            if (faceVsVertex) {
+            int pointCount = 0;
+            if (faceVsVertex) { // Face vs Vertex.
                 manifold.LocalNormal = localNormal;
                 manifold.LocalPoint = planePoint;
-            } else {
-                manifold.LocalNormal = Complex.Divide(ref outVerticesNormal, ref xf1.q);
-                manifold.LocalPoint = Transform.Divide(ref outEdgeVertex, ref xf1);
-            }
 
-            int pointCount = 0;
-            for (int i = 0; i < np; ++i)
-            {
-                if (faceVsVertex) {
+                for (int i = 0; i < npFaceVsVertex; ++i)
+                {
                     // Check if the separation is greater than total radius.
-                    Vector2 value = clipPoints[i].V;
+                    Vector2 value = clipFacePoints[i].V;
                     float separation = normalx * value.X + normaly * value.Y - frontOffset;
                     if (separation > totalRadius) {
                         continue;
                     }
-                } // vertex vs vertex mode does not need to check the radius.
+
+                    ManifoldPoint cp = manifold.Points[pointCount];
+                    Transform.Divide(clipFacePoints[i].V, ref xf2, out cp.LocalPoint);
+                    cp.Id = clipFacePoints[i].ID;
+
+                    if (flip) {
+                        // Swap features
+                        ContactFeature cf = cp.Id.Features;
+                        cp.Id.Features.IndexA = cf.IndexB;
+                        cp.Id.Features.IndexB = cf.IndexA;
+                        cp.Id.Features.TypeA = cf.TypeB;
+                        cp.Id.Features.TypeB = cf.TypeA;
+                    }
+
+                    manifold.Points[pointCount] = cp;
+
+                    ++pointCount;
+                }
+            } else { // Vertex vs Vertex.
+                Vector2 collideNormal = collidedVertex.V - collideEdgeVertex;
+                collideNormal.Normalize();
+                manifold.LocalNormal = Complex.Divide(ref collideNormal, ref xf1.q);
+                manifold.LocalPoint = Transform.Divide(ref collideEdgeVertex, ref xf1);
 
                 ManifoldPoint cp = manifold.Points[pointCount];
-                Transform.Divide(clipPoints[i].V, ref xf2, out cp.LocalPoint);
-                cp.Id = clipPoints[i].ID;
+                Transform.Divide(collidedVertex.V, ref xf2, out cp.LocalPoint);
+                cp.Id = collidedVertex.ID;
 
                 if (flip) {
                     // Swap features
@@ -1534,7 +1546,7 @@ namespace tainicom.Aether.Physics2D.Collision
                 rf.sideOffset1 = Vector2.Dot(rf.sideNormal1, rf.v1);
                 rf.sideOffset2 = Vector2.Dot(rf.sideNormal2, rf.v2);
 
-                /*
+                /* Original.
                 // Clip incident edge against extruded edge1 side edges.
                 FixedArray2<ClipVertex> clipPoints1;
                 FixedArray2<ClipVertex> clipPoints2;
@@ -1560,50 +1572,47 @@ namespace tainicom.Aether.Physics2D.Collision
                 // Clip incident edge against extruded edge1 side edges.
                 FixedArray2<ClipVertex> clipFacePoints;
 
-                FixedArray2<ClipVertex> clipVertexPoints;
-                float distVertices2;
-                Vector2 outEdgeVertex, outVerticesNormal;
-                // Clipping by two vertices distance and their radius.
+                ClipVertex collidedVertex;
+                float verticesDistanceSquared;
+                Vector2 collideEdgeVertex;
+                // Check collision by two vertices distance and their radius.
                 // In A frame.
-                int npVertexVsVertex = ClipEdgeVertexByRadius(out clipVertexPoints, out distVertices2, out outEdgeVertex, out outVerticesNormal, ref ie, rf.v1, rf.v2, rf.i1, rf.i2, totalRadius); // return 1 or 0.
+                bool vertexVsVertex = VerticesCollideByRadius(out collidedVertex, out collideEdgeVertex, out verticesDistanceSquared, ref ie, rf.v1, rf.v2, rf.i1, rf.i2, totalRadius);
                 // Clipping by edge segement and two vertices.
                 // In A frame.
                 int npFaceVsVertex = ClipSegmentToLineTwoSides(out clipFacePoints, ref ie, rf.sideNormal1, rf.sideNormal2, rf.sideOffset1,  rf.sideOffset2, rf.i1, rf.i2); // return 0 or 2.
                 
                 // No collision.
-                if (npFaceVsVertex < 2 && npVertexVsVertex < 1) {
+                if (npFaceVsVertex < 2 && !vertexVsVertex) {
                     return;
                 }
 
                 // Using face/edge vs vertex or vertex vs vertex.
                 bool faceVsVertex = npFaceVsVertex == 2;
-                if (faceVsVertex && npVertexVsVertex == 1) { // If the both have a result.
+                if (faceVsVertex && vertexVsVertex) { // If the both have a result.
                     faceVsVertex = false;
                     // Compute the separation of the face/edge and compare with the distance of the two vertices.
                     for (int i = 0; i < npFaceVsVertex; i++) {
-                        Vector2 value = clipFacePoints[i].V;
                         float separation = Vector2.Dot(rf.normal, clipFacePoints[i].V - rf.v1);
                         // If the min sparation is larger than the distance of the vertices 
-                        if (separation * separation <= distVertices2) {
+                        if (separation * separation <= verticesDistanceSquared) {
                             faceVsVertex = true; // then we choose the vertex vs vertex mode.
                             break;
                         }
                     }
                 }
 
-                // Init clipping parameters.
-                int np = faceVsVertex ? npFaceVsVertex : npVertexVsVertex;
-                FixedArray2<ClipVertex> clipPoints = faceVsVertex ? clipFacePoints : clipVertexPoints;
-
-                // Now clipPoints2 contains the clipped points.
+                // Set manifold
                 if (primaryAxis.Type == EPAxisType.EdgeA)
                 {
                     if (faceVsVertex) {
                         manifold.LocalNormal = rf.normal;
                         manifold.LocalPoint = rf.v1;
                     } else {
-                        manifold.LocalNormal = outVerticesNormal;
-                        manifold.LocalPoint = outEdgeVertex;
+                        Vector2 collideNormal = collidedVertex.V - collideEdgeVertex;
+                        collideNormal.Normalize();
+                        manifold.LocalNormal = collideNormal;
+                        manifold.LocalPoint = collideEdgeVertex;
                     }
                 }
                 else
@@ -1612,39 +1621,58 @@ namespace tainicom.Aether.Physics2D.Collision
                         manifold.LocalNormal = polygonB.Normals[rf.i1];
                         manifold.LocalPoint = polygonB.Vertices[rf.i1];
                     } else {
-                        manifold.LocalNormal = Complex.Divide(ref outVerticesNormal, ref xf.q); // To B frame.
-                        manifold.LocalPoint = Transform.Divide(ref outEdgeVertex, ref xf); // To B frame.
+                        Vector2 collideNormal = collidedVertex.V - collideEdgeVertex;
+                        collideNormal.Normalize();
+                        manifold.LocalNormal = Complex.Divide(ref collideNormal, ref xf.q); // To B frame.
+                        manifold.LocalPoint = Transform.Divide(ref collideEdgeVertex, ref xf); // To B frame.
                     }
                 }
 
                 int pointCount = 0;
-                for (int i = 0; i < np; ++i)
-                {
-                    float separation = Vector2.Dot(rf.normal, clipPoints[i].V - rf.v1);
-
-                    if (separation <= totalRadius)
+                if (faceVsVertex) { // Face vs Vertex.
+                    for (int i = 0; i < npFaceVsVertex; ++i)
                     {
-                        ManifoldPoint cp = manifold.Points[pointCount];
+                        float separation = Vector2.Dot(rf.normal, clipFacePoints[i].V - rf.v1);
 
-                        if (primaryAxis.Type == EPAxisType.EdgeA)
+                        if (separation <= totalRadius)
                         {
-                            Transform.Divide(clipPoints[i].V, ref xf, out cp.LocalPoint);
-                            cp.Id = clipPoints[i].ID;
-                        }
-                        else
-                        {
-                            cp.LocalPoint = clipPoints[i].V;
-                            cp.Id.Features.TypeA = clipPoints[i].ID.Features.TypeB;
-                            cp.Id.Features.TypeB = clipPoints[i].ID.Features.TypeA;
-                            cp.Id.Features.IndexA = clipPoints[i].ID.Features.IndexB;
-                            cp.Id.Features.IndexB = clipPoints[i].ID.Features.IndexA;
-                        }
+                            ManifoldPoint cp = manifold.Points[pointCount];
 
-                        manifold.Points[pointCount] = cp;
-                        ++pointCount;
+                            if (primaryAxis.Type == EPAxisType.EdgeA)
+                            {
+                                Transform.Divide(clipFacePoints[i].V, ref xf, out cp.LocalPoint);
+                                cp.Id = clipFacePoints[i].ID;
+                            }
+                            else
+                            {
+                                cp.LocalPoint = clipFacePoints[i].V;
+                                cp.Id.Features.TypeA = clipFacePoints[i].ID.Features.TypeB;
+                                cp.Id.Features.TypeB = clipFacePoints[i].ID.Features.TypeA;
+                                cp.Id.Features.IndexA = clipFacePoints[i].ID.Features.IndexB;
+                                cp.Id.Features.IndexB = clipFacePoints[i].ID.Features.IndexA;
+                            }
+
+                            manifold.Points[pointCount] = cp;
+                            ++pointCount;
+                        }
                     }
-                }
+                } else { // Vertex vs Vertex
+                    ManifoldPoint cp = manifold.Points[pointCount];
 
+                    if (primaryAxis.Type == EPAxisType.EdgeA) {
+                        Transform.Divide(collidedVertex.V, ref xf, out cp.LocalPoint);
+                        cp.Id = collidedVertex.ID;
+                    } else {
+                        cp.LocalPoint = collidedVertex.V;
+                        cp.Id.Features.TypeA = collidedVertex.ID.Features.TypeB;
+                        cp.Id.Features.TypeB = collidedVertex.ID.Features.TypeA;
+                        cp.Id.Features.IndexA = collidedVertex.ID.Features.IndexB;
+                        cp.Id.Features.IndexB = collidedVertex.ID.Features.IndexA;
+                    }
+
+                    manifold.Points[pointCount] = cp;
+                    ++pointCount;
+                }
                 manifold.PointCount = pointCount;
             }
 
@@ -1721,6 +1749,11 @@ namespace tainicom.Aether.Physics2D.Collision
             }
         }
 
+        /// <summary>
+        /// Call ClipSegmentToLine() twice for the two normals.
+        /// 用於Polygon collide方法中，後段需要clip輸入edge的兩個side normals時使用。
+        /// </summary>
+        /// <returns></returns>
         private static int ClipSegmentToLineTwoSides(out FixedArray2<ClipVertex> vOut, ref FixedArray2<ClipVertex> vIn, Vector2 normal1, Vector2 normal2, float offset1, float offset2, int vertexIndexA1, int vertexIndexA2) {
             FixedArray2<ClipVertex> clipPoints;
             vOut = new FixedArray2<ClipVertex>();
@@ -1790,89 +1823,48 @@ namespace tainicom.Aether.Physics2D.Collision
             return numOut;
         }
 
-        private static int ClipEdgeVertexByRadius(out FixedArray2<ClipVertex> vOut, out float distanceSquared, out Vector2 outEdgeVertex, out Vector2 outNormal, ref FixedArray2<ClipVertex> vIn, Vector2 edgeVertex0, Vector2 edgeVertex1, int edgeVertexIndexA0, int edgeVertexIndexA1, float totalRadius) {
-            vOut = new FixedArray2<ClipVertex>();
-            distanceSquared = 0;
+        /// <summary>
+        /// Check collision by two vertices distance and their radius.
+        /// 透過Radius檢查兩頂點與Edge兩頂點是否有碰撞，若有則輸出最短距離的頂點(vOut)以及Edge的頂點(outEdgeVertex)以及距離平方。
+        /// </summary>
+        /// <returns></returns>
+        private static bool VerticesCollideByRadius(out ClipVertex vOut, out Vector2 outEdgeVertex, out float distanceSquared, ref FixedArray2<ClipVertex> vIn, Vector2 edgeVertex0, Vector2 edgeVertex1, int edgeVertexIndexA0, int edgeVertexIndexA1, float totalRadius) {
+            vOut = new ClipVertex();
             outEdgeVertex = Vector2.Zero;
-            outNormal = Vector2.Zero;
             Vector2[] vEdges = new Vector2[2]{ edgeVertex0, edgeVertex1 };
             // Find minimum distance.
-            float minDistance2 = float.MaxValue;
+            distanceSquared = float.MaxValue;
             int indexB = -1;
             int indexA = -1;
             for (int i = 0; i < 2; i++) {
                 for (int j = 0; j < 2; j++) {
                     float dist2 = (vIn[i].V - vEdges[j]).LengthSquared();
-                    if (dist2 < minDistance2) {
-                        minDistance2 = dist2;
+                    if (dist2 < distanceSquared) {
+                        distanceSquared = dist2;
                         indexB = i;
                         indexA = j;
                     }
                 }
             }
             float radiusSquared = totalRadius * totalRadius;
-            if (minDistance2 > radiusSquared) { // no collision.
-                return 0;
+            if (distanceSquared > radiusSquared) { // no collision.
+                return false;
             }
-            distanceSquared = minDistance2;
-            outEdgeVertex = vEdges[indexA];
-            outNormal = vIn[indexB].V - vEdges[indexA];
-            outNormal.Normalize();
-            ClipVertex cv = vOut[0];
+            // Have a collision.
             byte[] iEdges = new byte[2] {
                 (byte)edgeVertexIndexA0,
                 (byte)edgeVertexIndexA1,
             };
-            cv.ID.Features.IndexA = iEdges[indexA];
-            cv.ID.Features.IndexB = vIn[indexB].ID.Features.IndexB;
-            cv.ID.Features.TypeA = (byte)ContactFeatureType.Vertex;
-            cv.ID.Features.TypeB = (byte)ContactFeatureType.Vertex;
-            cv.V = vIn[indexB].V;
-            vOut[0] = cv;
-            return 1;
-        }
+            // Outputs.
+            outEdgeVertex = vEdges[indexA];
 
-        private static int ClipEdgeVertexByRadius2(out FixedArray2<ClipVertex> vOut, out float distanceSquared, out Vector2 outEdgeVertex, out Vector2 outNormal, ref FixedArray2<ClipVertex> vIn, Vector2 edgeVertex0, Vector2 edgeVertex1, int edgeVertexIndexA0, int edgeVertexIndexA1, float totalRadius) {
-            vOut = new FixedArray2<ClipVertex>();
-            distanceSquared = 0;
-            outEdgeVertex = Vector2.Zero;
-            outNormal = Vector2.Zero;
-            Vector2[] vEdges = new Vector2[2]{ edgeVertex0, edgeVertex1 };
-            // Find minimum distance.
-            float minDistance2 = float.MaxValue;
-            int indexB = -1;
-            int indexA = -1;
-            for (int i = 0; i < 2; i++) {
-                for (int j = 0; j < 2; j++) {
-                    float dist2 = (vIn[i].V - vEdges[j]).LengthSquared();
-                    if (dist2 < minDistance2) {
-                        minDistance2 = dist2;
-                        indexB = i;
-                        indexA = j;
-                    }
-                }
-            }
-            totalRadius += Settings.LinearSlop;
-            float radiusSquared = totalRadius * totalRadius;
-            if (minDistance2 > radiusSquared) { // no collision.
-                return 0;
-            }
-            distanceSquared = minDistance2;
-            outEdgeVertex = vEdges[indexA];
-            outNormal = vIn[indexB].V - vEdges[indexA];
-            outNormal.Normalize();
-            ClipVertex cv = vOut[0];
-            byte[] iEdges = new byte[2] {
-                (byte)edgeVertexIndexA0,
-                (byte)edgeVertexIndexA1,
-            };
-            cv.ID.Features.IndexA = iEdges[indexA];
-            cv.ID.Features.IndexB = vIn[indexB].ID.Features.IndexB;
-            cv.ID.Features.TypeA = (byte)ContactFeatureType.Vertex;
-            cv.ID.Features.TypeB = (byte)ContactFeatureType.Vertex;
-            cv.V = vIn[indexB].V;
-            vOut[0] = cv;
-            return 1;
+            vOut.ID.Features.IndexA = iEdges[indexA];
+            vOut.ID.Features.IndexB = vIn[indexB].ID.Features.IndexB;
+            vOut.ID.Features.TypeA = (byte)ContactFeatureType.Vertex;
+            vOut.ID.Features.TypeB = (byte)ContactFeatureType.Vertex;
+            vOut.V = vIn[indexB].V;
+
+            return true;
         }
 
         /// <summary>
